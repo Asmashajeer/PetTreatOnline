@@ -1,0 +1,242 @@
+<%-include("../partials/user/header.ejs") -%>
+	
+	<!-- breadcrumb -->
+	<section>
+		<div class="container m-b-50">
+			<div class="bread-crumb flex-w p-l-25 p-r-15 p-t-60 p-lr-0-lg"style="position:relative;top:45px">
+				<a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+					Home
+					<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+				</a>
+				<a href="/shop" class="stext-109 cl8 hov-cl1 trans-04">
+					Shop
+					<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+				</a>
+				<span  class="stext-109 cl8 hov-cl1 trans-04">
+					<%=currentCategory.name%>					
+				</span>
+				<%currentCategory.name%>
+				
+			</div>
+		</div>
+	</section>
+	<!-- Product -->
+	<section class="bg0 p-t-23 p-b-140">
+		<div class="container">
+			<div class="p-b-10">
+				<h6 class="ltext-108 cl5">
+					<%=currentCategory.name%> Products 
+				</h6>
+			</div>
+
+			<div class="flex-w flex-sb-m p-b-52">
+				<!-- <div class="flex-w flex-l-m filter-tope-group m-tb-10">
+					<a class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1" href="/shop">
+						All Products
+					</a>			
+					
+				</div> -->
+
+				<div class="flex-w flex-c-m m-tb-10">
+					<div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
+						<i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
+						<i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+						 Filter
+					</div>
+
+					<div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-search">
+						<i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
+						<i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+						Search
+					</div>
+				</div>
+				
+				<!-- Search product -->
+				<div class="dis-none panel-search w-full p-t-10 p-b-15">
+					<div class="bor8 dis-flex p-l-15">
+						<button id="btSearch" class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
+							<i class="zmdi zmdi-search"></i>
+						</button>
+
+						<input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" id="search" name="search" placeholder="Search">
+					</div>
+				</div>
+
+				<!-- Filter -->
+				<div class="dis-none panel-filter w-full p-t-10">
+					<div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
+						<div class="filter-col1 p-r-10p-b-27">
+							<div class="mtext-102 cl2 p-b-15">
+								Sort By
+							</div>
+							<ul>
+								<li class="p-b-6">
+									<a href='' class="filter-link stext-106 trans-04" data-filter="new-arrivals">
+										New Arrivals
+									</a>
+								</li>								
+							</ul>
+							
+						</div>
+						<div class="filter-col1 p-r-10 p-b-27">							
+							<ul>			
+								<li class="p-b-6">
+									<a href='' class="filter-link stext-106 trans-04" data-filter="price-low-high">
+										Price: Low to High
+									</a>
+								</li>
+								<li class="p-b-6">
+									<a href='' class="filter-link stext-106 trans-04" data-filter="price-high-low">
+										Price: High to Low
+									</a>
+								</li>
+							</ul>
+							
+						</div>
+						<div class="filter-col1 p-r-10 p-b-27">						
+							
+							<ul>
+								<li class="p-b-6">
+									<a href='' class="filter-link stext-106 trans-04" data-filter="A-Z">
+										Product: Aa-Zz
+									</a>
+								</li>
+								<li class="p-b-6">
+									<a href='' class="filter-link stext-106 trans-04" data-filter="Z-A">
+										Product: Zz-Aa
+									</a>
+								</li>
+							</ul>
+						</div>					
+
+						
+					</div>
+				</div>
+			</div>
+			<input type="hidden" id='activeCategory' name="activeCategory" value="<%currentCategory._id%>">
+
+			<div id='productGrid' class="row isotope-grid">
+				<% products.forEach(product=>{%>
+					<div  class="col-sm-4 col-md-3 col-lg-2 p-b-35 isotope-item mx-5 <%=product.category=".*"%>>">
+						<!-- Block2 --> 
+						<div class="block2">
+							<div class="block2-pic hov-img0  product-card">
+								<%if(product.productOffer>0){%>
+									<span class="offer-badge bg-danger   ">Offer</span>
+								<%}%>	
+								<img src="/uploads/re-image/<%=product.productImages[0]%>" alt="IMG-PRODUCT">								
+							</div>
+
+							<div class="block2-txt flex-w flex-t p-t-14">
+								<div class="block2-txt-child1 flex-col-l ">
+									<a href="/productDetails?id=<%=product._id%>" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+										<%=product.productName%>
+									</a>
+									<%if(product.productOffer>0){%>
+										<s><%=product.regularPrice.toFixed(2)%></s>
+										<span class="text-danger"><%=product.salePrice.toFixed(2)%></span>											
+										<span class="badge rounded-pill bg-danger  ">Offer</span>
+									<%}else{%>
+										<%=product.salePrice.toFixed(2)%>
+									<%}%>							
+								</div>
+								<%if(locals.user){%>
+									<div class="block2-txt-child2 flex-r p-t-3">
+										<a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" data-product-id="<%=product._id%>">
+											<img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png" alt="ICON">
+											<img class="icon-heart2 dis-block trans-04 ab-t-l" src="images/icons/icon-heart-02.png" alt="ICON">
+										</a>
+									</div>
+								<%}%>	
+							</div>
+						</div>
+					</div> 
+				<%})%>
+
+				<!-- Load more
+				<div class="flex-c-m flex-w w-full p-t-45">
+					<a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
+						Load More
+					</a>
+				</div> -->
+			</div>	
+		</div>
+	</section>
+	<script>
+		document.addEventListener("DOMContentLoaded", () => {
+					
+
+			const filterlinks = document.querySelectorAll(".filter-link");
+			const productList = document.getElementById("product-list");
+			const productGrid= document.getElementById('productGrid');
+			const activeCategory=document.getElementById('activeCategory').value;
+			const btSearch =document.getElementById('btSearch');
+			const search=document.getElementById('search');
+		
+			function updateProductList(data){
+					productGrid.innerHTML = "";
+								// Render the new products dynamically
+								data.forEach(product => {									
+										var productCard = document.createElement('div');
+										productCard.className = "col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item";
+										// Set the innerHTML property with template literals
+										productCard.innerHTML = `
+											<div class="block2-pic hov-img0">
+												<img src="/uploads/re-image/${product.productImages[0]}" alt="${product.productName}" />
+											</div>
+											<div class="block2-txt flex-w flex-t p-t-14">
+												<a href="/productDetails?id=${product._id}" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">${product.productName}</a>
+												<br><span class="stext-105 cl3">$${product.regularPrice}</span>
+											</div>	`;									
+										productGrid.appendChild(productCard);
+								})	
+			}
+
+			
+			
+			
+			//------filter--------
+			filterlinks.forEach(link => {
+				link.addEventListener("click", function (e) {					
+					e.preventDefault(); // Prevent default link behavior
+					const filter = this.getAttribute("data-filter");
+					const filterurl=`/shop/filter?categoryId=${activeCategory.value}&filter=${filter}`;
+					console.log(filterurl);
+					fetch(filterurl)
+					.then((response)=>response.json())
+					.then((data)=>{
+						updateProductList(data)
+					}).catch(error => console.error("Error fetching products:", error));	
+				})
+			});	
+
+			//--------------- search products------------
+			search.addEventListener('input',function(e){
+					searchInput=search.value;
+					fetch(`/search?search=${searchInput}`)
+					.then(response=>response.json())
+					.then(data=>{
+						updateProductList(data)
+					}).catch(error=>console.error("Error fetching products:", error));
+				
+				})
+
+
+
+		});
+			
+		
+	</script>	
+
+	<!-- Footer -->
+	<%- include ('../partials/user/footer') -%>
+
+
+	<!-- Back to top -->
+	<div class="btn-back-to-top" id="myBtn">
+		<span class="symbol-btn-back-to-top">
+			<i class="zmdi zmdi-chevron-up"></i>
+		</span>
+	</div>
+
+	

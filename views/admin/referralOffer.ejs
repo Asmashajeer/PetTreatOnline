@@ -1,0 +1,194 @@
+
+<%- include("../../views/partials/admin/header") %>
+   
+
+    <style>
+        .form-container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        .card {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            height: 100%;
+            position: relative;
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+        }
+        .display-card {
+            background-color: #f8f9fa;
+        }
+        .amount-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        .amount-label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .edit-link {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 14px;
+            color: #0d6efd;
+            text-decoration: none;
+        }
+        .edit-link:hover {
+            text-decoration: underline;
+            color: #0a58ca;
+        }
+    </style>
+</head>
+<body>
+    <div  class="container-fluid mt-2 bg-custom">
+        <div class="form-container align-items-center">            
+            <div class="row mt-5">
+                <%if(refOffer.length>0){%> 
+                <!-- Display Card on Left Side -->                
+                    <div class="card display-card col-md-4 mb-4 mb-md-0">
+                       
+                            <%refOffer.forEach(offer=>{%>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">Current  Referral Offer</h6>
+                                <span class="badge bg-success" id="statusBadge">Active</span>
+                            </div>                       
+                            <div class="card-body p-4">
+                                <div class="mb-4 text-center">
+                                    <div class="amount-label">Referrer Reward</div>
+                                    <div class="amount-display" id="displayReferrerAmount">₹<%=offer.refererAmount%></div>
+                                </div>
+                                
+                                <div class="mb-4 text-center">
+                                    <div class="amount-label">Referee Reward</div>
+                                    <div class="amount-display" id="displayRefereeAmount">₹<%=offer.refereeAmount%></div>
+                                </div>
+                                <!-- <div class="mb-4 text-center">
+                                    <div class="amount-label">Minimum purchase Amount for Reward</div>
+                                    <div class="amount-display" id="displayRefereeAmount">₹<%=offer.minimumAmount%></div>
+                                </div> -->
+                                <div class="text-center mt-4 d-none">
+                                    <div class="alert alert-info" role="alert">
+                                        <small></small>
+                                    </div>
+                                </div>
+                            </div>                         
+                            <a href="/admin/removeReferralOffer/<%=offer._id%>" class="edit-link" id="<%=offer._id%>">
+                                <i class="fas fa-trash"></i> Remove
+                            </a>
+                            <%})%>            
+                    </div>
+               
+                <%}else{%>   
+                <!-- Form Card on Right Side -->
+           
+                <div class=" col-md-6 ">
+                    <div><h6 class="text-center" >No  referral Offer</h6>   </div>
+                    <div class="card">
+                        <div class="card-header p-3">
+                            <h6 class="mb-0">Add  Referral Offer</h6>
+                        </div>
+                        <div class="card-body p-4">
+                          <form id="referralForm" method="post" action="/admin/addReferalOffer">
+                       
+                                <div class="mb-3">                                    
+                                    <div class="input-group">
+                                        <span class="input-group-text">₹</span>
+                                        <input type="number" class="form-control" name="refererAmount" id="referrerAmount" min="10" step="0.01"  placeholder="Referrer Amount">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">                                 
+                                    <div class="input-group">
+                                        <span class="input-group-text">₹</span>
+                                        <input type="number" class="form-control" name="refereeAmount" id="refereeAmount" min="10" step="0.01" placeholder="Referee Amount" required>
+                                    </div>
+                                </div>
+                                <!-- <div class="mb-3">                                 
+                                    <div class="input-group">
+                                        <span class="input-group-text">₹</span>
+                                        <input type="number" class="form-control" name="minimumAmount" id="minimumAmount" min="500" step="0.01" placeholder="Minimum purchase Amount" required>
+                                    </div>
+                                </div> -->
+                                <div class="mb-3">
+                                    <!-- <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="isActive" checked>
+                                        <label class="form-check-label" for="isActive">
+                                            Active Offer
+                                        </label>
+                                    </div> -->
+                                </div>
+                                
+                                <div class="d-flex justify-content-end mt-4">
+                                    <button type="button" class="btn btn-outline-secondary me-2">Cancel</button>
+                                    <button type="submit" class="btn btn-secondary">Save Referral Offer</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            <%}%>     
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Update display values in real-time as user inputs change
+        document.getElementById('referrerAmount').addEventListener('input', updateDisplayValues);
+        document.getElementById('refereeAmount').addEventListener('input', updateDisplayValues);
+        document.getElementById('isActive').addEventListener('change', updateActiveStatus);
+        console.log
+        // Edit link functionality
+        document.getElementById('editLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            // Focus on the first input field
+            document.getElementById('referrerAmount').focus();
+        });
+        
+        function updateDisplayValues() {
+            const referrerAmount = document.getElementById('referrerAmount').value || 0;
+            const refereeAmount = document.getElementById('refereeAmount').value || 0;
+            
+            document.getElementById('displayReferrerAmount').textContent = '$' + parseFloat(referrerAmount).toFixed(2);
+            document.getElementById('displayRefereeAmount').textContent = '$' + parseFloat(refereeAmount).toFixed(2);
+        }
+        
+        function updateActiveStatus() {
+            const isActive = document.getElementById('isActive').checked;
+            const statusBadge = document.getElementById('statusBadge');
+            
+            if (isActive) {
+                statusBadge.textContent = 'Active';
+                statusBadge.className = 'badge bg-success';
+            } else {
+                statusBadge.textContent = 'Inactive';
+                statusBadge.className = 'badge bg-secondary';
+            }
+        }
+
+        document.getElementById('referralForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Get form values
+            const formData = {
+                referrerAmount: document.getElementById('referrerAmount').value,
+                refereeAmount: document.getElementById('refereeAmount').value,
+                isActive: document.getElementById('isActive').checked
+            };
+            
+            // Here you would typically send this data to your backend
+            console.log('Form Data:', formData);
+            
+            // Show success message (in a real implementation, this would happen after successful API response)
+            alert('Referral offer created successfully!');
+        });
+    </script>
+</body>
+</html>
+                   

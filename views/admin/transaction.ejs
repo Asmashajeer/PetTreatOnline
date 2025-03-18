@@ -1,0 +1,202 @@
+<%- include("../../views/partials/admin/header") %>
+
+
+  <style>
+    .transaction-table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+    }
+    .transaction-table tr:hover {
+      background-color: #f1f5f9;
+    }
+    .badge-deposit {
+      background-color: #28a745;
+    }
+    .badge-withdrawal {
+      background-color: #dc3545;
+    }
+    .badge-transfer {
+      background-color: #17a2b8;
+    }
+    .badge-payment {
+      background-color: #fd7e14;
+    }
+    .page-header {
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      padding: 1rem 0;
+    }
+    .page-footer {
+      background-color: #212529;
+      color: #fff;
+      padding: 1.5rem 0;
+    }
+    .payment-method-icon {
+      width: 24px;
+      height: 24px;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  
+    <div class="container  container-fluid  bg-custom">
+      <div class="row align-items-center">
+        <div class=" text-center pb-3">
+            <h2 class="h3">Transaction List</h2>
+        </div>        
+      </div>
+      <div class=" ml-auto">
+        <ul class="nav justify-content-end">
+          <li class="nav-item">
+            <a class="nav-link text-dark" href="/admin/dashboard"><i class="fas fa-home"></i> Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark active" href="#"><i class="fas fa-exchange-alt"></i> Transactions</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark" href="/admin/SalesReport"><i class="fas fa-chart-bar"></i> Reports</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark" href="#"><i class="fas fa-cog"></i> Settings</a>
+          </li>
+        </ul>
+      </div>
+    
+
+  <!-- Main Content -->
+  <main class="container pt-4 container-fluid  my-0 pb-1 bg-custom">   
+
+    <!-- Filters -->
+    <div class="card my-0 shadow-sm">
+        <div class="card-header text-center">
+            <h6>All Transactions</h6>
+        </div>
+      <div class="card-body">
+        <form class="row g-3" id="filterForm"  action="/admin//transactions" method="GET">
+          <div class="col-md-2">
+            <label for="dateFrom" class="form-label">Date From</label>
+            <input type="date" class="form-control" id="dateFrom" name="dateFrom">
+          </div>
+          <div class="col-md-2">
+            <label for="dateTo" class="form-label">Date To</label>
+            <input type="date" class="form-control" id="dateTo" name="dateTo">
+          </div>
+          <div class="col-md-2">
+            <label for="transactionType" class="form-label">Transaction Type</label>
+            <select class="form-select" id="transactionType" name="transactionType">
+              <option value="">All Types</option>
+              <option value="Credit">Credit</option>
+              <option value="Debit">Debit</option>              
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label for="paymentMethod" class="form-label">Payment Method</label>
+            <select class="form-select" id="paymentMethod" name="paymentMethod" >
+              <option value="">All Methods</option>
+              <option value="COD">Cash On Delivery</option>
+              <option value="razorpay">RazorPay</option>
+              <option value="wallet">Wallet</option>
+              <option value="Refund">Refund</option>
+            </select>
+          </div>
+          
+          <div class="col-md-2 d-flex align-items-end">
+            
+              <button type="submit" class="btn btn-primary mx-2 ">Apply Filters</button>
+              <button type="reset" id="reset" class="btn btn-outline-secondary" onclick="resetToDeafault(event);">Reset</button>
+            
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Transaction Table -->
+    <div class="card shadow">
+      <div class="card-body p-0 mb-3">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0 transaction-table">
+            <thead>
+              <tr>
+                <th>Transaction ID</th>
+                
+                <th>Transaction Date</th>
+                <th>User</th>
+                <th>Transaction Type</th>
+                <th>Payment Method</th>
+                <th>Amount</th>
+                <th>Description</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+               <%data.forEach(entry=>{%>              
+                    <tr>
+                        <td><%=entry.transactionId%></td>
+                        <td class="d-none"><%=entry.orderId%></td>
+                        <td><%=moment(entry.createdAt).format('DD-MM-yyyy')%></td>
+                        <td><%=entry.userId.name%></td>
+                        <td><span class="badge bg-success"><%=entry.transactionType%></span></td>
+                        <td><%=entry.paymentMethod%> </td>
+                        <td class="text-success fw-bold"><%=entry.amount%></td>
+                        <td><%=entry.description%></td>
+                        <td>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="viewOrder('<%=entry.orderId%>')"><i class="fas fa-eye"></i></button>
+                        <!-- <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button> -->
+                        
+                        </td>
+                    </tr>
+                <%})%>
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Pagination -->
+    <div class="pagination d-flex justify-content-center  pb-2">
+        <%if (currentPage>1){%>
+            <a href="?page=<%= currentPage-1 %>">&laquo;</a>
+        <%}%>
+         <%for(let i=1;i<=totalPages;i++){%> 
+            <%if(i==currentPage){%>
+                <span  class="current-page bg-custom "><%= i %></span>
+            <%}else{%>
+                <a href="?page=<%= i %>"><%= i %></a>
+        <%}}%>
+        <%if (currentPage<totalPages){%>
+            <a href="?page=<%= currentPage+1 %>"> &raquo; </a>
+        <% }%>      
+    </div>
+    </div>
+
+    
+  </main>
+
+  <!-- Footer -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+  <!-- Bootstrap JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+  const form= document.getElementById('filterForm');
+  const reset= document.getElementById('reset');
+  
+  function  viewOrder(orderId){
+   
+    window.location.href=`/admin/orders/EditOrderStatus/${orderId}`;
+  }
+
+  function resetToDeafault(event){
+    event.preventDefault();
+    // form.reset();
+    window.location.href=`/admin/transactions`;
+  }
+</script>
+
+
+
+
+
+
+<%- include("../../views/partials/admin/footer") %>

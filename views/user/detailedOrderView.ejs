@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="images/icons/favicon.png"/>
+    <title>Order Details</title>
+    
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+
+  <body>
+    
+
+   <!-- breadcrumb -->
+    <section>
+        <div class="container m-b-50">
+            <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-60 p-lr-0-lg "style="position:relative;top:45px; color:#dead65">
+                <a href="/" class="stext-109 cl8 hov-cl1 trans-04 text-decoration-none text-dark text-muted">
+                    Home
+                    <i class="fa fa-angle-right m-l-9 m-r-10 text-muted" aria-hidden="true"></i>
+                </a>
+                <a href="/profile" class="stext-109 cl8 hov-cl1 trans-04 text-decoration-none text-dark text-muted">
+                    profile
+                    <i class="fa fa-angle-right m-l-9 m-r-10 text-muted" aria-hidden="true"></i>
+                </a>
+                <a href="/profile?tab=orders" class="stext-109 cl8 hov-cl1 trans-04 text-decoration-none text-dark text-muted">
+                    Orders
+                    <i class="fa fa-angle-right m-l-9 m-r-10 text-muted" aria-hidden="true"></i>
+                </a>
+
+                
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container mt-5 pt-3 clearfix">
+        <!-- Header with Actions -->
+        <div class="d-flex justify-content-between align-items-center mb-4 col-md-10">
+            <h3>Order <%=order.orderId%></h3>
+            <div class="btn-group">
+                <%if(order.paymentMethod==='razorpay' && order.paymentStatus==='Pending'){%>
+                    <button  onclick="retrypayment(event,'<%=order.orderId%>')" class="btn btn-warning" on >
+                        <i class="fas fa-file-invoice"></i> Retry Payment
+                    </button>
+                <%}%>    
+                <button  onclick="getInvoice('<%=order.orderId%>')" class="btn btn-primary" on >
+                    <i class="fas fa-file-invoice"></i> Invoice
+                </button>
+             </div>
+        </div>
+
+        <!-- Order Status -->
+        <div class="card mb-4 col-md-10">
+            <div class="card-body ">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <h6 class="text-muted">Order Status</h6>                       
+                        <span id="orderstatus" class="badge bg-secondary  fs-6"><%=order.status%></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <h6 class="text-muted">Order Date</h6>
+                        <p class="mb-0"><%=new Date(order.createdOn).toLocaleDateString("en-GB")%></p>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <h6 class="text-muted">Payment Status</h6>
+                        <span class="badge bg-success fs-6"><%=order.paymentStatus%></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <h6 class="text-muted">Payment Method</h6>
+                        <p class="mb-0"><%=order.paymentMethod%></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row col-md-10 ">
+            <!-- Customer Information -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Customer Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6><%=order.userId.name%></h6>
+                        <p class="mb-2">Email: <%=order.userId.email%></p>
+                        <p class="mb-2">Phone: <%=address.phone%></p>
+                        <hr>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipping Information -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Shipping Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6><%=address.address%></h6>
+                        <p class="mb-3">
+                            <%=address.city%> <%=address.landmark%><br> <%=address.state%><br>
+                          <%=address.pincode%><br>
+                           
+                            
+                        </p>
+                        <hr>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Items -->
+        
+        <div class="col-md-10 card mb-4 clearfix">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Order Items</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="tableData">
+                        <thead>                           
+                                <tr>
+                                    <th>Product</th>
+                                    <th>product ID</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th class="text-end">Total</th>
+                                </tr>                                
+                        </thead>
+                        <tbody id="orderItems">
+                        <%order.orderItems.forEach(item=>{%> 
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="/uploads/re-image/<%=item.productImage%>" style=" width:15%" alt="Product" class="me-2">
+                                        <div>
+                                            <h6 class="mb-0"><%=item.productName%></h6>                                            
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><%=item.product%></td>
+                                <td><%=item.price%></td>
+                                <td><%=item.quantity%></td>
+                                <td class="text-end"><%=item.subtotal%></td>
+                                <%if(item.returnStatus==='Return Approved'){%>
+                                    <td><span class="badge bg-success text-white">Returned</span></td>
+                                <%}else if(order.status!=='Cancelled' && order.status!=='Delivered' && item.returnStatus!=='Return Request' && item.returnStatus!=='Return Approved' && item.returnStatus!=='Return Rejected'){%>
+                                        <%if(order.orderItems.length<2){%>
+                                            <td><a href="/orders/cancelOrder/<%=order.orderId%>" onclick="return confirmation('Are you sure ,you want to Cancel Order?')" class="btn btn-outline-danger btn-sm">Cancel</a></td>
+                                        <%}else{%>
+                                            <td><a href="#" onclick="cancelAnItem(event,'<%=order.orderId%>', '<%=item.product%>','<%=item.quantity%>','<%=item.price%>')" class="btn btn-sm btn-outline-danger">Cancel</a> </td>
+                                        <%}%> 
+                                <%}else if(order.status==='Delivered' && item.returnStatus!=='Return Request'&& item.returnStatus!=='Returned'){%>
+                                     <%if(moment().isBefore(moment(order.deliveryDate).add(7,'days')) ){%>                                         
+                                            <td><a href="#" onclick="returnAnItemForm(event,'<%=order.orderId%>', '<%=item.product%>', '<%=item.productName%>','<%=item.quantity%>','<%=item.price%>')" class="btn btn-sm btn-outline-info">Return</a></td>                                                                                                              
+                                    <%}%>   
+                                <%}else if(item.returnStatus==='Return Request'){%> 
+                                    <td> <span class="badge bg-warning text-dark">Return Requested</span></td>
+                                <%}else{%>
+                                    <td><span class="badge bg-success text-white">Returned</span></td>
+                                <%}%>
+                            </tr>   
+                        <%})%>    
+                        </tbody>
+                        <tfoot id="tfoot">
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Subtotal:</strong></td>
+                                <td class="text-end"><%=order.totalPrice%></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Delivery:</strong></td>
+                                <td class="text-end"><%=order.deliveryPrice%></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Discount:</strong></td>
+                                <td class="text-end"><%=order.discount%></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                                <td class="text-end"><strong><%=order.orderPrice%></strong></td>
+                            </tr>
+                        </tfoot>                         
+                    </table>
+                    
+                </div>
+            </div> 
+            
+            
+        </div>   
+         <!-- Order Timeline -->
+       
+            <div class="card mb-4 col-md-10 clearfix">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Order Timeline</h5>
+                </div>
+                <div class="card-body ">
+                    <div class="timeline">
+                        <%if(order.status==="Delivered"){%>
+                            <div class="mb-3">
+                                <h6 class="mb-1">Order Delivered</h6>
+                                <small class="text-muted"><%=new Date(order.deliveryDate).toLocaleDateString("en-GB")%></small>
+                                <p class="mb-0">Package was delivered to customer</p>
+                            </div>
+                        <%}%> 
+                        <%if(order.shippingDate){%>
+                            <div class="mb-3">
+                                <h6 class="mb-1">Order Shipped</h6>
+                                <small class="text-muted"><%=new Date(order.shippingDate).toLocaleDateString("en-GB")%></small>
+                                <p class="mb-0">Order has been shipped </p>
+                            </div> 
+                        <%}%>   
+                    
+                        <div>
+                            <h6 class="mb-1">Order Placed</h6>
+                            <small class="text-muted"><%=new Date(order.createdOn).toLocaleDateString("en-GB")%></small>
+                            <p class="mb-0">Order was placed by customer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+    </div>   
+       
+   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.onload = function() {
+            console.log("Moment.js version:", moment.version); // Check if moment is loaded
+        };
+       async function cancelAnItem(event,orderId,cancelledProductId,cancelledQuantity,cancelledPrice){
+            event.preventDefault();
+            console.log('------------',orderId,cancelledProductId,cancelledQuantity,cancelledPrice);
+            try{
+                const response=await fetch('/order/cancelAnItem',{
+                    method:'PUT',
+                    headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({orderId,cancelledProductId,cancelledQuantity,cancelledPrice})
+                });
+                const data=await response.json();
+                console.log(data.order.orderItems);
+                updateOrderDetails(orderId,data.order);
+
+            }catch(error){
+                console.log("Cannot cancel this item",error);
+            }
+       }
+      function  returnAnItemForm(event,orderId,productId,productName,quantity,price){
+            event.preventDefault();
+            window.location.href = `/orders/returnAnItemRequest/${orderId}/${productId}/${productName}/${quantity}/${price}`;           
+        }
+
+        async function returnAnItem(event,orderId,returnProductId,returnQuantity,returnPrice){
+            
+            event.preventDefault();
+
+            console.log('--------------------');
+            try{
+                const response=await fetch('/order/returnAnItem',{
+                    method:'PUT',
+                    headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({orderId,returnProductId,returnQuantity,returnPrice})
+                });
+                const data=await response.json();
+                console.log(data.order.orderItems);
+                updateOrderDetails(orderId,data.order);
+
+            }catch(error){
+                console.log("Cannot returnl this item",error);
+            }
+        }
+
+        async function returnAnOrder(event,orderId){
+            try{
+                const response=await fetch('/order/returnAnOrder',{
+                    method:'PUT',
+                    headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({orderId})
+                });
+                const data=await response.json();
+
+                console.log(data.order.orderItems);
+                
+
+            }catch(error){
+                console.log("Cannot returnl this item",error);
+            }
+        }
+
+       function  updateOrderDetails(orderId,order){
+        console.log("Order Data:", order);
+        console.log("Order Items:", order?.orderItems);
+        const tbody= document.getElementById('orderItems');
+        const tfoot= document.getElementById('tfoot');
+         const tableData= document.getElementById('tableData');
+        
+        tbody.innerHTML='';
+        order.orderItems.forEach(item => {
+            const tr = document.createElement('tr');
+
+            let actionButton = ""; // Store dynamic button content
+            if (order.status !== "Cancelled" && order.status !== "Delivered") {
+                if (order.orderItems.length < 2) {
+                    actionButton = `<td>
+                        <a href="/orders/cancelOrder/${order.orderId}" 
+                        onclick="return confirmation('Are you sure you want to Cancel Order?')" 
+                        class="btn btn-outline-danger btn-sm">Cancel</a>
+                    </td>`;
+                } else {
+                    actionButton = `<td>
+                        <a href="#" onclick="cancelAnItem(event, '${order.orderId}', '${item.product}', '${item.quantity}', '${item.price}')"
+                        class="btn btn-sm btn-outline-danger">Cancel</a>
+                    </td>`;
+                }
+            } else if (order.status === "Delivered") {
+                actionButton = `<td>
+                    <a href="#" onclick="returnAnItem(event, '${order.orderId}', '${item.product}', '${item.quantity}', '${item.price}')"
+                    class="btn btn-sm btn-outline-info">Return</a>
+                </td>`;
+            }
+
+                tr.innerHTML=`                             
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="/uploads/re-image/${item.productImage}" style=" width:15%" alt="Product" class="me-2">
+                                        <div>
+                                            <h6 class="mb-0">${item.productName}</h6>
+                                            <!-- <small class="text-muted">Black, 128GB</small> -->
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>${item.product}</td>
+                                <td>${item.price}</td>
+                                <td>${item.quantity}</td>
+                                <td class="text-end">${item.subtotal}</td>
+                                ${actionButton}  `;
+                            tbody.appendChild(tr);   
+
+                        });
+                        tfoot.innerHTML="";
+                        tfoot.innerHTML=`
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Subtotal:</strong></td>
+                                <td class="text-end">${order.totalPrice}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Delivery:</strong></td>
+                                <td class="text-end">${order.deliveryPrice}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Discount:</strong></td>
+                                <td class="text-end">${order.discount}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                                <td class="text-end"><strong>${order.orderPrice}</strong></td>
+                            </tr>`;
+                            tableData.appendChild(tfoot);
+       }
+
+
+
+
+       //------------------get Invoice------------------
+       function getInvoice(orderId){
+        window.location.href = `/order/invoice/${orderId}`;
+       }
+
+
+       //-------------Retry Payment for pending razorpay----------------
+       async function retrypayment(e,orderId){
+            e.preventDefault();
+            try{  
+                console.log(orderId);
+                console.log('----------------');
+                const response = await fetch(`/retryPayment/${orderId}`);
+                const data= await response.json();        
+              
+                console.log(data.orderDetails);
+                console.log(`user ${data.user}`);
+                console.log(`orderId: ${data.currOrderId}`);
+
+                if(data.orderDetails){
+                    initializePayment(data.orderDetails,data.user,orderId);
+                }          
+                else{
+                    alert(data.message || "Failed to place order.");
+                    orderError.classList.remove('d-none');
+                    orderError.innerText=data.message;
+                    console.log(data);
+                }
+            }catch (error) {
+                console.error(" Error retraying order:", error.message);
+                alert(`An error occurred while retrying the order. Please try again.${error.message}`);
+            }    
+        }
+
+
+
+
+    function initializePayment(order,user,currOrderId){
+        console.log(`inside initilaize---------------   ${currOrderId}`);
+        var options = {
+            key: "<%= process.env.RAZORPAY_KEY_ID %>" ,
+            amount: order.amount *100,
+            currency: order.currency,
+            name: "PetTreat food and Toys",
+            description: "PetTreat test Transactions",
+            order_id: order.id,
+            handler: async function (response) {
+                try{
+                    const verifyResponse = await fetch("/orders/retrypayment/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...response, currOrderId: currOrderId }) });
+                    const data=await verifyResponse.json();
+                    if(data.success)             
+                        window.location.href = data.redirect;
+                    else{
+                        console.log("verification failed");
+                        window.location.href = data.redirect;
+                        alert(data.message);
+                    }
+                }catch(error){
+                        console.error(" Error during payment verification:", error);
+                        alert("An unexpected error occurred. Redirecting to order failure page...");
+                        window.location.href = `/orderFailed/${order.id}`;
+                }    
+            
+            },
+            prefill: {
+                name: user.name,
+                email: user.email                    
+            },
+            config: {
+                display: {
+                    blocks: {
+                        banks: {
+                            name: 'All Payment Options',
+                        instruments: [
+                            {
+                            method: 'upi'
+                            },
+                            {
+                            method: 'card'
+                            },
+                            {
+                                method: 'wallet'
+                            },
+                            {
+                                method: 'netbanking'
+                            }
+                        ],
+                        },
+                    },
+                    sequence: ['block.banks'],
+                    preferences: {
+                        show_default_blocks: false,
+                    },
+                },  
+            },
+            
+    
+            theme: { color: "#dead65" }
+        };
+        var rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (response){
+            console.log(response.error.description +response.error.metadata.order_id);   
+                window.location.href = `/orderFailed/${order.id}`;
+        });
+        rzp.open();
+    }
+    </script>
+<!-- </body>
+</html> -->
+<%-include("../partials/user/footer.ejs") -%>

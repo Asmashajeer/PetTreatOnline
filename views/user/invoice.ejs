@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice <%=order.invoiceNo%></title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" type="text/css" href="css/header.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px; }
+        h2 { text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .total { text-align: right; font-weight: bold; }
+
+        @media print {
+            .no-print {
+                display: none !important; /* Hide elements with class 'no-print' during printing */
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+</head>
+<body>
+    <div class="container" id="invoice-content">
+        <h3 class="text-center">InvoiceNo : <small><%=order.invoiceNo%></small></h3>
+        <p><strong><%=new Date(order.createdOn).toISOString().split('T')[0]%></strong></p>
+        <p class="p-1"><strong>PetTreat Online Store</strong><br>Email: support@pettreat.com<br>Phone: +1 234 567 890</p>
+
+        <h3>Billing Details</h3>
+        <p><strong><%=order.userId.name%></strong><br><%=address.address%> <%=address.city%><br> <%=address.landmark%><br> <%=address.state%><br>
+            <%=address.pincode%><br>Email:  <%=order.userId.email%><br>Phone: <%=address.phone%></p>
+
+        <h3>Order Summary</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% order.orderItems.forEach(item => { %>
+                    <tr>
+                        <td><%=item.productName%></td>
+                        <td><%=item.quantity%></td>
+                        <td><%=item.price%></td>
+                        <td><%=item.subtotal%></td>
+                    </tr>
+                <% }); %>
+                <tr>
+                    <td colspan="3" class="text-right font-weight-bold">Subtotal</td>
+                    <td><%=order.totalPrice%></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="text-right font-weight-bold">Delivery</td>
+                    <td><%=order.deliveryPrice%></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="text-right font-weight-bold">Discount (coupon)</td>
+                    <td><%=order.discount%></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="text-right font-weight-bold">Tax</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="text-right font-weight-bold"><strong>Total Amount</strong></td>
+                    <td><strong><%=order.orderPrice%></strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Payment Details</h3>
+        <p><strong>Payment Method:</strong> <%=order.paymentMethod%><br></p>
+         <p><strong>Payment Status:</strong> <%=order.paymentStatus%><br></p>       
+        <% if(order.paymentMethod==='razorpay'){ %>
+            
+            <p><strong>Receipt No:</strong> <%=order.receipt%><br></p>
+        <% } %>
+        <p><em>Thank you for shopping with us! </em></p>
+
+        <div class="buttons no-print">
+            <button class="btn btn-primary" onclick="window.print()">Print</button>
+            <button class="btn btn-success" onclick="downloadInvoicePDF('<%=order.orderId%>')">Download</button>
+        </div>
+        <div class="buttons no-print float-right">
+            <a class=" text-primary" href="/">Back to Home</a>
+        </div>    
+    </div>
+
+    <!-- Bootstrap JS and dependencies (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+
+    
+
+<script>
+
+        async function downloadInvoicePDF (orderId) {
+                    
+            try {
+                const response = await fetch(`/orders/downloadInvoice/${orderId}`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/pdf",
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to download invoice");
+                }
+
+                // Convert response to Blob
+                const blob = await response.blob();
+                
+                // Create a link element and trigger download
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = `invoice_${orderId}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+
+                // Clean up
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            } catch (error) {
+                console.error("Error downloading invoice:", error);
+                alert("Failed to download the invoice. Please try again.");
+            }
+        };
+    
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zxx">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Male_Fashion Template" />
+    <meta name="keywords" content="Male_Fashion, unica, creative, html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Pet Treat</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="css/style.css" type="text/css" /> -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+      <!-- <link rel="stylesheet" href="/public/css/style.css"> -->
+    <style>
+      body,
+      html {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f8f9fa;
+      }
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+      }
+      .card {
+        width: 100%;
+        max-width: 800px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .login-section {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+      .login-form,
+      .login-image {
+        flex: 1;
+        padding: 10px;
+      }
+      .login-form {
+        max-width: 50%;
+      }
+      .login-image {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        max-width: 40%;
+      }
+      .login-image img {
+        max-width: 100%;
+        height: auto;
+      }
+      .social-btns {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+      }
+      .social-btns button {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+      }
+      .form-group input {
+        font-size: 0.875rem; 
+        margin-bottom: 1rem;
+      }
+      .form-control {
+        font-size: 0.875rem; /* Decrease input text size */
+        padding: 0.5rem; /* Decrease padding */
+      }
+      .btn-primary {
+        background-color: #dead65;
+        padding: 0.5rem 1rem; /* Decrease button padding */
+        font-size: 0.875rem; /* Decrease button text size */
+        border: none;
+      }
+      .card-title {
+        font-size: 1.25rem; /* Decrease card title size */
+      }
+      .login-image .sign-up-link {
+        color: #333;
+        width:10%;
+        
+        text-decoration: none;
+      }
+      .login-image .sign-up-link:hover {
+        color: #ff7f50;
+      }
+      .error-message {
+        color: red;
+        font-size: 0.75rem;
+        display: none;
+      }
+      
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <div class="card-body login-section ms-5">
+          <div class="login-form mt-5">
+            <h3 class="card-title text-center">Log In</h3>
+            <form id="loginform" method="post" action="/signIn">
+              <div class="form-group mt-3">            
+                <input
+                  type="email"
+                  class="form-control"
+                  name="email"
+                  id="email"
+                  placeholder="Email"
+                />
+                <div id="error1" class="error-message"></div>
+              </div>
+              <div class="form-group password-container ">
+                <!-- <label for="password">Password</label> -->
+                <div class="input-group input-group-sm border">
+                  <input
+                    type="password"
+                    class="form-control border-0"
+                    name="password"
+                    id="password"
+                    placeholder="Password"/>                 
+                 <span class="password-toggle-icon "><i class="fas fa-eye text-muted"></i></span>
+                </div> 
+                <div id="error2" class="error-message"></div>
+              </div>
+              <%if(locals.message && message.length>0){%>
+              <div class="alert alert-danger text-center">
+                <%=message%>
+              </div>
+              <%}%>
+              <div class="d-flex justify-content-between align-items-center">
+                <button type="submit" class="btn btn-primary">Log In</button>          
+                  
+                <div class="social-btns mt-2px ">
+                  or<p>log in with</p>                   
+                  <a href="/auth/google" class="btn btn-outline-danger">
+                    <img    src="images/icons/google icon.png"        alt="Google Logo" style="width: 24px; height: 24px"                    />
+                  </a>
+                </div>
+              </div>
+              <br><p><a href="/forgotPassword"  style="color:#dead65"> Forgot Password </a></p>
+            </form>
+          </div>
+          <div class="login-image">
+            <a href="/">
+              <img src="images/signin.jpg" alt="Pettreat " />
+            </a>
+            <div class="text-center mt-2">
+              <a href="/register" class="sign-up-link">Not registered? Register</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const emailid = document.getElementById("email");
+      const passid = document.getElementById("password");
+      const error1 = document.getElementById("error1");
+      const error2 = document.getElementById("error2");
+      const loginform = document.getElementById("loginform");
+
+      const passwordField = document.getElementById("password");
+      const togglePassword = document.querySelector(".password-toggle-icon i");
+
+      togglePassword.addEventListener("click", function () {
+        if (passwordField.type === "password") {
+          passwordField.type = "text";
+          togglePassword.classList.remove("fa-eye");
+          togglePassword.classList.add("fa-eye-slash");
+        } else {
+          passwordField.type = "password";
+          togglePassword.classList.remove("fa-eye-slash");
+          togglePassword.classList.add("fa-eye");
+        }
+      });
+        
+      function emailValidateChecking(e) {
+        const emailval = emailid.value;
+        const emailpattern =
+          /^[a-zA-Z0-9._-]+@([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,4})$/;
+
+        if (!emailpattern.test(emailval)) {
+          error1.style.display = "block";
+          error1.innerHTML = "Invalid Format";
+        } else {
+          error1.style.display = "none";
+          error1.innerHTML = "";
+        }
+      }
+
+      function passValidateChecking(e) {
+        const passval = passid.value;
+        if (passval.length < 8) {
+          error2.style.display = "block";
+          error2.innerHTML = "Should contain at least 8 characters";
+        } else {
+          error2.style.display = "none";
+          error2.innerHTML = "";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        loginform.addEventListener("submit", function (e) {
+          emailValidateChecking();
+          passValidateChecking();
+
+          if (!emailid || !passid || !error1 || !error2 || !loginform) {
+            console.error("One or more elements not found");
+          }
+
+          if (error1.innerHTML || error2.innerHTML) {
+            e.preventDefault();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
+

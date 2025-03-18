@@ -1,0 +1,152 @@
+<%-include("../partials/user/header.ejs") -%>
+    <style>
+        .contact-info-box {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            background-color: #fff;
+            border-left: 4px solid #dead65;
+        }
+        .contact-info-box:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+        .contact-icon {
+            font-size: 2rem;
+            color: #dead65;
+            margin-bottom: 15px;
+        }
+        .form-control:focus {
+            border-color: #dead65;
+            box-shadow: 0 0 0 0.25rem rgba(222, 173, 101, 0.25);
+        }
+        
+    </style>
+</head>
+<body>
+   
+
+    <!-- Hero Section -->
+    <section class="contact-hero ">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 mx-auto mt-5 pt-5">
+                    <h1 class="fw-bold mb-4">Contact <span class="primary-color">PetTreat</span></h1>
+
+                    <p class="mt-4">Whether you have questions about our products, need advice on pet nutrition, or just want to say hello, we'd love to hear from you. Our dedicated team of pet lovers is ready to assist.</p>
+                </div>
+               
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Information Section -->
+    <section class="section-padding">
+        <div class="container">
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-8 text-center">
+                    <h2 class="fw-bold mb-3">Get in <span class="primary-color">Touch</span></h2>
+                    <div class="border-bottom border-3 border-primary mx-auto" style="width: 80px;"></div>
+                    <p class="mt-4">We're available through multiple channels to ensure you can reach us in the way that's most convenient for you.</p>
+                </div>
+            </div>
+            <div class="row " >
+                <div class="col-md-4  mx-auto ">
+                    <div class="contact-info-box shadow">
+                        <div class="contact-icon">✉️</div>
+                        <h4 class="fw-bold">Email Us</h4>
+                        <p class="mb-2">For general inquiries:</p>                  
+                        <p class="mb-2">For customer support:</p>
+                        <p class="primary-color fw-bold">support@pettreat.online</p>
+                    </div>
+                </div>
+                <div class="col-md-4  mx-auto">
+                    <div class="contact-info-box shadow">
+                        <div class="contact-icon">📞</div>
+                        <h4 class="fw-bold">Call Us</h4>
+                        <p class="mb-2">Customer Service:</p>
+                        <p class="primary-color fw-bold">(9846437870)</p>
+                       
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Form Section -->
+    <section class="section-padding bg-light">
+        <div class="container">
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-8 text-center">
+                    <h2 class="fw-bold mb-3">Send Us a <span class="primary-color">Message</span></h2>
+                    <div class="border-bottom border-3 border-primary mx-auto" style="width: 80px;"></div>
+                    <p class="mt-4">Have a question or feedback? Fill out the form below and we'll get back to you as soon as possible.</p>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4 p-md-5">
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="firstName" class="form-label">First Name</label>
+                                        <input type="text" class="form-control" id="firstName" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="lastName" class="form-label">Last Name</label>
+                                        <input type="text" class="form-control" id="lastName" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone Number (Optional)</label>
+                                    <input type="tel" class="form-control" id="phone">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <select class="form-select" id="subject" required>
+                                        <option value="" selected disabled>Select a subject</option>
+                                        <option value="product">Product Inquiry</option>
+                                        <option value="order">Order Status</option>
+                                        <option value="return">Returns & Exchanges</option>
+                                        <option value="feedback">Feedback</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="petType" class="form-label">Pet Type</label>
+                                    <select class="form-select" id="petType">
+                                        <option value="" selected disabled>Select your pet</option>
+                                        <option value="dog">Dog</option>
+                                        <option value="cat">Cat</option>
+                                        <option value="bird">Bird</option>
+                                        <option value="fish">Fish</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="message" class="form-label">Message</label>
+                                    <textarea class="form-control" id="message" rows="5" required></textarea>
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="newsletter">
+                                    <label class="form-check-label" for="newsletter">Subscribe to our newsletter for pet nutrition tips and exclusive offers</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-lg">Send Message</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   
+
+    <%-include("../partials/user/footer.ejs") -%>  

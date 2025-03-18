@@ -1,0 +1,384 @@
+<%-include("../partials/user/header.ejs") -%>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<!-- breadcrumb -->
+<section>
+    <div class="container m-b-50">
+        <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-60 p-lr-0-lg"style="position:relative;top:45px">
+            <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+                Home
+                <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+            </a>
+            <a href="/shopingCart" class="stext-109 cl8 hov-cl1 trans-04">
+                Cart
+                <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+            </a>
+            <span  class="stext-109 cl8 hov-cl1 trans-04">
+                checkout                
+            </span>
+
+            
+        </div>
+    </div>
+</section>
+    <div class="container py-4">
+        <div id="order-error" class="alert alert-danger text-center d-none">	</div>
+        <div class="row g-4">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <form class="shadow border border-light p-1 col-lg-8 mb-4">
+                    <div class="d-flex justify-content-between align-items-center my-1 ">
+                        <h5 class="mb-1 "> Delivery Address </h5>
+                        <a href="/addAddressCheckOut" class="btn btn-outline-secondary mb-1 ">+ Add New Address</a>
+                    </div>             
+                             
+                    <!-- Default Address -->
+                  <%if(addressData){%>  
+                    <%addressData.address.forEach((data,index)=>{%>
+                        <div class="card mb-1 pl-5">
+                            <!-- <div class="card-body"> -->
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="address" id="address<%= index %>" value="<%= data._id %>" <%= index === 0 ? 'checked' : ''%>>
+                                    <label class="form-check-label" for="address1">
+                                        <strong><%=data.name%></strong>
+                                        <p class="mb-1"><%=data.address%> <%=data.city%>, <%=data.landmark%> <%=data.state%> <%=data.pincode%></p>                                        
+                                        <div class="d-flex justify-content-between align-items-center">  
+                                            <p class="mb-2"><%=data.phone%></p>
+                                            <div>
+                                                <a class="text-primary me-2" href="/editAddress?id=<%=data._id%>">Edit</a>
+                                                
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            <!-- </div> -->
+                        </div>
+                    <%})%>
+                  <%}%>
+                </form>
+                    <form class="card mb-1 col-lg-8 shadow border border-light p-2">
+                        <h5>Payment Method</h5>                        
+                        <div class="form-group mt-3">
+                          
+                            <div class="d-flex align-items-center mb-2 pl-5">
+                                <input type="radio" name="paymentMethod" value="COD" id="COD" class="me-2" checked> Cash on Delivery (COD)
+                            </div>
+                            <div class="d-flex align-items-center mb-2 pl-5">
+                                <input type="radio" name="paymentMethod" value="razorpay"  id="razorpay" class="me-2"> Razorpay
+                            </div>
+                           
+                            <div class="d-flex align-items-center mb-2 pl-5">
+                                <input type="radio" name="paymentMethod" value="wallet" id="wallet" class="me-2"> Wallet
+                            </div>
+                           
+                        </div>                    
+                        <div id="card-details" style="display: none;">
+                            <input type="text" class="form-control" name="cardNumber" placeholder="Card Number">
+                            <input type="text" class="form-control" name="expiry" placeholder="MM/YY">
+                            <input type="text" class="form-control" name="cvv" placeholder="CVV">
+                        </div>                          
+                    </form>
+
+
+
+
+
+
+            <!-- Coupon Section -->
+          
+            <div class="row mt-5">
+                <h6>Available Coupons</h6>
+                <% if (typeof coupons !== 'undefined' && coupons.length>0) { %>
+                    <%coupons.forEach(coupon=>{%>
+                        <div class="d-inline-block bor7 p-3 shadow  float-left" style="width:200px" >
+                            <strong>Code:</strong> <%= coupon.couponCode %><br>
+                            <strong>Discount:</strong> <%= coupon.discountValue.toFixed(2)%>&emsp;
+                            <strong>Expires On:</strong> <%= coupon.expireOn.toLocaleDateString("en-GB") %><br> 
+                            <strong>Min Purchase:</strong> <%= coupon.minimumPrice.toFixed(2)%>                         
+                        </div>
+                <% })}%>
+           </div>   
+            </div>
+           
+            <!-- Right Column -->
+            <div class="col-lg-4">
+              
+                <!------------------ Coupon Section-------------------- -->
+                <div class=" bor7 p-3 shadow mb-2">
+                    <h6>Coupon Code</h6>
+                    <p class="text-muted small">Enter your coupon code if you have one</p>
+                        <div class="input-group mb-4">
+                            <input type="text" class="form-control" id="couponCode" name="couponCode" placeholder="Coupon Code">
+                            <button  onclick="applyCoupon(event)" class="btn btn-primary" >APPLY</button>                    
+                        </div>
+                        <p id="alert-info" style="color: rgb(200, 255, 0); size: 0.1em;"></p>
+                        <p id="errorMessage" style="color: red; size: 0.1em;"></p>
+                </div>
+                <div class="card">
+                    <div class="card-header bg-transperant p-2 ">
+                        <b><h5 class="text-center mb-0">Your Order</h5></b>
+                    </div>
+                    <div class="card-body">                  
+                        <!-- Order Summary -->                        
+                        <div class="mb-3">
+                            
+                            <%orderItems.forEach(item=>{%>	
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div>
+                                        <div><%=item.productName%></div>
+                                        <small class="text-muted">× <%=item.quantity%></small>
+                                    </div>
+                                   
+                                    <div><%=item.subtotal.toFixed(2)%></div>
+                                </div>
+                            <%})%>
+                           
+                        </div>
+
+                        <hr>
+
+                        <!-- Totals -->
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <strong> Total</strong>                                
+                                <h6 ><strong><%=totalPrice.toFixed(2)%></strong></h6>
+                            </div>
+                            
+                           
+                              
+                            <div class="d-flex justify-content-between mb-2">        
+                                <span>Coupon discount</span>                           
+                                    <p id="discount"><%=discount.toFixed(2)%></p>                                 
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Delivery Fee</span>
+                               
+                                <span id="deliveryPrice"><%=deliveryPrice.toFixed(2)%></span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <strong>Order Total</strong>     
+                                     <%let orderTotal= totalPrice-discount+deliveryPrice%>                                           
+                                    <h5 id="orderTotal"><strong><%=orderTotal.toFixed(2)%></strong></h5>                                
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary w-100 mb-3" onclick="placeOrder(event)" >Place An order</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        
+        const discountReferral = document.getElementById('discountReferral');
+        const discountField = document.getElementById('discount');
+        const totalElement = document.getElementById('orderTotal');  
+        const orderTotal = parseFloat(totalElement.innerText); 
+        const COD=document.getElementById('COD');
+        const razorpay=document.getElementById('razorpay');
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const totalElement = document.getElementById('orderTotal');  
+        const orderTotal = parseFloat(totalElement.innerText); 
+        const COD=document.getElementById('COD');
+        const razorpay=document.getElementById('razorpay');
+            if (orderTotal> 1000) {
+                COD.disabled = true; // Disable COD option
+                COD.parentElement.style.opacity = "0.5"; // Make it look disabled
+                razorpay.checked=true;
+            }
+        });
+        
+        
+
+      //----------------apply coupon---------------------  
+      async function applyCoupon(e) {  
+        const couponCode = document.getElementById('couponCode').value;
+       if(!couponCode){
+        document.getElementById('alert-info').innerText="Enter a coupon code";
+        return;
+       }
+        console.log(couponCode);
+        const discountField = document.getElementById('discount');
+        const totalElement = document.getElementById('orderTotal');  
+
+        const orderTotal = parseFloat(totalElement.innerText); 
+
+        try {
+            const response = await fetch("/applyCoupon", {
+                method: "POST",  
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ couponCode }) 
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                document.getElementById('alert-info').innerText=" Coupon applied!";
+                // Update discount field and total price
+                discountField.textContent = result.discountCoupon.discount.toFixed(2); 
+                const newTotal = orderTotal - result.discountCoupon.discount;
+                totalElement.innerText = newTotal.toFixed(2); // Update displayed total
+                document.getElementById('couponCode').value;
+                errorMessage.innerHTML = ""; 
+                                   
+            } else {
+                document.getElementById("errorMessage").innerHTML = result.message; 
+                console.log(result.message);
+            }
+        } catch (error) {
+            console.error("Error applying coupon:", error);
+        }
+
+        }
+       
+        //----------select payment method as card--------------------
+       document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => {
+            input.addEventListener("change", function () {
+                document.getElementById("card-details").style.display = 
+                    this.value === "card" ? "block" : "none";
+             });
+        });
+
+        //--------createOrder-------------------------------------
+    async function  placeOrder(event){
+        event.preventDefault(); 
+        const orderError=document.getElementById('order-error');
+        const addressOptions = document.querySelectorAll('input[type="radio"][name="address"]');
+
+        // Check if there are any radio buttons present
+        if (addressOptions.length === 0) {
+            orderError.classList.remove("d-none");
+            orderError.classList.add("block");
+            orderError.textContent="No delivery address options available. Please add an address.";
+            return;
+        }
+
+       
+
+         const  deliveryAddress=document.querySelector('input[type="radio"][name="address"]:checked').value;        
+                   
+       
+        const  paymentMethod=document.querySelector('input[type="radio"][name="paymentMethod"]:checked').value;
+        console.log(paymentMethod);
+        if (! paymentMethod) {
+             alert("Please select a payment Method.");
+        return;
+        }
+
+        const orderData={
+            addressId:deliveryAddress,  
+            paymentMethod: paymentMethod,        
+            discount:parseFloat(document.getElementById("discount").innerText)|| 0,
+            deliveryPrice:parseFloat(document.getElementById("deliveryPrice").innerText) || 0,
+            orderPrice:parseFloat(document.getElementById("orderTotal").innerText),
+            // coupon: document.getElementById("couponCode").value
+        };
+        console.log(orderData);      
+        try{     
+            const response = await fetch("/createOrder", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(orderData),
+            });
+            const data= await response.json();
+       
+            alert(data.message) ;
+            if (data.redirect) {
+                window.location.href = data.redirect;
+                return;
+            }
+            if (data.orderDetails){
+                initializePayment(data.orderDetails,data.user);
+            }          
+            else{
+                    alert(data.message || "Failed to place order.");
+                    orderError.classList.remove('d-none');
+                    orderError.innerText=data.message;
+                    console.log(data);
+            }
+        }catch (error) {
+            console.error(" Error placing order:", error);
+            alert("An error occurred while placing the order. Please try again.");
+        }
+    }
+
+    function initializePayment(order,user){
+            var options = {
+                key: "<%= process.env.RAZORPAY_KEY_ID %>",
+                amount: order.amount *100,
+                currency: order.currency,
+                name: "PetTreat food and Toys",
+                description: "PetTreat test Transactions",
+                order_id: order.id,                
+                handler: async function (response) {
+                  try{
+                        const verifyResponse = await fetch("/orders/payment/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(response) });
+                        const data=await verifyResponse.json(); 
+                        console.log(data);    
+                        if(data.success)             
+                            window.location.href = data.redirect;
+                        else{
+                            console.log("verification failed");
+                            window.location.href = data.redirect;
+                        }
+                    }catch(error){
+                        console.error(" Error during payment verification:", error);
+                        alert("An unexpected error occurred. Redirecting to order failure page...");
+                        window.location.href = `/orderFailed/${order.id}`;
+                    }    
+                },
+                prefill: {
+                    name: user.name,
+                    email: user.email                    
+                },
+                config: {
+                    display: {
+                        blocks: {
+                            banks: {
+                                name: 'All Payment Options',
+                            instruments: [
+                                {
+                                method: 'upi'
+                                },
+                                {
+                                method: 'card'
+                                },
+                                {
+                                    method: 'wallet'
+                                },
+                                {
+                                    method: 'netbanking'
+                                }
+                            ],
+                            },
+                        },
+                        sequence: ['block.banks'],
+                        preferences: {
+                            show_default_blocks: false,
+                        },
+                    },  
+                },
+                
+            
+                theme: { color: "#dead65" }
+            };
+            var rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response){
+                // alert(response.error.code);
+                 alert(response.error.description +response.error.metadata.order_id);
+                // alert(response.error.source);
+                // alert(response.error.step);
+                // alert(response.error.reason);
+                // alert(response.error.metadata.order_id);
+                // alert(response.error.metadata.payment_id);
+                window.location.href = `/orderFailed/${order.id}`;
+            });
+            rzp.open();
+     }
+    </script>
+    <%-include("../partials/user/footer.ejs") -%>

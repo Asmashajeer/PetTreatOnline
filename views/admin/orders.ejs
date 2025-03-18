@@ -1,0 +1,207 @@
+<%- include("../../views/partials/admin/header") %>
+<style>
+    .bg-pastelBlue{
+        background-color: #ADD8E6;
+    }
+    .bg-pastelGreen{
+        background-color: #90EE90;
+    }
+    .bg-pastelYellow{
+        background-color: #FFFFE0;
+    }
+    .bg-pastelRed{
+        background-color: #FFDAB9;
+    }
+    .bg-pastelPink{
+        background-color: #fa3008;
+    }
+</style>
+    
+    <!-- Main Content -->
+    <div class="container-fluid mt-2 bg-custom">
+        <div class="row mb-4 mt-2">
+            <div class="col text-center">
+                <h4>Order Management</h4>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-2 mb-3">
+                <div class="card bg-pastelBlue ">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Orders</h6>
+                        <h5 class="card-text"><%=totalOrderStatus.totalOrders%></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="card bg-pastelGreen ">
+                    <div class="card-body">
+                        <h6 class="card-title">Completed</h6>
+                        <h5 class="card-text"><%=totalOrderStatus.totalOrderCompleted%></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="card bg-pastelYellow">
+                    <div class="card-body">
+                        <h6 class="card-title">Pending</h6>
+                        <h5 class="card-text"><%=totalOrderStatus.totalOrderPending%></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="card bg-pastelRed ">
+                    <div class="card-body">
+                        <h6 class="card-title">Cancelled</h6>
+                        <h5 class="card-text"><%=totalOrderStatus.totalOrderCancelled%></h5>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <form action="/admin/orders/" method="get" class="d-inline">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="search" placeholder="Search orders...">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- filter -->            
+        <div class=" row card mx-1 my-0 shadow-sm">            
+            <div class="card-body">
+                <form class="row g-3" id="filterForm"  action="/admin/orders" method="GET">
+                <div class="col-md-2">
+                    <label for="dateFrom" class="form-label">Date From</label>
+                    <input type="date" class="form-control" id="dateFrom" name="dateFrom">
+                </div>
+                <div class="col-md-2">
+                    <label for="dateTo" class="form-label">Date To</label>
+                    <input type="date" class="form-control" id="dateTo" name="dateTo">
+                </div>
+                <div class="col-md-2">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                    <option value="">All</option>
+                    <option value="Placed">Placed</option>
+                    <option value="Processing">Processing</option> 
+                    <option value="shipped">shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Return Request">Return Request</option>
+                    <option value="Returned">Returned</option> 
+                    <option value="Cancelled">Cancelled</option>           
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="minPrice" class="form-label">Price From</label>
+                    <input type="number" class="form-control" id="minPrice" name="minPrice">
+                </div>
+                <div class="col-md-2">
+                    <label for="maxPrice" class="form-label">Price To</label>
+                    <input type="number" class="form-control" id="maxPrice" name="maxPrice">
+                </div>
+                
+                <div class="col-md-1 d-flex align-items-end">
+                    
+                    <button type="submit" class="btn btn-sm btn-primary p-2 mx-1 ">Apply</button>
+                    <button type="reset" id="reset" class="btn btn-sm btn-outline-secondary  p-2 " onclick="resetToDeafault(event);">Reset</button>
+                    
+                </div>
+                </form>
+            </div>
+        </div>
+       
+          
+        <!-- Orders Table -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th>Status</th>                               
+                                <th>payment Status</th>
+                                <th>Return</th>
+                                <th>Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <%orders.forEach(order=>{%>
+                            <tr>
+                                <td><%=order.orderId%></td>
+                                <td><%=order.userId.name%></td>
+                                <td><%=new Date(order.createdOn).toISOString().split('T')[0]%></td>
+                                <td><span class="badge bg-secondary "><%=order.status%></span></td>
+                                <td><%=order.paymentStatus%></td>
+                                <td>
+                                    <% order.orderItems.forEach(item => { %>
+                                        <p>                                     
+                                            <% if (item.returnStatus === "Return Request") { %>
+                                              <button class="btn btn-sm"  onclick="manageReturn(event,'<%=order.orderId%>','<%=item.product%>')"><span class="badge bg-warning text-dark">Return Requested</span></button>
+                                                
+                                            <% } %>
+                                        </p>
+                                    <% }) %>
+                                </td>
+                                <td><%=order.orderPrice%></td>
+                                <td>
+                                    <a  href="/admin/orders/EditOrderStatus/<%=order.orderId%>" class="btn btn-sm border "><i class="fas fa-edit text-success"></i></a>
+                                    <!-- <a href="/admin/orders/returnOrder/<%=order.orderId%>" class="btn btn-sm border "><i class="fas fa-eye"></i></a> -->
+                                    <!-- <a href="/admin/orders/cancelOrde/<%=order.orderId%>"  onclick="return confirm('Are you sure,Do you want  to cancel this Order ? ')" class="btn btn-sm border"><i class="fas fa-trash text-danger"></i></a> -->
+                                </td>
+                            </tr>
+                        <%})%>                               
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination d-flex justify-content-center pb-2">
+                    <%if (currentPage>1){%>
+                        <a href="?page=<%= currentPage-1 %>">&laquo;</a>
+                    <%}%>
+                     <%for(let i=1;i<=totalPages;i++){%> 
+                        <%if(i==currentPage){%>
+                            <span  class="current-page bg-custom "><%= i %></span>
+                        <%}else{%>
+                            <a href="?page=<%= i %>"><%= i %></a>
+                    <%}}%>
+                    <%if (currentPage<totalPages){%>
+                        <a href="?page=<%= currentPage+1 %>"> &raquo; </a>
+                    <% }%>      
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        document.getElementById('DOMContentLoaded',function(){
+           
+
+            function clearAll(){
+                document.getElementById('filterForm').reset();
+                return true;
+            }
+        });
+
+       function manageReturn(event,orderId,productId){
+        event.preventDefault();
+         window.location.href=`/admin/order/manageReturn/${orderId}/${productId}`;
+       }
+
+    </script>
+    <%- include("../../views/partials/admin/footer") %>

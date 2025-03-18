@@ -1,0 +1,249 @@
+<%- include("../../views/partials/admin/header") %>
+
+
+<body class="bg-light" >
+    <div class="container py-4 bg-custom "  id="salesReportData">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h4>Sales Report</h4>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form id="reportForm">
+                    <div class="row align-items-end">
+                        <div class="col-md-2">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" class="form-control" name="startDate" id="startDate"  placeholder="Start Date" onfocus="this.showPicker()" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">End Date</label>
+                            <input type="date" class="form-control" name="endDate" id="endDate" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Report Type</label>
+                            <select  id="reportType" name="reportType" class="form-select" >
+                                <option value="">Select Type</option>
+                                <option value="daily">Daily Report</option>
+                                <option value="weekly">Weekly Report</option>
+                                <option value="monthly">Monthly Report</option>
+                            </select>
+                        </div>
+                        <!-- <div class="col-md-3">
+                             <label class="form-label">Category</label>                            
+                                
+                                <select class="form-select" id="category" name="category">
+                                <%if(category){%>
+                                    <option value="all">All Categories</option>
+                                    <%category.forEach(cat=>{%>
+                                        <option value="<%=cat._id%>"><%=cat.name%></option>   
+                                    <%})%>  
+                                <%}%> 
+                                </select>
+                                
+                               
+                        </div> -->
+                        <div class="col-md-2">
+                            <button type="submit" class="btnbtn-sm  bg-custom w-100">
+                                <i class="fas fa-sync-alt me-2"></i>Generate
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="card">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Sales Report </h5>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-secondary" id="exportCSV">
+                            <i class="fas fa-file-csv me-2"></i>Export CSV
+                        </button>
+                        <button class="btn btn-outline-secondary" id="exportPDF">
+                            <i class="fas fa-file-pdf me-2"></i>Export PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive" id="reportResult">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        
+
+        document.getElementById('startDate').value = moment().format('YYYY-MM-DD');
+        document .getElementById('endDate').value= moment().add(1, 'days').format('YYYY-MM-DD');
+        let reportData;
+        document.getElementById('DOMContentOverLoaded',function(){
+            
+        })
+     document.getElementById("startDate").addEventListener("change", function() {        
+        document.getElementById("reportType").value='';
+     }); 
+
+    document.getElementById("reportForm").addEventListener("submit", async function (event) {
+        event.preventDefault(); // Prevent page reload
+
+        // Get form values
+        let startDate = document.querySelector('input[type="date"][name="startDate"]').value;
+        let endDate = document.querySelector('input[type="date"][name="endDate"]').value;
+        let reportType = document.querySelector('[name=reportType]').value;
+        let reportContainer = document.getElementById("reportResult");
+        // let category = document.querySelectorAll('[name=category]')[0].value;
+        console.log(startDate,"\n",endDate,"\n",reportType);
+       
+        const response=await fetch(`/admin/generateReport?startDate=${startDate}&endDate=${endDate}&reportType=${reportType}`,{method:'GET'})
+        .then(response => response.json())
+        .then(data=>{
+                // console.log('data:',data);
+            if (!data || !data.salesReport || data.salesReport.length === 0) {  
+                reportContainer.innerHTML = `<p>No sales data found for the selected period.</p>`;           
+                    console.log('No sales data found for the selected period',data);
+                return;
+            }
+            
+                displayReport(data);
+            //    exportData(data):
+            
+        })            
+        .catch (error=>console.error("Error fetching reportError:", error)) ;       
+      
+    });
+
+// Function to display report dynamically
+function displayReport(data) {
+    console.log("report data: ",data);
+    let reportContainer = document.getElementById("reportResult");
+    reportContainer.innerHTML = ""; // Clear previous report
+
+    if (data.length === 0) {
+        reportContainer.innerHTML = `<p>No sales data found for the selected period.</p>`;
+        console.log('No sales data found for the selected period');
+        return;
+    }
+    ReportData=data;
+
+    let table = `<table class="table table-hover table-bordered" id="salesReport">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date/Period</th>                          
+                            <th>Total Sales</th>
+                            <th>Orders</th>
+                            <th>Avg Order Value</th>                            
+                            <th>Discounts</th>                            
+                        </tr>
+                    </thead>
+                    <tbody>`;    
+        data.salesReport.forEach(entry=>{     
+                       
+            table += `<tr>
+                    <td>${entry.period}</td>                     
+                   <td>${entry.totalSale.toFixed(2)}</td>        
+                    <td>${entry.noOfOrders}</td>           
+                    <td>${entry. avgSalesValue.toFixed(2)}</td>                  
+                      <td>${entry.totalDiscount.toFixed(2)}</td>                                       
+                  </tr>`;    
+        })
+       table+=` <tfoot class="table-light fw-bold">
+                            <tr>
+                                <td>Total</td>                               
+                                <td>${data.overallOrderAmount}</td>
+                                 <td>${data.overallSalesCount}</td>
+                                <td>${data.overallavgSalesValue}</td>
+                                <td>${data.overallDiscount}</td>
+                                
+                            </tr>
+                        </tfoot>`;    
+    table += `</tbody></table>`;
+    console.log('--_id----------------')     ;
+    reportContainer.innerHTML = table;
+    document.getElementById("endDate").readOnly = false;
+
+}
+
+
+//-------------------export as CSv file---------------------------
+document.getElementById("exportCSV").addEventListener("click", function () {
+    let table = document.querySelector("table"); // Select the report table
+    let csv = [];
+    
+    // Loop through each row of the table
+    for (let row of table.rows) {
+        let rowData = [];
+        for (let cell of row.cells) {
+            rowData.push(cell.innerText); // Extract text from each cell
+        }
+        csv.push(rowData.join(",")); // Join columns with commas
+    }
+
+    let csvString = csv.join("\n"); // Join rows with new lines
+    let blob = new Blob([csvString], { type: "text/csv" });
+    let url = window.URL.createObjectURL(blob);
+
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = "Sales_Report.csv"; // File name
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+});
+
+//--------------------------------export as PDF-----------------------------
+
+
+
+document.getElementById("exportPDF").addEventListener("click", function () {
+    const { jsPDF } = window.jspdf;
+    let doc = new jsPDF();
+
+    // Add a title
+    doc.setFontSize(16);
+    doc.text("Sales Report", 14, 15);
+
+    // Define table columns
+    let columns = ["Date/Period", "Total Sales", "Orders", "Avg Order Value", "Discounts"];
+    let rows = [];
+
+    // Extract table data from HTML
+    document.querySelectorAll("#salesReport tbody tr,#salesReport tfoot tr").forEach(row => {
+        let rowData = Array.from(row.children).map(cell => cell.innerText);
+        rows.push(rowData);
+    });
+    
+     let footer=rows.length-1;
+    // Add table to PDF
+    doc.autoTable({
+        startY: 20, // Position below title
+        head: [columns], 
+        body: rows,
+        theme: "grid", // Adds table borders
+        styles: { fontSize: 10 }, // Adjust font size
+        headStyles: { fillColor: [22, 160, 133] }, // Header color (teal)
+        margin: { top: 20 },
+        didParseCell: function (data) {
+        if (data.row.index === footer) {
+            data.cell.styles.fontStyle = 'bold'; // Make footer bold
+        }
+    }
+
+    });
+
+    // Save and download PDF
+    doc.save("sales_report.pdf");
+});
+
+
+    </script>
+    <%- include("../../views/partials/admin/footer") %>

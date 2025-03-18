@@ -1,0 +1,183 @@
+
+	
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        .progress-track {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        .progress-track .progress {
+            height: 4px;
+            background-color: #ddd;
+        }
+        .progress-track .progress-bar {
+            background-color: #28a745;  /* Changed to Bootstrap green */
+        }
+        .progress-step {
+            position: relative;
+            text-align: center;
+        }
+        .progress-step .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .progress-step.active .step-icon {
+            background-color: #28a745;  /* Changed to Bootstrap green */
+        }
+        .progress-step .step-label {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .product-img {
+            max-width: 150px;
+            height: auto;
+        }
+        .btn-back {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        .btn-back:hover {
+            background-color: #218838;
+            border-color: #218838;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- breadcrumb -->
+	<section>
+		<div class="container  m-b-50">
+			<div class="bread-crumb flex-w p-l-25 p-r-15 p-t-60 p-lr-0-lg"style="position:relative;top:45px">
+				<a href="/orders" class="stext-109 cl8 hov-cl1 trans-04">
+					order
+					<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+				</a>
+
+				<span  class="stext-109 cl8 hov-cl1 trans-04">
+					Track Order
+					
+				</span>
+
+				
+			</div>
+		</div>
+	</section>
+    <div class="container pt-5  mt-4 col-md-8">
+        <h4>My Orders / Tracking</h4>
+        <p><%=order.orderId%></p>
+        <div class="card mt-3">
+            <div class="card-body">
+                <div class="row">
+                 
+                    <div class="col-md-3">
+                        <h6>Status:</h6>
+                        <p id="status"><%=order.status%></p>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <div class="progress-track">
+            <div class="row" id="progress-track">
+                <div class="col-3 progress-step " id="step-Placed">
+                    <div class="step-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="step-label">Order Placed</div>
+                </div>
+                <div class="col-3 progress-step " id="step-Processing">
+                    <div class="step-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="step-label">Processing</div>
+                </div>
+                <div class="col-3 progress-step " id="step-Shipped">
+                    <div class="step-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="step-label">Shipped</div>
+                </div>
+                <div class="col-3 progress-step" id="step-Delivered">
+                    <div class="step-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="step-label">Delivered</div>
+                </div>
+            </div>
+            <div class="progress mt-2">
+                <div class="progress-bar" id="progress-bar"  style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="row mt-4 border-bottom">
+            <%order.orderItems.forEach(item=>{%>
+                <div class="col-md-4 ">
+                    <div class="product-card ">
+                        <img src="/uploads/re-image/<%=item.productImage%>"   alt="product_img" class="product-img how-itemcart1">                    
+                     
+                        <h6 class="mt-2"><%=item.productName%></h6>
+                        <p><%=item.price.toFixed(2)%>&nbsp;X&nbsp;<%=item.quantity%> &emsp;<b class="text-muted"><%=item.subtotal.toFixed(2)%></b></p>
+                       
+                    </div> 
+                </div>
+            <%})%>  
+            <hr>  
+            <span class="text-muted text-end fw-bold">Total Price: <%=order.orderPrice%></span>
+        </div>
+
+        <a  href="/profile?tab=orders" class="btn btn-back mt-4 mb-4">
+            <i class="fas fa-arrow-left"></i> Back to orders
+        </a>
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded',function(){
+        console.log("----------------------------");
+     const status= `<%=order.status%>`;
+
+     console.log(status);
+     const progressBar = document.getElementById("progress-bar");
+     const progressTrack=document.getElementById('progress-track');
+     if(status==='Cancelled'||status==='Cancel Requested'){
+        progressBar.style.backgroundColor='Red';
+        progressBar.style.width=`100%`;
+        progressTrack.innerHTML=`<div class="col-3 progress-step "  id="step-cancelled">
+                    <div class="step-icon">
+                        <i class="fas fa-check" style="backgroundColor:red"></i>
+                    </div>
+                    <div class="step-label">${status}</div>
+                </div`;
+
+     }else{
+            const steps=['step-Placed','step-Processing','step-Shipped','step-Delivered'];
+            const activeIndex=steps.indexOf(`step-${status}`);
+            steps.forEach((step,index)=>{
+                const stepElement= document.getElementById(step);
+                    if(activeIndex>=index){              
+                    stepElement.classList.add("active");
+                    }
+                    else{
+                        stepElement.classList.remove("active");
+                    }
+            });
+            const progressPercentage=((activeIndex+1)/steps.length)*100;
+            progressBar.style.width=`${progressPercentage}%`;
+        }
+    });
+</script>

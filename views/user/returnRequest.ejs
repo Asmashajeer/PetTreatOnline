@@ -1,0 +1,70 @@
+
+<link rel="icon" type="image/png" href="images/icons/favicon.png"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="css/header.css">
+	<!-- breadcrumb -->
+	<section>
+		<div class="container">
+			<div class="bread-crumb flex-w p-l-25 p-r-15 p-t-60 p-lr-0-lg"style="position:relative;top:45px">
+				<a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+					Profile
+					<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+				</a>
+                <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+					Orders
+					<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+				</a>
+				<a href=`` class="stext-109 cl8 hov-cl1 trans-04">
+					orderDetails
+					<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+				</a>
+				
+			</div>
+		</div>
+	</section>	
+    <div class="container mt-4">
+        <div class="card col-md-6 shadow-lg m-auto">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Return Request Form</h5>
+            </div>
+            <div class="card-body">
+                <form id="returnRequestForm" action="/orders/returnRequest" method="POST" >
+                    <input type="hidden" name="orderId" id="orderId" value="<%=orderId%>">
+                    <input type="hidden" name="productId" id="productId" value="<%=productId%>">
+                    <input type="hidden" name="price" id="price" value="<%=price%>">
+    
+                    <!-- Product Name -->
+                    <div class="mb-3">
+                        <label for="productName" class="form-label fw-bold">Product Name</label>
+                        <input type="text" class="form-control" id="productName" name="productName" value="<%=productName%>" readonly>
+                    </div>
+    
+                    <!-- Quantity -->
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label fw-bold">Quantity to Return: <%=quantity%></label>
+                        <input type="number" class="form-control" id="quantity" name="quantity"  value="<%=quantity%>" readonly>
+                    </div>
+    
+                    <!-- Reason for Return -->
+                    <div class="mb-3">
+                        <label for="reason" class="form-label fw-bold">Reason for Return</label>
+                        <select class="form-select" id="reason" name="reason" required>
+                            <option value="" selected disabled>Select a reason</option>
+                            <option value="Damaged Product">Damaged Product</option>
+                            <option value="Wrong Item Delivered">Wrong Item Delivered</option>
+                            <option value="Not as Expected">Not as Expected</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                   
+                    <!-- Submit Button -->
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-secondary">Submit Return Request</button>
+                        <button type="cancel" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    

@@ -1,0 +1,167 @@
+<%- include("../../views/partials/admin/header") %>
+</head>
+<body  onload="setDefaultCreatedDate()">
+    <div class="container-fluid mt-2 bg-custom">
+        <div class="row">
+            <div class="col-md-4 ">
+                <div class="card shadow">
+                    <div class="card-header bg-transperant shadow p-2 ">
+                        <h6 class="text-center mb-0">Create Coupon</h6>
+                    </div> 
+                    <div class="card-body ">
+                        <form id="couponForm" action ='/admin/createCoupon/' method="post">
+                            <%if(locals.message && message.length>0){%>
+                                <div class="alert alert-danger text-center">
+                                  <%=message%>
+                                </div>
+                                <%}%>
+                            <div class="mb-3">
+                                <label for="couponCode" class="form-label">Coupon Code</label>
+                                <input type="text" class="form-control" id="couponCode" name="couponCode" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="startOn" class="form-label">Start On</label>
+                                <input type="date" class="form-control" id="startOn" name="startOn" required>
+                                <div id="error-create-date" class="error-message"></div>
+
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="expireOn" class="form-label">Expire On</label>
+                                <input type="date" class="form-control" id="expireOn" name="expireOn"  required>
+                                <div id="error-expire-date" class="error-message"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="discountValue" class="form-label">Discount Value </label>
+                                <input type="number" class="form-control"  name="discountValue" id="discountValue" min="0" max="1000" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="minimumPrice" class="form-label">Minimum Price</label>
+                                <input type="number" class="form-control" name="minimumPrice" id="minimumPrice" min="0" step="0.01" required>
+                            </div>
+                            
+                            <button type="submit" onclick="return validateForm(event)" class="btn btn-secondary w-100">Create Coupon</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-transperant shadow ">
+                        <h5 class="text-center mb-0">Available Coupons</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table  bg-transperant" id="couponTable">
+                                <thead>
+                                    <tr>
+                                        <th>Coupon Code</th>
+                                        <th>Created On</th>
+                                        <th>Expires On</th>
+                                        <th>Discount </th>
+                                        <th>Minimum Price</th>
+                                        <th>Expired</th>
+                                        <th>Active</th>
+                                        <th>Actions</th>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody id="couponTableBody" class="bg-transperant">
+                                <%if(locals.coupons && coupons.length>0){%>
+                                    <%coupons.forEach(coupon=>{%>
+                                   <tr>
+                                        <td><%=coupon.couponCode %></td>
+                                        <td><%=new Date(coupon.startOn).toLocaleDateString("en-GB")%></td>
+                                        <td><%=new Date(coupon.expireOn).toLocaleDateString("en-GB")%></td>
+                                        <td><%=coupon.discountValue%></td>
+                                        <td><%=coupon.minimumPrice%></td>
+                                        <td><%=coupon.isExpired?'Expired':'No'%></td>
+                                        <td><%=coupon.isActive%></td>
+                                        <td><a href="/admin/editCoupon/<%=coupon._id%>"><i class="fas fa-edit" style="color: #069c3a;" title="Edit this product"></i></a> </td>
+                                        <td><a href="/admin/deleteCoupon/<%=coupon._id%>" onclick="return confirm('Do you want to remove this Coupon?')"><i class="fas fa-trash" style="color: #9c1006;" title="delete this product"></i></a></td>
+                                    </tr>    
+                                    <%})%>
+                                <%}%>   
+                                </tbody>
+                            </table>
+                            <!-- Pagination -->
+                            <div class="pagination d-flex justify-content-center pb-2">
+                                <%if (currentPage>1){%>
+                                    <a href="?page=<%= currentPage-1 %>">&laquo;</a>
+                                <%}%>
+                                 <%for(let i=1;i<=totalPages;i++){%> 
+                                    <%if(i==currentPage){%>
+                                        <span  class="current-page bg-custom "><%= i %></span>
+                                    <%}else{%>
+                                        <a href="?page=<%= i %>"><%= i %></a>
+                                <%}}%>
+                                <%if (currentPage<totalPages){%>
+                                    <a href="?page=<%= currentPage+1 %>"> &raquo; </a>
+                                <% }%>      
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+       document.querySelectorAll('.error-message').forEach((element)=>(element.innerHTML=""));
+        function validateForm(){
+            const createdDate=document.getElementById('startOn').value;
+            const expireDate = document.getElementById('expireOn').value;
+            const createdDateObj= new Date(createdDate);
+            const expireDateObj= new Date(expireDate);
+            const todayDateObj=new Date();
+            console.log(createdDateObj,expireDateObj,todayDateObj);
+
+            if(createdDateObj > expireDateObj){
+                document.getElementById("error-expire-date").innerHTML="Expire date should be after the Created Date";
+                return false;
+            }
+            if(createdDateObj <=todayDateObj){
+                document.getElementById("error-create-date").innerHTML="Create date should be greater than or equal to Today's Date";
+                return false;
+            }
+            document.querySelectorAll('.error-message').forEach((element)=>(element.innerHTML=""));
+            return true;
+
+        }
+
+     function setDefaultCreatedDate(){
+        const today =new Date();
+        const year= today.getFullYear();
+        let month=(today.getMonth()+1).toString().padStart(2,'0');
+        let day= today.getDate().toString().padStart(2,'0');
+        document.getElementById('startOn').value=`${year}-${month}-${day}`;
+
+     }
+    
+
+        function editCoupon(id) {
+            const coupon = coupons.find(c => c.id === id);
+            if (coupon) {
+                document.getElementById('couponCode').value = coupon.code;
+                document.getElementById('startOn').value = coupon.startOn;
+                document.getElementById('expireOn').value = coupon.expireOn;
+                document.getElementById('discountValue').value = coupon.discountValue;
+                document.getElementById('minimumPrice').value = coupon.minimumPrice;
+                
+                // Remove the original coupon
+                coupons = coupons.filter(c => c.id !== id);
+                renderCoupons();
+            }
+        }
+
+        function deleteCoupon(id) {
+            coupons = coupons.filter(coupon => coupon.id !== id);
+            renderCoupons();
+        }
+    </script>
+  <%- include("../../views/partials/admin/footer") %>

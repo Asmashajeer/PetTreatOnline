@@ -1,0 +1,112 @@
+<%- include("../../views/partials/admin/header") %>
+
+<section class="content-main container-fluid  bg-custom ">
+  <div class="content-header mt-0 ">    
+      <h4 class="content-title card-title ">Brands</h4>
+    
+  </div>
+  <div class="card pb-2">
+    <div class="card-header">
+      <h6 class="text-center">Brands</6>
+    </div>  
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3 shadow ">
+          <form method="post" action="/admin/addBrand" enctype="multipart/form-data">
+            <div class="mb-4">
+              <label for="product_name" class="form-label">Brand Name</label>
+              <input   type="text"   name="name"   placeholder="Type here" class="form-control" />
+            </div>
+            <label for="product_name" class="form-label">Brand Image</label>
+            <div class="input-upload">
+              <img src="" alt=""/>
+              <input class="form-control border" name="file" type="file" />
+            </div>
+            <div class="d-grid">
+              <button class="btn  btn-primary mt-20" type="submit">
+                Add Brand
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-7 ml-105 shadow">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Brand</th>
+                  <th>Logo</th>
+                  <th>Status</th>
+                  <th>Block/Unblock/Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+               <%data.reverse().forEach((brand,index)=>{%>
+                <tr>
+                  <td class="text-start"><%=brand.brandName%></td>
+                  <td class="text-start">
+                    <div
+                      class="d-flex align-items-center justify-content-center"
+                      style="  width: 40px;  height: 40px;border-radius: 50%; overflow: hidden;" >
+                      <img
+                        src="/uploads/re-image/<%=brand.brandImage[0]%>"
+                        alt="<%=brand.brandName%>"
+                        class="img-fluid rounded-circle"
+                        style="width: 100%; height: auto"
+                      />
+                    </div>
+                  </td>
+                 
+                  <td class="text-start">
+                    <%if(brand.isBlocked){%>
+                      <span
+                        class="badge rounded-pill alert-danger"  style="width: 60px"  >Blocked</span>
+                    <%}else{%>
+                      <span  class="badge rounded-pill alert-success"  style="width: 60px"    >Active</span  >
+                    <%}%>    
+                  </td>
+                  <td class="text-start">
+                    <%if(brand.isBlocked===false){%>                      
+                        <a href="/admin/blockBrand?id=<%=brand._id%>" class="btn btn-sm btn-outline-danger">Block</a>                      
+                    <%}else{%>                      
+                        <a href="/admin/unblockBrand?id=<%=brand._id%>" class="btn btn-sm btn-outline-success">Unblock</a>                     
+                    <%}%> 
+                    <button   class="btn btn-sm "  style="width: 90px" onclick=" return confirmDelete()" >
+                      <a href="/admin/deleteBrand?id=<%=brand._id%>" class="text-danger"> <i class="fas fa-trash-alt"></i></a>
+                    </button>
+                  </td>
+                </tr>
+                <%})%>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="pagination d-flex justify-content-center pb-2">
+      <%if (currentPage>1){%>
+          <a href="?page=<%= currentPage-1 %>">&laquo;</a>
+      <%}%>
+       <%for(let i=1;i<=totalPages;i++){%> 
+          <%if(i==currentPage){%>
+              <span  class="current-page bg-custom "><%= i %></span>
+          <%}else{%>
+              <a href="?page=<%= i %>"><%= i %></a>
+      <%}}%>
+      <%if (currentPage<totalPages){%>
+          <a href="?page=<%= currentPage+1 %>"> &raquo; </a>
+      <% }%>      
+  </div>
+    </div>
+  </div>
+</section>
+
+
+<script>
+
+  function confirmDelete(){
+      return confirm("Are you sure ,want to delete?");
+  }
+  </script>
+<%- include("../../views/partials/admin/footer") %>

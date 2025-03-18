@@ -1,0 +1,84 @@
+<%- include("../../views/partials/admin/header") %>
+
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header custom-header">
+                        <h5 class="text-center mb-0">Edit Coupon</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="editCouponForm" action="/admin/updateCoupon/<%=coupon._id%>" method="post">
+
+                            <input type="hidden" id="couponId" value="<%=coupon._id%>">
+                            <%if(locals.message && message.length>0){%>
+                                <div class="alert alert-danger text-center">
+                                  <%=message%>
+                                </div>
+                                <%}%>
+                            <div class="mb-2">
+                                <label for="couponCode" class="form-label">Coupon Code</label>
+                                <input type="text" class="form-control" name="couponCode" id="couponCode"  value="<%=coupon.couponCode%>" required>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <label for="createdOn" class="form-label">Created On</label>
+                                <input type="date" class="form-control" name="startOn" id="startOn" value="<%= new Date(coupon.startOn).toISOString().split('T')[0] %>" required>
+                                <div id="error-create-date" class="error-message"></div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <label for="expireOn" class="form-label">Expire On</label>
+                                <input type="date" class="form-control"  name="expireOn" id="expireOn" value="<%= new Date(coupon.expireOn).toISOString().split('T')[0] %>" required>
+                                <div id="error-expire-date" class="error-message"></div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <label for="discountValue" class="form-label">Discount Value</label>
+                                <input type="number" class="form-control" name="discountValue" id="discountValue" value="<%=coupon.discountValue%>" min="0" max="1000" required>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <label for="minimumPrice" class="form-label">Minimum Price</label>
+                                <input type="number" class="form-control" name="minimumPrice" id="minimumPrice"  value="<%=coupon.minimumPrice%>" min="0" step="0.01" required>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit"  onclick="return validateForm" class="btn custom-header">Update Coupon</button>
+                                <a href="/admin/coupons" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function validateForm(){
+            const createdDate=document.getElementById('createdOn').value;
+            const expireDate = document.getElementById('expireOn').value;
+            const createdDateObj= new Date(createdDate);
+            const expireDateObj= new Date(expireDate);
+            const todayDateObj=new Date();
+            console.log(createdDateObj,expireDateObj,todayDateObj);
+
+            if(createdDateObj > expireDateObj){
+                document.getElementById("error-expire-date").innerHTML="Expire date should be after the Created Date";
+                return false;
+            }
+            if(createdDateObj <=todayDateObj){
+                document.getElementById("error-create-date").innerHTML="Create date should be greater than or equal to Today's Date";
+                return false;
+            }
+            document.querySelectorAll('.error-message').forEach((element)=>(element.innerHTML=""));
+            return true;
+        }
+        
+    </script>
+
+
+
+<%- include("../../views/partials/admin/footer") %>

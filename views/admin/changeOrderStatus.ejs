@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Admin </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Header with Actions -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3>Order <%=order.orderId%></h3>
+            <div class="btn-group">                
+                <button class="btn btn-success">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+        </div>
+
+        <!-- Order Status -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <h6 class="text-muted">Order Status</h6>
+                        <span id="showStatus" class="badge bg-success fs-6"><%=order.status%></span>
+                        <%if(order.status!=='Delivered' && order.status!=='Cancelled'){%>
+                            <button id="BtchangeStatus"  type="button" class="btn fw-bold " style="color:#dead65">Change</button>
+                        <%}%>
+                         <div class="col-md-6 mb-3">                                                
+                            <div  id="changeStatusBlock"  class="d-none d-flex">
+                                <select id="orderStatusDropDown" class="form-select" style="width:200px">
+                                    <%switch(order.status){
+                                        case 'Placed':%>
+                                            <option value="Processing">Processing</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                            <% break; %>
+                                        <%case 'Processing':%>
+                                            <option value="Shipped">Shipped</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                            <% break; %>
+                                        <%case 'Shipped':%>
+                                            <option value="Delivered">Delivered</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                            <% break; %>
+                                        <%case 'Delivered':%>
+                                            <option value="Return">Return</option>                                           
+                                            <% break; %>
+                                        <%default:%>
+                                            <%break;%>
+                                           
+                                    <%}%>
+
+
+                                                                    
+                                </select>  
+                                <button id="btStatusUpdate" type="button" class="btn btn-sm btn-outline-secondary">Update</button>    
+                            </div>                                                            
+                        </div> 
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <h6 class="text-muted">Order Date</h6>
+                        <p class="mb-0"><%=new Date(order.createdOn).toLocaleDateString("en-GB")%></p>
+                    </div>
+                     <div class="col-md-3 mb-3">
+                        <h6 class="text-muted">Payment Status</h6>
+                        <span class="badge bg-success fs-6"><%=order.paymentStatus%></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <h6 class="text-muted">Payment Method</h6>
+                        <p class="mb-0"><%=order.paymentMethod%></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Customer Information -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Customer Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6><%=order.userId.name%></h6>
+                        <p class="mb-2">Email: <%=order.userId.email%></p>
+                        <p class="mb-2">Phone: <%=address.phone%></p>
+                        <hr>                       
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipping Information -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Shipping Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6><%=address.address%></h6>
+                        <p class="mb-3">
+                            <%=address.city%> <%=address.landmark%><br> <%=address.state%><br>
+                          <%=address.pincode%><br>                        
+                            
+                        </p>
+                        <hr>                      
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Order Items</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>                           
+                                <tr>
+                                    <th>Product</th>
+                                    <th>SKU</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th class="text-end">Total</th>
+                                    <th></th>
+                                </tr>                                
+                        </thead>
+                        <tbody>
+                        <%order.orderItems.forEach(item=>{%>    
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="/uploads/re-image/<%=item.productImage%>"  style="width:50px"alt="Product" class="me-2">
+                                        <div>
+                                            <h6 class="mb-0"><%=item.productName%></h6>
+                                            <!-- <small class="text-muted">Black, 128GB</small> -->
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><%=item.product%></td>
+                                <td><%=item.price%></td>
+                                <td><%=item.quantity%></td>
+                                <td class="text-end"><%=item.subtotal%></td>
+                                <%if(item.returnStatus==='Return Approved'){%>
+                                    <td><span class="badge bg-success text-white">Returned</span></td>
+                                <%}%>
+                            </tr>   
+                        <%})%>    
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Subtotal:</strong></td>
+                                <td class="text-end"><%=order.totalPrice%></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Delivery:</strong></td>
+                                <td class="text-end"><%=order.deliveryPrice%></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Discount:</strong></td>
+                                <td class="text-end"><%=order.discount%></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                                <td class="text-end"><strong><%=order.orderPrice%></strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Timeline -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Order Timeline</h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <!-- <div class="mb-3">
+                        <h6 class="mb-1">Order Delivered</h6>
+                        <small class="text-muted">February 12, 2025 - 2:30 PM</small>
+                        <p class="mb-0">Package was delivered to customer</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="mb-1">Out for Delivery</h6>
+                        <small class="text-muted">February 12, 2025 - 9:00 AM</small>
+                        <p class="mb-0">Package is out for delivery</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="mb-1">Order Shipped</h6>
+                        <small class="text-muted">February 9, 2025 - 10:00 AM</small>
+                        <p class="mb-0">Order has been shipped via Express Shipping</p>
+                    </div> -->
+                    <div>
+                        <h6 class="mb-1">Order Placed</h6>
+                        <small class="text-muted"><%=new Date(order.createdOn).toLocaleDateString("en-GB")%></small>
+                        <p class="mb-0">Order was placed by customer</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+    <script>
+        document.addEventListener("DOMContentLoaded",function(){
+
+            const BtchangeStatus =document.getElementById('BtchangeStatus');
+            const btStatusUpdate=document.getElementById('btStatusUpdate');
+            const showStatus= document.getElementById("showStatus");
+            const changeStatusBlock=document.getElementById('changeStatusBlock');
+            
+            if(BtchangeStatus){
+                BtchangeStatus.addEventListener('click',function(){                    
+                    changeStatusBlock.classList.remove('d-none');
+                    changeStatusBlock.classList.add('d-block');
+                });
+            }           
+        //------change status order--------------------------------
+            async function changeOrderStatus(orderId){              
+                const changeStatusOption=document.getElementById('orderStatusDropDown');
+                
+                const changedStatus=changeStatusOption.value;
+                console.log(changedStatus);
+                try {
+                    const response=await fetch(`/admin/orders/changeOrderStatus/${orderId}`,{
+                        method:'post',
+                        headers: { "Content-Type": "application/json" },
+                        body:JSON.stringify({changedStatus})
+                    });
+                    const result=await response.json();                            
+                    if(result.success){
+                        console.log(`Status Changed to  : ${changedStatus}`);
+                        showStatus.innerText=changedStatus;                     
+                       
+                        changeStatusBlock.classList.remove('d-block');
+                        changeStatusBlock.classList.add('d-none');
+                        window.location.reload();
+                    }
+                    else{
+                        console.log("Error:cannot change status");
+                        alert(`Error: ${result.message} || 'Failed to update the status'.`);
+                    }
+                } catch (error) {
+                    console.log("Error:cannot change status");
+                    alert('An unexpected error occurred.');
+                }
+            }
+
+
+
+            btStatusUpdate.addEventListener('click',function(){
+                const orderId='<%=order.orderId%>';
+                changeOrderStatus(orderId);
+            });
+        });   
+    </script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

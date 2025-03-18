@@ -1,0 +1,228 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Pet Treat</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="">
+   
+    <meta property="og:image" content="">
+    <link rel="icon" type="image/png" href="images/icons/favicon.png"/>
+    <link rel="shortcut icon" type="image/x-icon" href="#">
+    <link href="/admin-assets/css/main.css"rel="stylesheet" type="text/css" />
+     <!-- <link href="/public/css/header.css" rel="stylesheet" type="text/css" />  -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.css">
+ <!-- Font Awesome Icons for delete/edit -->
+ <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"> -->
+ <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+ <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<script src="https://kit.fontawesome.com/16d4885483.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<style>
+:root {
+    --primary-color: #dead65;
+    --primary-light: #807f7b;
+    --primary-dark: #c28e35;
+}
+.bg-custom{
+     background-color: #ecd5b1
+}
+.bg-transparent{
+    background-color:transparent !important ;
+}
+.text-custom{
+     color:#dead65!important;
+}
+body {
+    background-color: #ecd5b1;
+}
+.navbar {
+    background-color: #343432;
+}
+.navbar-aside {
+    background-color: #343432;
+
+}
+.menu-item a.menu-link {
+    color: #dead65;
+}
+
+.menu-item a.menu-link:hover,
+.menu-item a.menu-link.active {
+    background-color: #dead65; 
+    color: #ffffff;
+}
+.dropdown-menu {
+    background-color: #2d2c2c;    
+}
+.dropdown-item{
+    color:#dead65 !important;
+}
+.dropdown-item:hover {
+    background-color: #33053d;
+    color: #ffffff;
+}
+.logo {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  align-items: center;
+  height: 65%;
+  margin-right: 55px;
+}
+
+.logo img {
+  max-width: 100%;
+  max-height: 100%;
+}
+.custom-header {
+            background-color: #dead65;
+}
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+        
+.card-header {
+    background-color: var(--primary-light);
+    border-bottom: none;
+    color:#ffffff;
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.card-footer {
+    background-color: #f8f9fa;
+    border-top: none;
+}
+
+.stat-card {
+    border-left: 5px solid var(--primary-color);
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--primary-light);
+}
+
+.progress-bar {
+    background-color: var(--primary-color);
+}
+
+.error-message {
+      color: red;
+      font-size: 0.9rem;
+ }
+ .pagination-container {
+      text-align: center;
+    }
+
+    .pagination {
+      display: inline-block;
+    }
+
+    .pagination a,
+    .pagination .current-page {
+      
+      padding: 5px 10px;
+      margin: 0 2px;
+      border: 1px solid #ddd;
+      text-decoration: none;
+      color: #333;
+      justify-content: center;
+    
+    }
+
+    .pagination a:hover {
+      background-color: #f5f5f5;
+    }
+
+</style>
+</head>
+<body>
+    <!-- <div class="screen-overlay"></div> -->
+    <aside class="navbar-aside col-md-2 border-0" id="offcanvas_aside">
+        <div class="aside-top border-0">
+            <a href="#" class="brand-wrap">
+                <img src="/images/icons/Pet_treatLogo4DarkBG.png" alt="petTreat-Logo">
+            </a>
+            <div>
+                <button class="btn btn-icon btn-aside-minimize"> <i class="text-muted material-icons md-menu_open"></i> </button>
+            </div>
+        </div>
+        <nav > 
+            <ul class="menu-aside ">
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin"> <i class="icon material-icons md-home"></i>
+                        <span class="text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/users"> <i class="icon material-icons md-person"></i>
+                        <span class="text">Customers</span>
+                    </a>
+
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/category"> <i class="icon material-icons md-person"></i>
+                        <span class="text">Category</span>
+                    </a>
+
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/brands"> <i class="icon material-icons md-stars"></i>
+                        <span class="text">Brands</span> </a>
+                </li>
+                
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/products"> <i class="icon material-icons md-shopping_bag"></i>
+                        <span class="text">Products</span>
+                    </a>
+                </li>
+            
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/coupons"> <i class="icon material-icons md-class"></i>
+                        <span class="text">Coupon</span> </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/referralOffer"> <i class="icon material-icons md-photo_size_select_actual"></i>
+                        <span class="text">ReferralProgram</span> </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/transactions"> <i class="icon  fas fa-exchange-alt"></i></i>
+                        <span class="text">Transactions</span> </a>
+                </li>
+
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/orders"> <i class="icon material-icons md-shopping_cart"></i>
+                        <span class="text">Orders</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/SalesReport">   <span class="material-icons-sharp">📃</span>                       
+                        <span class="text">Reports</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+        <header class="main-header navbar ">
+            <div class="col-search">
+            </div>
+            <div class="col-nav mr-5 pr-5">
+                <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"> </i> </button>
+                <ul class="nav mr-5 pr-5">
+                    <li class="dropdown nav-item ">
+                        <a class="dropdown-toggle text-custom" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false"> <i class="fas fa-user"></i> Admin</a>
+                        <div class="dropdown-menu dropdown-menu-end mr-5" aria-labelledby="dropdownAccount">
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-white " href="/admin/logout"><i class="material-icons md-exit_to_app"></i>Logout</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </header>
+        <main class="main-wrap mt-2">

@@ -1,0 +1,169 @@
+ <!-- Footer -->
+ <footer class="bg-dark text-white py-4">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-4 mb-4 mb-lg-0">
+				<h5 class="primary-color fw-bold">PetTreat</h5>
+				<p>Premium nutrition for dogs, cats, birds, and fish.</p>
+				<p>© 2025 PetTreat. All rights reserved.</p>
+			</div>
+			<div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+				<h6 class="text-uppercase primary-color mb-3">Shop</h6>
+				<ul class="list-unstyled">
+					<li class="mb-2"><a href="#" class="text-white text-decoration-none">Dogs</a></li>
+					<li class="mb-2"><a href="#" class="text-white text-decoration-none">Cats</a></li>
+					<li class="mb-2"><a href="#" class="text-white text-decoration-none">Birds</a></li>
+					<li class="mb-2"><a href="#" class="text-white text-decoration-none">Fish</a></li>
+				</ul>
+			</div>
+			<div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+				<h6 class="text-uppercase primary-color mb-3">Company</h6>
+				<ul class="list-unstyled">
+					<li class="mb-2"><a href="#" class="text-white text-decoration-none">About Us</a></li>
+					<li class="mb-2"><a href="#" class="text-white text-decoration-none">Contact</a></li>
+					<li class="mb-2"><a href="#" class="text-white text-decoration-none">Blog</a></li>
+					<li class="mb-2"><a href="#" class="text-white text-decoration-none">Careers</a></li>
+				</ul>
+			</div>
+			<div class="col-lg-4 col-md-4">
+				<h6 class="text-uppercase primary-color mb-3">Stay Connected</h6>
+				<p class="mb-3">Subscribe to our newsletter for pet nutrition tips and exclusive offers.</p>
+				<div class="input-group mb-3">
+					<input type="email" class="form-control" placeholder="Your email">
+					<button class="btn btn-primary" type="button">Subscribe</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</footer>
+
+
+	<!-- Back to top -->
+	<div class="btn-back-to-top" id="myBtn">
+		<span class="symbol-btn-back-to-top">
+			<i class="zmdi zmdi-chevron-up"></i>
+		</span>
+	</div>
+
+	<!-- Modal1 -->
+	<div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
+		<div class="overlay-modal1 js-hide-modal1"></div>
+
+		<div class="container">
+			<div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+				<button class="how-pos3 hov3 trans-04 js-hide-modal1">
+					<img src="" alt="CLOSE">
+				</button>
+
+				
+			</div>
+		</div>
+	</div>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<!--===============================================================================================-->	
+	<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/animsition/js/animsition.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/select2/select2.min.js"></script>
+	<script>
+		$(".js-select2").each(function(){
+			$(this).select2({
+				minimumResultsForSearch: 20,
+				dropdownParent: $(this).next('.dropDownSelect2')
+			});
+		})
+	</script>
+<!--===============================================================================================-->
+	<script src="vendor/daterangepicker/moment.min.js"></script>
+	<script src="vendor/daterangepicker/daterangepicker.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/slick/slick.min.js"></script>
+	<script src="js/slick-custom.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/parallax100/parallax100.js"></script>
+	<script>
+        $('.parallax100').parallax100();
+	</script>
+<!--===============================================================================================-->
+	<script src="vendor/MagnificPopup/jquery.magnific-popup.min.js"></script>
+	<script>
+		$('.gallery-lb').each(function() { // the containers for all your galleries
+			$(this).magnificPopup({
+		        delegate: 'a', // the selector for gallery item
+		        type: 'image',
+		        gallery: {
+		        	enabled:true
+		        },
+		        mainClass: 'mfp-fade'
+		    });
+		});
+	</script>
+<!--===============================================================================================-->
+	<script src="vendor/isotope/isotope.pkgd.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/sweetalert/sweetalert.min.js"></script>
+	<script>
+		$('.js-addwish-b2').on('click', function(e){
+			
+			e.preventDefault();
+			activeProduct=this.getAttribute('data-product-id');
+			
+			fetch(`/addwishlist/${activeProduct}`,{method: 'GET',
+						headers: {	'Content-Type': 'application/json'}, 
+						})
+			.then((response)=>response.json())
+			.then((data)=>{		
+					console.log(data.product);					
+					swal(data.product, "is added to wishlist !", "success");
+					$(this).addClass('js-addedwish-b2');
+					$(this).off('click');
+				
+			})
+			.catch((error) => {
+                console.error('Error:', error);
+                swal("Error", "An unexpected error occurred", error);
+			});
+		});
+
+		$('.js-addwish-detail').each(function(){
+			var nameProduct = $(this).parent().parent().parent().find('.js-name-detail').html();
+
+			$(this).on('click', function(){
+				swal(nameProduct, "is added to wishlist !", "success");
+
+				$(this).addClass('js-addedwish-detail');
+				$(this).off('click');
+			});
+		});
+
+		
+	
+	</script>
+<!--===============================================================================================-->
+	<script src="vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+	<script>
+		$('.js-pscroll').each(function(){
+			$(this).css('position','relative');
+			$(this).css('overflow','hidden');
+			var ps = new PerfectScrollbar(this, {
+				wheelSpeed: 1,
+				scrollingThreshold: 1000,
+				wheelPropagation: false,
+			});
+
+			$(window).on('resize', function(){
+				ps.update();
+			})
+		});
+	</script>
+<!--===============================================================================================-->
+	<script src="js/main.js"></script>
+	
+
+</body>
+</html>

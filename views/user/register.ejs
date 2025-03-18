@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetTreat - Signup</title>
+    <!-- Including the latest Font Awesome CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: comic sans MS, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f8f8f8;
+        }
+        .signup-container {
+            display: flex;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .signup-image {
+            width: 280px;
+         
+            background: url('../../public/images/signup.jpg') ;
+           
+            BORDER:1PX,solid  yellowgreen;
+        }
+        .signup-form {
+            padding: 30px;
+            width: 300px;
+        }
+        .signup-form h2 {
+            margin: 0 0 20px;
+        }
+        .signup-form input {
+            width: 100%;
+            padding: 5px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .signup-form input::placeholder {
+            color: #aaa;
+        }
+        .signup-form button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #dead65;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .signup-form button:hover {
+            color: #110b02;
+
+        }
+        .signup-form .google-signup {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            padding:5px;
+            justify-content: center;
+            background-color: transparent;
+            color:#dead65;
+            border: 1px solid #de8f18;
+            border-radius: 5px;
+        }
+        .signup-form .google-signup img {
+            margin-right: 10px;
+        }
+        .signup-form .google-signup:hover {
+            color: #191717;
+        }
+        .signup-form p {
+            text-align: center;
+            color:#5d5d5c;
+            font-size: small;
+        }
+        .signup-form a {
+            color: #dead65;
+            text-decoration: none;
+        }
+        .signup-form a:hover {
+            text-decoration: underline;
+        }
+        
+        .errorMsg{
+            color:red;
+            font-size:0.7rem;
+            display:none;
+        }
+    </style>
+</head> 
+<body>
+    <div class="signup-container">
+        <div class="card" style="width: 18rem;">
+            <img class="card-img-top"  src="images/signup.jpg" alt="Pettreat " />   
+            <div class="card-body">
+                <p  class="card-text ">Already registered? <a style="color:#dead65" href="/signIn">Sign in</a></p>                 
+            </div>         
+        </div>
+        <div class="signup-form">
+            <h4>Create an Account</h4>
+            <form id="signform" action="/register" method="post">
+                <input type="text" id="name" name="name"  placeholder="Name" required>
+                <div id="errorName" class="errorMsg"></div>
+                <input type="email" id="email" name="email" placeholder="Email" required>              
+                <div id="errorEmail" class="errorMsg"></div>
+                <div class="input-group input-group-sm p-0">
+                    <input type="password" id="password" name="password"  class="form-control  " placeholder="Password" required>
+                    <span class="password-toggle-icon pt-3"><i class="fas fa-eye text-muted"></i></span>
+                </div>
+                <div id="errorPassword" class="errorMsg"></div>
+                <div class="input-group input-group-sm p-0">
+                    <input type="password" id="confirmPassword" name="confirmPpassword"   class="form-control  "placeholder="Confirm Password" required>
+                    <span class="confirmPassword-toggle-icon pt-3"><i class="fas fa-eye text-muted"></i></span>
+                </div>  
+                <input type="text" id="referralcode" name="referralcode"  placeholder="ReferralCode(optional)" > 
+                <div id="errorCPassword" class="errorMsg"></div>
+                <%if(locals.message && message.length>0){%>
+                    <div class="alert alert-danger text-center">
+                      <%=message%>
+                    </div>
+                    <%}%>
+                <button type="submit">Sign Up</button>
+                <a href="/auth/google" class="google-signup">
+                    <img src="images/icons/google icon.png" alt="Google logo" width="20"> Sign Up with Google
+               
+            </form>
+        </div>
+    </div>
+
+
+
+    <script>
+        const nameid=document.getElementById('name');
+        const emailid=document.getElementById('email');
+        const passid=document.getElementById('password');
+        const cpassid=document.getElementById('confirmPassword');
+        const errorName=document.getElementById('errorName');
+        const errorEmail=document.getElementById('errorEmail');
+        const errorPassword=document.getElementById('errorPassword');
+        const errorCPassword=document.getElementById('errorCPassword');
+        const signform =document.getElementById('signform');
+        const passwordField = document.getElementById("password");
+      const togglePassword = document.querySelector(".password-toggle-icon i");
+      const confirmpasswordField = document.getElementById("confirmPassword");
+      const confirmTogglePassword = document.querySelector(".confirmPassword-toggle-icon i");
+      togglePassword.addEventListener("click", function () {
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            togglePassword.classList.remove("fa-eye");
+            togglePassword.classList.add("fa-eye-slash");
+        } else {
+            passwordField.type = "password";
+            togglePassword.classList.remove("fa-eye-slash");
+            togglePassword.classList.add("fa-eye");
+        }
+      });
+
+      confirmTogglePassword.addEventListener("click", function () {
+        if (confirmpasswordField.type === "password") {
+          confirmpasswordField.type = "text";
+          confirmTogglePassword.classList.remove("fa-eye");
+          confirmTogglePassword.classList.add("fa-eye-slash");
+        } else {
+            confirmpasswordField.type = "password";
+          confirmTogglePassword.classList.remove("fa-eye-slash");
+          confirmTogglePassword.classList.add("fa-eye");
+        }
+      });
+
+        function nameValidatation(e){
+            const nameVal=nameid.value;
+            const namePattern=/^[A-Za-z\s]+$/;
+            if(nameVal.trim()===""){
+                errorName.style.display='block';
+                errorName.innerHTML='Please enter valid Name';
+
+            }else if(!namePattern.test(nameVal)){
+                errorName.style.display='block';
+                errorName.innerHTML='Name can only alphabets and space';
+
+            }
+            else{
+                errorName.style.display='none';
+                errorName.innerHTML='';
+            }
+        }
+
+
+        function  emailValidation(e){
+            const emailVal=emailid.value;
+            const emailPattern= /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            
+            if(!emailPattern.test(emailVal)){
+                errorEmail.style.display='block';
+                errorEmail.innerHTML='Invalid Email';
+            }
+            else{
+                errorEmail.style.display='none';
+                errorEmail.innerHTML='';
+            }
+        }
+
+        function  passwordValidation(e){
+            const passVal=passid.value;
+            const cpassVal=cpassid.value;
+            const passPattern=/^(?=.*[A-Za-z])(?=.*\d).*$/;
+
+            if(passVal.length<=8){
+                errorPassword.style.display='block';
+                errorPassword.innerHTML='Should contains 8 charactwers';
+            }
+            else if(!passPattern.test(passVal)){
+                errorPassword.style.display='block';
+                errorPassword.innerHTML='Should contains alphabeta and numbers';
+                
+            }else{
+                errorPassword.style.display='none';
+                errorPassword.innerHTML='';
+            }
+            if(passVal!==cpassVal){
+                errorCPassword.style.display='block';
+                errorCPassword.innerHTML='Password do not match !';
+            }else{
+                errorCPassword.style.display='none';
+                errorCPassword.innerHTML='';
+            }
+        }   
+
+
+        document.addEventListener('DOMContentLoaded',function(){
+            signform.addEventListener('submit',function(e){
+
+                nameValidatation(e);
+                emailValidation(e);
+                passwordValidation(e);
+                if(!nameid ||!emailid||!passid||!errorName||!errorEmail||!errorPassword||!errorCPassword||!signform){
+                    console.log("one or more elements not found");
+                }
+
+
+                if(errorName.innerHTML||errorEmail.innerHTML||errorPassword.innerHTML||errorCPassword.innerHTML){
+                    e.preventDefault();
+                }
+
+            })        
+
+        })
+
+
+
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<%- include("../../views/partials/admin/header") %>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    rel="stylesheet"  >
+ <!-- Cropper.js CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<!-- Cropper.js JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+
+  <!-- <link rel="stylesheet" href="https://unpkg.com/cropperjs/dist/cropper.css"> -->
+ 
+  <style>
+    #preview {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .preview-image {
+      width: 150px;
+      height: 150px;
+      border: 1px solid #ccc;
+      overflow: hidden;
+      position: relative;
+    }
+    .preview-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .error-message {
+      color: red;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="text-center mb-4">Add Product</h1>
+    <form action="/admin/addProduct" method="POST" enctype="multipart/form-data" >
+      <!-- Product Name -->
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="productName" class="form-label">Product Name:</label>
+          <input type="text" class="form-control" id="productName" name="productName" required>
+          <div class="error-message" id="productName-error"></div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="brand" class="form-label">Brand:</label>
+          <select id="brand" name="brand" class="form-select" required>
+            <%for( let i=0;i<brand.length;i++){%>                                
+                <option value="<%=brand[i].brandName%>">                                
+                        <%=brand[i].brandName%>                                         
+                </option>                                       
+            <%}%>
+          </select>
+          <div class="error-message" id="brand-error"></div>
+        </div>
+      </div>
+      
+      <!-- Description -->
+      <div class="row">
+        <div class="col-md-12 mb-3">
+          <label for="description" class="form-label">Description:</label>
+          <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+          <div class="error-message" id="description-error"></div>
+        </div>
+      </div>
+      
+      <!-- Category, Regular Price, Sale Price -->
+      <div class="row">
+        <div class="col-md-4 mb-3">
+            <label for="category" class="form-label">Category:</label>
+            <select id="category" name="category" class="form-select" required>
+                <%for( let i=0;i<category.length;i++){%>                                              
+                    <option value="<%=category[i].name%>">
+                        <%=category[i].name%>                                                       
+                    </option>                         
+                
+            <%}%>   
+            </select>
+            <div class="error-message" id="category-error"></div>
+          </div>
+        <div class="col-md-4 mb-3">
+          <label for="regularPrice" class="form-label">Regular Price:</label>
+          <input type="number" class="form-control" id="regularPrice" name="regularPrice" required>
+          <div class="error-message" id="regularPrice-error"></div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label for="salePrice" class="form-label">Sale Price:</label>
+          <input type="number" class="form-control" id="salePrice" name="salePrice" required>
+          <div class="error-message" id="salePrice-error"></div>
+        </div>
+      </div>
+
+      <!-- stock, Weight -->
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="stock" class="form-label">Stock:</label>
+          <input type="number" class="form-control" id="stock" name="stock" required>
+          <div class="error-message" id="stock-error"></div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="weight" class="form-label">Weight:</label>
+          <input type="text" class="form-control" id="weight" name="weight" required>
+          <div class="error-message" id="weight-error"></div>
+        </div>
+      </div>
+      
+      <!-- Image Fields -->
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label for="imageInput1" class="form-label">Product Image 1:</label>
+          <input type="file" class="form-control" id="imageInput1" name="productImages" accept="image/png, image/jpeg, image/jpg">
+          <div id="cropperContainer1" style="display: none;" class="mt-3">
+            <img id="imageToCrop1" class="img-fluid" />
+            <button type="button" id="cropButton1" class="btn btn-primary mt-2">Crop</button>
+          </div>
+          <div class="error-message" id="imageInput1-error"></div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label for="imageInput2" class="form-label">Product Image 2:</label>
+          <input type="file" class="form-control" id="imageInput2" name="productImages" accept="image/png, image/jpeg, image/jpg">
+          <div id="cropperContainer2" style="display: none;" class="mt-3">
+            <img id="imageToCrop2" class="img-fluid" />
+            <button type="button" id="cropButton2" class="btn btn-primary mt-2">Crop</button>
+          </div>
+          <!-- <div class="error-message" id="imageInput2-error"></div> -->
+        </div>
+        <div class="col-md-4 mb-3">
+          <label for="imageInput3" class="form-label">Product Image 3:</label>
+          <input type="file" class="form-control" id="imageInput3" name="productImages" accept="image/png, image/jpeg, image/jpg">
+          <div id="cropperContainer3" style="display: none;" class="mt-3">
+            <img id="imageToCrop3" class="img-fluid" />
+            <button type="button" id="cropButton3" class="btn btn-primary mt-2">Crop</button>
+          </div>
+          <!-- <div class="error-message" id="imageInput3-error"></div> -->
+        </div>
+      </div>
+
+      <div id="preview" class="row mt-3"></div>
+      <button type="submit" class="btn btn-success mt-4">Submit</button>
+      <a href="/admin/products"class="btn btn-success mt-4" type="reset"> Cancel</a>
+    </form>
+  </div>
+  <!-- <script src="https://unpkg.com/cropperjs"></script> -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.querySelector('form');
+
+
+            form.addEventListener("submit", (event) => {
+        // Prevent submission if the form is invalid
+                if (!validateForm()) {
+                    event.preventDefault();
+                    // event.stopPropagation();
+                }else
+                    console.log("form submitted");
+                   // window.location.href = "/admin/products";
+                
+                
+            });
+
+        const imageInputs = [
+        { input: 'imageInput1', cropperContainer: 'cropperContainer1', imageToCrop: 'imageToCrop1', cropButton: 'cropButton1' },
+        { input: 'imageInput2', cropperContainer: 'cropperContainer2', imageToCrop: 'imageToCrop2', cropButton: 'cropButton2' },
+        { input: 'imageInput3', cropperContainer: 'cropperContainer3', imageToCrop: 'imageToCrop3', cropButton: 'cropButton3' },
+        ];
+
+        imageInputs.forEach((imageInputObj, index) => {
+            const input = document.getElementById(imageInputObj.input);
+            const cropperContainer = document.getElementById(imageInputObj.cropperContainer);
+            const imageToCrop = document.getElementById(imageInputObj.imageToCrop);
+            const cropButton = document.getElementById(imageInputObj.cropButton);
+            const preview = document.getElementById('preview');
+            let cropper;
+    
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        imageToCrop.src = reader.result;
+                        cropperContainer.style.display = 'block';
+                        if (cropper) cropper.destroy();
+                        cropper = new Cropper(imageToCrop, { aspectRatio: NaN });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            cropButton.addEventListener('click', () => {
+                const croppedCanvas = cropper.getCroppedCanvas();
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                const fileName = `cropedimage${index + 1}-${timestamp}.jpg`;
+
+                croppedCanvas.toBlob(blob => {
+                    const file = new File([blob], fileName, { type: 'image/jpeg' });
+
+                    // Add to the form's file input
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    input.files = dataTransfer.files;
+
+                    // Add the cropped image preview
+                    const previewDiv = document.createElement('div');
+                    previewDiv.className = 'preview-image col-md-4';
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    previewDiv.appendChild(img);
+                    preview.appendChild(previewDiv);
+
+                    cropper.destroy();
+                    cropperContainer.style.display = 'none';
+                });
+            });
+        });
+
+    });
+
+    function validateForm() {
+                clearErrorMessages();
+                const name = document.getElementsByName('productName')[0].value;
+                const description = document.getElementById('description').value;
+                const brand = document.getElementsByName('brand')[0].value;
+                const price = document.getElementsByName('regularPrice')[0].value;
+                const saleprice = document.getElementsByName('salePrice')[0].value;
+                const weight = document.getElementsByName('weight')[0].value;
+                const category = document.getElementsByName('category')[0].value;
+                const images = document.getElementById('imageInput1')
+                const stock=document.getElementsByName('stock')
+                let isValid = true
+                if (name.trim() === "") {
+                        displayErrorMessage('productName-error', 'Please enter a product name.');
+                                isValid = false;
+                }else if (!/^(?=.*[A-Za-z]{5,}).*$/.test(name.trim())) {
+                        displayErrorMessage('productName-error', 'Product name should contain  alphabetic characters.');
+                            isValid = false;
+                    }         
+                    if (description.trim() === "") {
+                        displayErrorMessage('description-error', 'Please enter a product description.');
+                        isValid = false;
+                    }          
+    
+    
+                if ( parseInt(stock) < 0) {
+                    displayErrorMessage('stock-error', 'Please enter a valid non-negative stock.');
+                    isValid = false;
+                }
+    
+    
+                if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
+                    displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
+                    isValid = false;
+                }
+    
+    
+                if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
+                    displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
+                    isValid = false;
+                }
+                if (parseFloat(price) < parseFloat(saleprice)) {
+                        displayErrorMessage('regularPrice-error', 'Regular price must be greater than or equal sale price.');
+                                isValid = false;
+                }
+    
+    
+                if (weight.trim() === "") {
+                    displayErrorMessage('weight-error', 'Please enter a weight.');
+                    isValid = false;
+                }
+    
+    
+                if (images.files.length === 0) {
+                    displayErrorMessage("imageInput1-error",'Please select an image.');
+                    isValid = false;
+                }
+                return isValid;
+        }
+
+
+            function clearErrorMessages() {
+                const errorElements = document.getElementsByClassName('error-message');
+                Array.from(errorElements).forEach(element => {
+                    element.innerText = '';
+                });
+                const errorMessage = document.getElementById('errorMessage');
+
+            }
+
+            function displayErrorMessage(elementId, message) {
+                var errorElement = document.getElementById(elementId);
+                errorElement.innerText = message;
+                errorElement.style.display = "block";
+            }
+      </script>
+  <%- include("../../views/partials/admin/footer") %>
+
+
+
+
+

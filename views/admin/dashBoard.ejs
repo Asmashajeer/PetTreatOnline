@@ -1,0 +1,419 @@
+<%-include("../partials/admin/header") -%>
+<style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .chart-container {
+      position: relative;
+      height: 250px;
+      width: 100%;
+    }
+    .card {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      margin-right: 8px;
+      border-radius: 2px;
+    }
+  </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+  <!-- Main Content -->
+  <div class="col-md-10 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Dashboard Overview</h2>
+            
+        </div>
+
+    <!-- Total Sales, Orders, Users, Products Stats -->
+    <div class="row">
+        <!-- Total Sales -->
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-muted">Total Sales&nbsp;<i class="fas fa-coins  text-success"></i></h6>
+                            <h4 class="mb-0">₹ <%=Total.totalSales.toFixed(2)%></h4>
+                        </div>
+                        <div>
+                            
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">Today: ₹ <%=Total.todaySales.toFixed(2)%></small>
+                        
+                        <small class="text-muted">This Month: ₹ <%=Total.monthSales.toFixed(2)%></small>
+                        
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+        
+        <!-- Total Orders -->
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-muted">Total Orders</h6>
+                            <h3 class="mb-0"><%=Total.totalOrders%></h3>
+                        </div>
+                        <div>
+                            <i class="fas fa-shopping-bag  text-success"></i>
+                        </div>
+                    </div>
+                    <div class="mt-1 ">
+                        <small class="text-success">Completed: <%=Total.totalOrderCompleted%></small><br>
+                        <small class="text-warning">Pending: <%=Total.totalOrderPending%></small><br>
+                        <small class="text-danger">Canceled: <%=Total.totalOrderCancelled%></small><br>
+                        <small class="text-info">Returned: <%=Total.totalOrderReturned%></small><br>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Total Users -->
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-muted">Total Users</h6>
+                            <h3 class="mb-0" ><%=Total.totalUsers%></h3>
+                        </div>
+                        <div>
+                            <i class="fas fa-users  text-success"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-success">Active: <%=Total.activeUsers%></small>
+                      
+                        <small class="text-danger ">Banned: <%=Total.blockedUsers%></small>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+        
+        <!-- Total Products -->
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-muted">Total Products</h6>
+                            <h5 class="mb-0"><%=Total.totalProducts%></h5>
+                        </div>
+                        <div>
+                            <i class="fas fa-box  text-success"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-success">In Stock: <%=Total.productsInStock%></small><br>
+                        <small class="text-danger ">OutOf Stock: <%=Total.productsOutofStock%></small>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Revenue Statistics Chart & Top Selling Products -->
+   
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Sales Performance </h5>
+                <div class="d-flex align-items-center">
+                <label for="timeFilter" class="me-2">Time Period:</label>
+                <select id="timeFilter" class="form-select form-select-sm" style="width: 150px;">
+                    <option value=" " selected></option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly" >Yearly</option>
+                </select>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <!-- Best Selling Products -->
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <div class="card-header ">
+              <h6 class="card-title text-center text-white mb-0">Best Selling Products</h6>
+            </div>
+            <div class="card-body">
+              <div class="chart-container">
+                <canvas id="productChart"></canvas>
+              </div>
+              <div id="productLegend" class="mt-3"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Best Selling Categories -->
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <div class="card-header ">
+              <h6 class="card-title text-center  text-white mb-0">Best Selling Categories</h6>
+            </div>
+            <div class="card-body">
+              <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+              </div>
+              <div id="categoryLegend" class="mt-3"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Best Selling Brands -->
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <div class="card-header ">
+              <h6 class="card-title text-center   text-white mb-0">Best Selling Brands</h6>
+            </div>
+            <div class="card-body">
+              <div class="chart-container">
+                <canvas id="brandChart"></canvas>
+              </div>
+              <div id="brandLegend" class="mt-3"></div>
+            </div>
+          </div>
+        </div>
+    </div>
+
+   
+</div>
+    
+    <!-- Recent Orders  -->
+    <div class="row mt-3">
+        <!-- Recent Orders -->
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Orders</h5>
+                    <a href="/admin/orders" class="btn btn-sm btn-outline-light">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <%if(orders.length>0){%>
+                                   <% orders.forEach(order=>{%>
+                                        <tr>
+                                            <td><%=order.orderId%></td>
+                                            <td><%=order.userId.name%></td>
+                                            <td><%=moment(order.createdOn).format("DD-MM-YYYY")%></td>
+                                            <td><%=order.orderPrice%></td>
+                                            <%if(order.status==="Placed"){%>
+                                                <td><span class="badge bg-warning"><%=order.status%></span></td>
+                                            <%}else if(order.status==="Processing"){%>
+                                                <td><span class="badge bg-info"><%=order.status%></span></td>
+                                            <%}else if(order.status==="shipped"){%>
+                                                <td><span class="badge bg-primary"><%=order.status%></span></td> 
+                                            <%}else if(order.status==="Delivered"){%>
+                                                <td><span class="badge bg-success"><%=order.status%></span></td>
+                                            <%}else if(order.status==="Cancelled"){%>
+                                                <td><span class="badge bg-danger"><%=order.status%></span></td> 
+                                            <%}else if(order.status==="Returned"){%>
+                                                <td><span class="badge bg-secondary"><%=order.status%></span></td>
+                                            <%}%>        
+                                        </tr>
+                                    <%})%>    
+                                <%}%>    
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+    </div>
+    <div class="row mt-3">
+         
+        
+    </div>    
+</div>
+</div>
+</div>
+
+<!-- Bootstrap & jQuery JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+<!-- Chart initialization -->
+<script>
+    const timeFilter=document.getElementById('timeFilter');
+        timeFilter.addEventListener('change',async function(){
+            let type= timeFilter.value;            
+                const response= await fetch(`/admin/dashboard/Chart/${type}`);
+                const data=await response.json();
+                console.log(data);
+                initCharts(data) ;
+            
+        })
+    document.addEventListener('DOMContentLoaded', async function() {     
+    
+    try{
+        const response= await fetch('/admin/dashboard/Chart');
+        const data=await response.json();
+        console.log(data);
+        initCharts(data)
+
+    }catch(error){
+        console.log("errror fetching data",error);
+
+    }
+
+});
+     // Chart colors
+     const chartColors = [
+      '#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', 
+      '#1abc9c', '#d35400', '#34495e', '#16a085', '#c0392b'
+    ];
+
+    // Chart instances
+    let productChart, categoryChart, brandChart;
+
+    // Initialize charts
+    function initCharts(data) {
+        if (productChart) productChart.destroy();
+        if (categoryChart) categoryChart.destroy();
+        if (brandChart) brandChart.destroy();
+
+      //--- Product chart
+      const productCtx = document.getElementById('productChart').getContext('2d');
+      productChart = createPieChart(productCtx, data.products, 'productLegend');
+
+      //---Category chart
+      const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+      categoryChart = createPieChart(categoryCtx, data.categories, 'categoryLegend');
+
+      // Brand chart
+      const brandCtx = document.getElementById('brandChart').getContext('2d');
+      brandChart = createPieChart(brandCtx, data.brands, 'brandLegend');
+    }
+
+    // Create pie chart
+    function createPieChart(ctx, data, legendId) {
+        const names = data.map(item => {
+            if (item.month) {
+                return `${item.year} (${getMonthName(item.month)})`; // If grouped by month
+            }
+            if (item.year){ 
+                return item.year.toString(); // If grouped by year
+            }else{
+                return item.name; 
+            }
+        });
+       
+      const values = data.map(item => item.totalQtySold);
+      
+      const chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: names,
+          datasets: [{
+            data: values,
+            backgroundColor: chartColors.slice(0, data.length),
+            borderColor: 'white',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: ${value} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+      // Create custom legend
+      createCustomLegend(data, legendId, chartColors);
+      
+      return chart;
+    }
+    function createCustomLegend(data, legendId, colors) {
+      const legendContainer = document.getElementById(legendId);
+      legendContainer.innerHTML = '';
+      
+      const total = data.reduce((sum, item) => sum + item.totalQtySold, 0);
+      
+      data.forEach((item, index) => {
+        const percentage = ((item.totalQtySold / total) * 100).toFixed(1);
+        const legendItem = document.createElement('div');
+        legendItem.className = 'legend-item';
+        
+        const colorBox = document.createElement('div');
+        colorBox.className = 'legend-color';
+        colorBox.style.backgroundColor = colors[index];
+        
+        const text = document.createElement('span');
+        text.className = 'small';
+       
+        text.textContent = `${item.name} - ${percentage}%`;
+        
+        legendItem.appendChild(colorBox);
+        legendItem.appendChild(text);
+        legendContainer.appendChild(legendItem);
+      });
+    }
+
+    // Function to Convert Month Number to Month Name
+function getMonthName(monthNumber) {
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return monthNames[monthNumber - 1]; // Months are 1-indexed in MongoDB but 0-indexed in JavaScript arrays
+}
+</script>
+
+
+
+
+
+
+
+
+<%-include("../partials/admin/footer") -%>
+</body>
+</html>

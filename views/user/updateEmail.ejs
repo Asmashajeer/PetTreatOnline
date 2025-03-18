@@ -1,0 +1,35 @@
+<%-include("../partials/user/header.ejs") -%>
+    <div class="container">
+        <div class="row justify-content-center min-vh-100 align-items-center">
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card shadow">
+                    <div class="card-body p-4">
+                        <h4 class="text-center mb-4">Enter Email Address</h4>
+                        
+                        <!-- Email Form -->
+                        <form id="emailForm" action="/updateEmail" method="post">
+                            <div class="mb-3">
+                                <!-- <label class="form-label fw-bold">Current Email:<% if (locals.email  > 0) {email}%></label> -->
+                                <input  type="email" class="form-control"  id="email" name="email"; placeholder="name@example.com" required>
+                                <div class="form-text">Please enter a valid email address</div>
+                                <% if (locals.message && message.length > 0) { %>
+                                    <div class="alert alert-danger"><%= message %></div>
+                                <% } %>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    Submit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    
+   
+<%-include("../partials/user/footer.ejs") -%>

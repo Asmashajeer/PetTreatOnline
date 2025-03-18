@@ -1,0 +1,58 @@
+<%- include("../../views/partials/admin/header") %>
+
+<div class="container mt-4 m-auto">
+    <h2>Manage Returns</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Return Reason</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+          
+                    <%if (item.returnStatus === "Return Request") { %>
+                        <tr>
+                            <td><%=orderId %></td>
+                            <td><%= item.productName %></td>
+                            <td><%= item.quantity %></td>
+                            <td><%= item.price %></td>
+                            <td><%= item.returnReason %></td>
+                            <td><span class="badge bg-warning text-dark"><%= item.returnStatus %></span></td>
+                            <td>
+                                <button class="btn btn-success btn-sm" onclick="updateReturn('<%=orderId %>', '<%= item.product %>','<%= item.quantity %>','<%= item.price %>', 'accept')">Accept</button>
+                                <button class="btn btn-danger btn-sm" onclick="updateReturn('<%=orderId %>', '<%= item.product %>','<%= item.quantity %>',0, 'reject')">Reject</button>
+                            </td>
+                        </tr>
+                    <%}%>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function updateReturn(orderId, productId,quantity,price,action) {
+        fetch('/admin/order/updateReturn', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId, productId,quantity,price,action })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                window.location.href = '/admin/orders';
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(err => console.error(err));
+    }
+</script>
+
+
+<%- include("../../views/partials/admin/footer") %>

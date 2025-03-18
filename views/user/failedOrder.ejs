@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <link rel="stylesheet" type="text/css" href="css/header.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body >
+  
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="card shadow-sm col-md-6 text-center mt-5">
+                <div class="card-body p-5">
+                    <i class="fas fa-times-circle text-danger display-1 mb-4"></i>
+                    <h2 class="mb-3">Payment Failed!</h2>
+                    <p class="text-muted mb-4">Sorry, we couldn't process your payment. The transaction was declined.</p>
+                    
+                    <div class="bg-light p-2 rounded mb-4">
+                        <h5>Transaction Details</h5>
+                        <%if(orderData){%>
+                            <div class="d-flex justify-content-between mt-2">
+                                <span>Order Number:</span>
+                                <strong><%=orderData.orderId%></strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Amount:</span>
+                                <strong><%=orderData.orderPrice.toFixed(2)%></strong>
+                            </div>
+                        <%}%>    
+                        <div class="d-flex justify-content-between">
+                            <span>Status:</span>
+                            <strong class="text-danger">Payment Failed</strong>
+                        </div>
+                    </div>
+
+                    <div class="bg-light p-3 rounded mb-4">
+                        <h6 class="mb-3">Possible reasons for failure:</h6>
+                        <ul class="list-unstyled text-start small">
+                            <li class="mb-2">
+                                <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                                Insufficient funds in your account
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                                Card expired or invalid
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                                Transaction declined by your bank
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                                Incorrect card details entered
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="#"  onclick="retrypayment(event,'<%=orderData.orderId%>')" class="btn btn-primary">Try Payment Again</a>
+                        <!-- <a href='/checkout?id=<%=orderData.orderId%>'   class="btn btn-primary">checkOut</a> -->
+                        <!-- <a href="/orders/cancelOrder/<%=orderData.orderId%>" onclick="return confirmation('Are you sure ,you want to Cancel Order?')" class="btn btn-outline-secondary">Cancel Order</a> -->
+                        <a href='/orders/detailedOrderView/<%=orderData.orderId%>' class ="btn-secondary" > View Order</a> 
+                    </div>
+                </div>
+            </div>
+            
+            <p class="mt-3 text-muted">
+                Need help? Contact our support team at support@pettreat.com
+            </p>
+        </div>
+    </div>
+    <script>
+        async function retrypayment(e,orderId){
+            e.preventDefault();
+            try{  
+                console.log(orderId);
+                console.log('----------------');
+                const response = await fetch(`/retryPayment/${orderId}`);
+                const data= await response.json();        
+              
+                console.log(data.orderDetails);
+                console.log(`user ${data.user}`);
+                console.log(`orderId: ${data.currOrderId}`);
+
+                if(data.orderDetails){
+                    initializePayment(data.orderDetails,data.user,orderId);
+                }          
+                else{
+                    alert(data.message || "Failed to place order.");
+                    orderError.classList.remove('d-none');
+                    orderError.innerText=data.message;
+                    console.log(data);
+                }
+            }catch (error) {
+                console.error(" Error retraying order:", error.message);
+                alert(`An error occurred while retrying the order. Please try again.${error.message}`);
+            }    
+        }
+
+
+
+
+    function initializePayment(order,user,currOrderId){
+        console.log(`inside initilaize---------------   ${currOrderId}`);
+        var options = {
+            key: "<%= process.env.RAZORPAY_KEY_ID %>" ,
+            amount: order.amount *100,
+            currency: order.currency,
+            name: "PetTreat food and Toys",
+            description: "PetTreat test Transactions",
+            order_id: order.id,
+            handler: async function (response) {
+                try{
+                    const verifyResponse = await fetch("/orders/retrypayment/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...response, currOrderId: currOrderId }) });
+                    const data=await verifyResponse.json();
+                    if(data.success)             
+                        window.location.href = data.redirect;
+                    else{
+                        console.log("verification failed");
+                        window.location.href = data.redirect;
+                        alert(data.message);
+                    }
+                }catch(error){
+                        console.error(" Error during payment verification:", error);
+                        alert("An unexpected error occurred. Redirecting to order failure page...");
+                        window.location.href = `/orderFailed/${order.id}`;
+                }    
+            
+            },
+            prefill: {
+                name: user.name,
+                email: user.email                    
+            },
+            config: {
+                display: {
+                    blocks: {
+                        banks: {
+                            name: 'All Payment Options',
+                        instruments: [
+                            {
+                            method: 'upi'
+                            },
+                            {
+                            method: 'card'
+                            },
+                            {
+                                method: 'wallet'
+                            },
+                            {
+                                method: 'netbanking'
+                            }
+                        ],
+                        },
+                    },
+                    sequence: ['block.banks'],
+                    preferences: {
+                        show_default_blocks: false,
+                    },
+                },  
+            },
+            
+    
+            theme: { color: "#dead65" }
+        };
+        var rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (response){
+            console.log(response.error.description +response.error.metadata.order_id);   
+                window.location.href = `/orderFailed/${order.id}`;
+        });
+        rzp.open();
+    }
+    </script>
+</body>
+</html>

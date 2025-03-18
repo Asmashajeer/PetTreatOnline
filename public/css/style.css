@@ -1,0 +1,23 @@
+.password-container {
+    display: flex;        /* Use flexbox for alignment */
+    align-items: center;  /* Vertically center items */
+    border: 1px solid #ccc; /* Optional: adds a border around the container */
+    width: 300px;         /* Set a width for the container */
+}
+
+/* Style the input field */
+.password-container input {
+    flex-grow: 1;          /* Allow input to take remaining space */
+    border: none;           /* Remove input's border */
+    padding: 10px;          /* Add some padding */
+    outline: none;          /* Remove focus outline */
+}
+
+/* Style the eye icon */
+.password-container .fas {
+    padding: 0 10px;        /* Add some padding around the icon */
+    cursor: pointer;        /* Show pointer cursor on hover */
+}
+.bg-primary{
+    background-color: #dead65;
+}
