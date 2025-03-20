@@ -9,6 +9,7 @@ const User=require('../../models/userSchema');
 const Address = require('../../models/addressSchema');
 const Category= require('../../models/categorySchema');
 const moment = require('moment'); 
+const {STATUS_CODE,MESSAGE}=require('../../helpers/utils');
 
 
 
@@ -20,80 +21,99 @@ const loadLogin=async (req,res)=>{
         }
         res.render('adminLogin',{message:null});
     } catch (error) {
-        console.log('error loading login page');
+        console.log('error loading login page',error);
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/login');
     }
 }
   const login= async(req,res)=>{
     try {
         const {email,password}=req.body;
         const  admin= await User.findOne({email,isAdmin:true});
+        console.log(admin);
         if(admin){
-            const passwordMatch= bcrypt.compare(password,admin.password);
+            const passwordMatch=await bcrypt.compare(password,admin.password);
             if(passwordMatch){
+                console.log(password);
+                console.log(passwordMatch);
                 req.session.admin=true;
-                return res.redirect('/admin/dashboard');
+                return res.status(STATUS_CODE.SUCCESS).redirect('/admin/dashboard');
             }
             else{
-               return res.redirect('/login');
+               return res.status(STATUS_CODE.NOT_FOUND).render('adminLogin',{message:MESSAGE.ERR_AUTH});
             }
         }
         else{
-            return res.redirect('/login');
+            return res.status(STATUS_CODE.BAD_REQUEST).render('adminLogin',{message:MESSAGE.ERR_AUTH});
         }
         
     } catch (error) {
-        console.log("login eroor",error.message);
-        return res.redirect('/admin/pageError');
+        console.log("login error",error.message);
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/admin/pageError');
     }
   }
 
 const loadDashboard=async (req,res)=>{
     try {
         if(req.session.admin){
-            //---total sales--------
-            let sales= await Order.find({paymentStatus:'Paid'});           
-            const totalSales=sales.reduce((sum,sale)=>sum+sale.orderPrice,0);
-           
             const startOfDay = moment().startOf('day').toDate(); // 00:00:00
             const endOfDay = moment().endOf('day').toDate(); // 23:59:59.999
-
-             let salesToday = await Order.find({
-                createdOn: { $gte: startOfDay, $lte: endOfDay },
-                paymentStatus: 'Paid'
-            });            
-            const todaySales= salesToday.reduce((sum,sale)=>sum+sale.orderPrice,0);          
-
-            
             const startOfMonth = moment().startOf('month').toDate(); // 1st of the month, 00:00:00
             const endOfMonth = moment().endOf('month').toDate(); // Last day of the month, 23:59:59.999
 
-            const salesMonth = await Order.find({
-                createdOn: { $gte: startOfMonth, $lte: endOfMonth },
-                paymentStatus: 'Paid'
-            });
+             // Run all queries in parallel
+            const [
+                sales, // Sales data for total sales
+                salesToday, // Sales data for today
+                salesMonth, // Sales data for this month
+                totalOrders, // Total orders count
+                totalOrderCompleted, // Completed orders count
+                totalOrderCancelled, // Cancelled orders count
+                totalOrderPending, // Pending orders count
+                totalOrderReturned, // Returned orders count
+                totalUsers, // Total users count
+                activeUsers, // Active users count
+                blockedUsers, // Blocked users count
+                totalProducts, // Total products count
+                productsInStock, // Products in stock
+                productsOutofStock // Products out of stock
+            ] = await Promise.all([
+                Order.find({ paymentStatus: 'Paid' }), // All paid orders for total sales
+                Order.find({
+                    createdOn: { $gte: startOfDay, $lte: endOfDay },
+                    paymentStatus: 'Paid'
+                }),                // Paid orders for today
+                Order.find({
+                    createdOn: { $gte: startOfMonth, $lte: endOfMonth },
+                    paymentStatus: 'Paid'
+                }),
+                 // Paid orders for the month
+                Order.countDocuments(), // Total orders count
+                Order.countDocuments({ status: 'Delivered' }), // Completed orders count
+                Order.countDocuments({ status: 'Cancelled' }), // Cancelled orders count
+                Order.countDocuments({
+                    status: { $nin: ['Delivered', 'Returned', 'Cancelled'] }
+                }),
+                 // Pending orders count
+                Order.countDocuments({ status: 'Returned' }), // Returned orders count
+                User.countDocuments({isAdmin:false}), // Total users count
+                User.countDocuments({ isBlocked: false,isAdmin:false }), // Active users count
+                User.countDocuments({ isBlocked: true }), // Blocked users count
+                Product.countDocuments({ isBlocked: false }), // Total products count
+                Product.countDocuments({ stock: { $gt: 0 } }), // Products in stock
+                Product.countDocuments({ stock: { $eq: 0 } }) // Products out of stock
+            ]);
+        
+            // Calculate total sales
+            const totalSales = sales.reduce((sum, sale) => sum + sale.orderPrice, 0);
+        
+            // Calculate today sales
+            const todaySales = salesToday.reduce((sum, sale) => sum + sale.orderPrice, 0);
+        
+            // Calculate month sales
             const monthSales = salesMonth.reduce((sum, sale) => sum + sale.orderPrice, 0);
-
-
-
-            //---no of orders------
-
-            const totalOrders= await Order.find().countDocuments();
-            const totalOrderCompleted= await  Order.find().countDocuments({status:'Delivered'});
-            const totalOrderCancelled= await  Order.find().countDocuments({status:'Cancelled'});
-            const totalOrderPending = await Order.countDocuments({
-                status: { $nin: ['Delivered', 'Returned', 'Cancelled'] }});            
-            const totalOrderReturned= await  Order.find().countDocuments({status:'Returned'});
-            const totalUsers= await User.find().countDocuments();
-            const activeUsers= await User.find().countDocuments({isBlocked:false});
-             const blockedUsers= await User.find().countDocuments({isBlocked:true});
-
-
-             //-----no of products---
-             const totalProducts= await Product.find().countDocuments({isBlocked:false});
-             const productsInStock= await Product.find().countDocuments({stock:{$gt:0}});
-             const productsOutofStock= await Product.find().countDocuments({stock:{$eq:0}});
-
-            const Total={
+        
+            // Create the total object
+            const Total = {
                 totalSales,
                 todaySales,
                 monthSales,
@@ -108,7 +128,8 @@ const loadDashboard=async (req,res)=>{
                 totalProducts,
                 productsInStock,
                 productsOutofStock
-            } ;
+            };
+        
            
              //----------Top Selling products---------------
              const topSellingProducts= await Order.aggregate([
@@ -127,7 +148,7 @@ const loadDashboard=async (req,res)=>{
                     }
                 }
 
-             ] );              
+             ] );             
             
            
              
@@ -137,8 +158,8 @@ const loadDashboard=async (req,res)=>{
             res.render('dashBoard',{Total,orders,moment,topSellingProducts});
         }
     } catch (error) {
-        console.log('error in dashboard load',error);
-        return res.redirect('/admin/pageError');
+        console.log(MESSAGE.ERR_FETCH_DATA,error);
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/admin/pageError');
     }
     
 }
@@ -151,13 +172,13 @@ const logOut=async(req,res)=>{
         req.session.destroy((err=>{
             if(err){
                 console.log("Erroe destroying seession",err);
-                return res.redirect('/pageError');
+                res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/pageError');
             }
             res.redirect('/admin/login');
         }))
     } catch (error) {
-        console.log("unexpected error during loggout");
-        res.redirect('/pageError');
+        console.log(MESSAGE.UNEXP_ERR,error);
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/pageError');
     }
 }
 
@@ -240,7 +261,8 @@ const getChartData= async (req,res)=>{
       
          res.json({products:topSellingProducts,categories:topSellingCategories,brands:topSellingBrands});
     } catch (error) {
-        
+        ConsoleMessage.LOG(MESSAGE.SERVER_ERROR,error);
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/pageError');
     }
 }
 
@@ -358,8 +380,8 @@ const getChartData1= async (req, res) => {
         ]);
         res.json({products:topSellingProducts,categories:topSellingCategories,brands:topSellingBrands});
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Server error" });
+        console.error(MESSAGE.SERVER_ERROR,error);
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({ error: "Server error" });
     }
 };
 module.exports={

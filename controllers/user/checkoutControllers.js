@@ -6,7 +6,7 @@ const Coupon = require('../../models/couponSchema');
 const Wallet =require('../../models/walletSchema');
 const ReferralOffer =require('../../models/referralOfferSchema');
 const Ledger= require('../../models/ledgerSchema');
-
+const { STATUS_CODE,MESSAGE } = require('../../helpers/utils');
 
 
 const loadCheckoutPage = async (req, res) => {
@@ -110,7 +110,7 @@ const SaveCheckoutAddress=async(req,res)=>{
          res.redirect('/checkout');
         
     } catch (error) {
-        console.log("error:address not submitted");
+        console.log("address not submitted",error);
         res.status(500).redirect('/pageNotFound');
     } 
     
@@ -149,7 +149,7 @@ const applyCoupon =async(req,res)=>{
 
     } catch (error) {
         console.error("Error applying coupon:", error);
-        res.json({ success: false, message: "An error occurred." });
+        res.json({ success: false, message: MESSAGE.SERVER_ERROR });
     }
 }
 

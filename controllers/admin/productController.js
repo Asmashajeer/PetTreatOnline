@@ -5,6 +5,7 @@ const User= require('../../models/userSchema');
 const fs =require('fs');
 const path =require('path');
 const sharp = require('sharp');
+const { STATUS_CODE } = require("../../helpers/utils");
 
 
 
@@ -33,7 +34,7 @@ const addProduct=async(req,res)=>{
            
             const categoryId=await Category.findOne({name:category});
             if(!categoryId){
-                return res.status(400).json({error:"Invalid Category name"});
+                return res.status(STATUS_CODE.BAD_REQUEST).json({error:"Invalid Category name"});
             }
             if(req.files && req.files.length>0){  
                 console.log(`files are receivd`);    
@@ -170,7 +171,7 @@ const getEditProduct= async (req,res)=>{
            return res.render('editProduct',{product:productData,category:category,brand:brand});
         }else
             console.log("--Product not found-")  ;
-            return res.status(400).json({message:'product not found'})  ;
+            return res.status(STATUS_CODE.NOT_FOUND).json({message:'product not found'})  ;
     } catch (error) {
         console.log("error while fetching product")  ;
             return res.status(500).render('pageError')  ;
@@ -186,11 +187,11 @@ const updateProduct=async (req,res)=>{
         const product = await Product.findById(id);
         console.log("checking for product");
         if (!product) {
-        return res.status(404).json({ error: "Product not found" });
+        return res.status(STATUS_CODE.NOT_FOUND).json({ error: "Product not found" });
         }
         const categoryId=await Category.findOne({name:category});
             if(!categoryId){
-                return res.status(400).json({error:"Invalid Category name"});
+                return res.status(STATUS_CODE.BAD_REQUEST).json({error:"Invalid Category name"});
             }
         const updates={
                 productName,
@@ -221,7 +222,7 @@ const updateProduct=async (req,res)=>{
     if (updatedProduct) {
       return res.status(200).json({ message: "Product updated successfully", updatedProduct });
     } else {
-      return res.status(404).json({ error: "Product not found" });
+      return res.status(STATUS_CODE.NOT_FOUND).json({ error: "Product not found" });
     }
   } catch (error) {
     console.error("Error updating product:", error);
@@ -240,14 +241,14 @@ const deleteImage= async(req,res)=>{
         console.log(productId, imageName);
         const product= await Product.findById({_id:productId})
         if(!product){
-            return res.status(404).json({message:'product not found!!!'});
+            return res.status(STATUS_CODE.NOT_FOUND).json({message:'product not found!!!'});
         }
         product.images=product.images.filter((img)=>img!==imageName);
         await product.save();
         res.status(200).json({ message: "Image deleted successfully" });
     } catch (error) {
-        console.error(`erroedeldeting image `,error);
-        res.status(500).json({ message: "Server error" });
+        console.error(`erroR deldeting image `,error);
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({ message: MESSAGE.SERVER_ERROR });
     }
 }
 
@@ -268,7 +269,7 @@ const  addProductOffer = async(req,res)=>{
             res.json({status:true,message:"OffferAdded"});
             //product.categoyOffer=0;
     }catch(error){
-        console.log("errro while adding ProductOffer",error);
+        console.log(MESSAGE.SERVER_ERROR,error);
         res.redirect('/pageError');
     }
 }    
@@ -285,7 +286,7 @@ const  removeProductOffer = async(req,res)=>{
         res.json({status:true});
             //product.categoyOffer=0;
     }catch(error){
-        console.log("errro while adding ProductOffer",error);
+        console.log(MESSAGE.SERVER_ERROR,error);
         res.redirect('/pageError');
     }
 }    

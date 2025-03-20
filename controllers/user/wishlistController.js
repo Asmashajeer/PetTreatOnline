@@ -2,7 +2,7 @@ const  Product =require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 const User = require('../../models/userSchema');
 const Wishlist = require('../../models/wishlistSchema');
-
+const { STATUS_CODE,MESSAGE } = require('../../helpers/utils');
 
 const addWishlist=async(req,res)=>{
     try {
@@ -23,19 +23,19 @@ const addWishlist=async(req,res)=>{
             await wishlist.save();
             req.session.wList=wishlist.products.length;
             console.log("pwishlist  added");
-            return res.status(200).json({success:true,product:product.productName});
+            return res.status(STATUS_CODE.SUCCESS).json({success:true,product:product.productName});
 
         }else{
             wishlist.products.push({productId});
             await wishlist.save();
             req.session.wList=wishlist.products.length;
             console.log("wishlist  added");
-            return res.status(200).json({success:true,product:product.productName});
+            return res.status(STATUS_CODE.SUCCESS).json({success:true,product:product.productName});
         }
 
     } catch (error) {
         console.error("unable to add to wishlist",error);
-        res.status(500).json({success:false,message:'internal server error'})
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:MESSAGE.SERVER_ERROR})
     }
 }
 
@@ -46,7 +46,7 @@ const showWishlist = async (req,res)=>{
     try {     
         res.redirect('/profile?tab=wishlist');       
     } catch (error) {
-        console.error("server error while fetching wishlist",error);
+        console.error(MESSAGE.ERR_FETCH_DATA,error);
         res.redirect('/pageNotFound');
     }
 }

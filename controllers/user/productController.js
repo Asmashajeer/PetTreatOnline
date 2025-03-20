@@ -1,7 +1,7 @@
 const  Product =require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 const User = require('../../models/userSchema');
-
+const { STATUS_CODE,MESSAGE } = require('../../helpers/utils');
 //------------------ load Shopping page--------
 const loadShopping= async(req,res)=>{
     try {
@@ -84,24 +84,24 @@ const filterShopping =async (req,res)=>{
         if(filter==='price-low-high' ||filter==='price-high-low'){
             const rule = filter==='price-low-high'? 1:-1;
             const products=await Product.find(query).sort({regularPrice:rule});
-            return res.status(200).json(products);
+            return res.status(STATUS_CODE.SUCCESS).json(products);
         }
         else if(filter==='A-Z' ||filter==='Z-A'){
             const rule= filter==='A-Z'? 1:-1;
             const products=await Product.find(query).sort({productName:rule});
-            return res.status(200).json(products);
+            return res.status(STATUS_CODE.SUCCESS).json(products);
         }
         else if(filter==='new-arrivals'){
             const products=await Product.find(query).sort({createdAt:-1});
-            return res.status(200).json(products);
+            return res.status(STATUS_CODE.SUCCESS).json(products);
         }
         else{ 
             const products=await Product.find(query);
-            return res.status(200).json(products);           
+            return res.status(STATUS_CODE.SUCCESS).json(products);           
         }
             
     } catch (error) {
-        console.log("Error fetching products: ",error);
+        console.log(MESSAGE.ERR_FETCH_DATA,error);
         res.redirect('/pageNotFound');
     }
 }
@@ -116,10 +116,10 @@ const productSearch= async (req,res)=>{
                 ],
             }).sort({productName:1});
            
-            return res.status(200).json(products); 
+            return res.status(STATUS_CODE.SUCCESS).json(products); 
 
     } catch (error) {
-        console.log("Error while fetching products...",error);
+        console.log(MESSAGE.ERR_FETCH_DATA,error);
         res.status(500).redirect('/pageNotFound');
     }
 }
@@ -160,8 +160,8 @@ const categorisedProducts= async(req,res)=>{
         
             
     }catch(error){
-        console.log('shopping page not found srver Error',error);
-        res.status(500).redirect("/pageNotFound");
+        console.log(MESSAGE.SERVER_ERROR,error);
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect("/pageNotFound");
     }
 }
 

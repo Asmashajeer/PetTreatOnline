@@ -32,7 +32,7 @@
   <!-- Main Content -->
   <div class="col-md-10 p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Dashboard Overview</h2>
+            <h3>Dashboard Overview</h3>
             
         </div>
 
@@ -218,6 +218,7 @@
                                     <th>Order ID</th>
                                     <th>Customer</th>
                                     <th>Date</th>
+                                    <th>payment Method</th>
                                     <th>Amount</th>
                                     <th>Status</th>
                                 </tr>
@@ -229,6 +230,7 @@
                                             <td><%=order.orderId%></td>
                                             <td><%=order.userId.name%></td>
                                             <td><%=moment(order.createdOn).format("DD-MM-YYYY")%></td>
+                                            <td><%=order.paymentMethod%></td>
                                             <td><%=order.orderPrice%></td>
                                             <%if(order.status==="Placed"){%>
                                                 <td><span class="badge bg-warning"><%=order.status%></span></td>
@@ -242,7 +244,10 @@
                                                 <td><span class="badge bg-danger"><%=order.status%></span></td> 
                                             <%}else if(order.status==="Returned"){%>
                                                 <td><span class="badge bg-secondary"><%=order.status%></span></td>
-                                            <%}%>        
+                                            <%}%> 
+                                            <td>
+                                              <a  href="/admin/orders/EditOrderStatus/<%=order.orderId%>" class="btn btn-sm border "><i class="fas fa-eye text-success"></i></a>
+                                            </td>       
                                         </tr>
                                     <%})%>    
                                 <%}%>    
@@ -265,8 +270,8 @@
 </div>
 
 <!-- Bootstrap & jQuery JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 
 <!-- Chart initialization -->

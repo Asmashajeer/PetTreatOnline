@@ -12,7 +12,7 @@ const env =require('dotenv').config();
 const bcrypt= require('bcrypt');
 const Cart = require('../../models/cartSchema');
 const { session } = require('passport');
-
+const { STATUS_CODE,MESSAGE } = require('../../helpers/utils');
 //------ to generate  OTP-------
 function generateOtp(){
     return String(Math.floor(100000 + Math.random() *900000));
@@ -99,7 +99,7 @@ const securePassword= async(password)=>{
          return secPassword;
         
     } catch (error) {
-        
+        Console.log("Cannot hash password")
     }
 
     }
@@ -157,7 +157,7 @@ const loadHomePage =async (req,res)=>{
             
     }catch(error){
         console.log('Home page not found srver Error',error);
-        res.status(500).redirect("/pageNotFound");
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect("/pageNotFound");
     }
 }
 
@@ -178,7 +178,7 @@ const loadSignUp=async(req,res)=>{
   }
   catch(error){
     console.log('SignUp page not loading : ',error);
-    res.status(500).send('Server Error');
+    res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 }
 
@@ -251,12 +251,12 @@ const verifyOtp= async(req,res)=>{
              }   
              res.json({success:true,redirectUrl:'/'})
         }else{
-            res.status(400).json({success:false,message:'Invalid OTP  please tryagain'});
+            res.status(STATUS_CODE.BAD_REQUEST).json({success:false,message:'Invalid OTP  please tryagain'});
 
         }
     }catch(error){
         console.log("Error verifying OTP", error);
-        res.status(500).json({success:false,message:'ann Error occured'})
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'ann Error occured'})
     }
 }
 
@@ -265,7 +265,7 @@ const resendOtp= async (req,res)=>{
     try {
         const {email}=req.session.userData;
         if(!email){
-            return res.status(400).json({success:false,message:'Email not found in session'});
+            return res.status(STATUS_CODE.BAD_REQUEST).json({success:false,message:'Email not found in session'});
         }
 
         const otp=generateOtp();
@@ -274,13 +274,13 @@ const resendOtp= async (req,res)=>{
        
         if (emailSent){
             console.log("Resend OTP",otp);
-            res.status(200).json({success:true,message:'OTP resend successfully'});
+            res.status(STATUS_CODE.SUCCESS).json({success:true,message:'OTP resend successfully'});
         }else{
-            res.status(500).json({success:false,message:'Failed to resend OTP please try again'});
+            res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'Failed to resend OTP please try again'});
         }
     } catch (error) {
         console.error('Error resending OTP',error);
-        res.status(500).json({success:false,message:'Internal Server Error please try Again'});
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'Internal Server Error please try Again'});
     }
 }
 
@@ -309,16 +309,16 @@ const signIn= async (req,res)=>{
          }if(findUser.isBlocked){
            return  res.render('signin',{message:'user is blocked by Admin'});
          }
-        const passwordMatch= bcrypt.compare(password,findUser.password);
+        const passwordMatch= await bcrypt.compare(password,findUser.password);
         if(!passwordMatch){
-           return  res.render('signIn',{message:'incorrect  credentials'});
+           return  res.render('signIn',{message:MESSAGE.ERR_AUTH});
         }
         req.session.user=findUser._id;        
         res.redirect('/');
 
     } catch (error) {
          console.log('Signin error');
-         res.render('signIn',{message:'incorrect  credentials'});
+         res.render('signIn',{message:MESSAGE.ERR_AUTH});
     }
 }
 

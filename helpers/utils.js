@@ -81,11 +81,27 @@ const addTransaction=async function (orderId,userId,transactionType,amount, paym
     });
     await newEntry.save();
 }
+
+const STATUS_CODE = {
+    SUCCESS: 200,
+    BAD_REQUEST: 400,
+    NOT_FOUND: 404,
+    INTERNAL_SERVER_ERROR: 500
+};
+const MESSAGE = {
+    ERR_AUTH: "Wrong credentials",
+    ERR_FETCH_DATA: "Error Fetching  Data",
+    SERVER_ERROR: "An internal server error occurred.",
+    USER_NOT_FOUND: "User not found. Please Sign In.",
+    UNEXP_ERR:"Unexpected error occured"
+};
 module.exports={
     generateOtp,
     sendVerificationEmail,
     securePassword,
     generateReceiptNumber,
     generateInvoiceNumber,
-    addTransaction
+    addTransaction,
+    STATUS_CODE,
+    MESSAGE
 }

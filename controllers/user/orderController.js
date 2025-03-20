@@ -14,7 +14,7 @@ const crypto=require('crypto');
 const {generateReceiptNumber,generateInvoiceNumber,addTransaction}=require('../../helpers/utils');
 const env =require('dotenv').config();
 const puppeteer = require("puppeteer");
-
+const { STATUS_CODE,MESSAGE } = require('../../helpers/utils');
 
 
 const razorpay = new Razorpay({
@@ -43,7 +43,7 @@ const createOrder= async(req,res)=>{
         const unavail=mycart.items.filter(item=>item.productId.stock<item.quantity);
         
         if(unavail.length>0){
-            return res.json({success:false,message:"one or more  items in your cart is out of stock,check your Cart" })
+            return res.json({success:false,message:"one or more  items in your cart is out of stock,check your Cart" });
         }
          const orderItems=mycart.items.map(item=>({           
              product: item.productId._id, // Product ID
@@ -84,7 +84,7 @@ const createOrder= async(req,res)=>{
                 Coupon:coupon
             });
             await newOrder.save();            
-            return res.status(200).json({message:"Razor Pay Order Created",user:user, orderDetails:razorPayOrder});
+            return res.status(STATUS_CODE.SUCCESS).json({message:"Razor Pay Order Created",user:user, orderDetails:razorPayOrder});
         }else if(paymentMethod ==='wallet'){
                 const wallet=await Wallet.findOne({userId:userId});
                 if(wallet && wallet.walletAmount>orderPrice){
@@ -178,14 +178,12 @@ async function verifyPayment(req,res){
         } else {
             console.log("Orderpayment Failed");
             await Order.findOneAndUpdate({orderId:order.orderId},{$set:{paymentStatus:'Pending'}});
-            return res.json({ success: false, message: "Payment failed. Kindly check  and re-submit your order.",redirect:`/orderFailed?id=${order.orderId}` });
-           
-            
+            return res.json({ success: false, message: "Payment failed. Kindly check  and re-submit your order.",redirect:`/orderFailed?id=${order.orderId}` });        
 
         }
 
     }catch(error){
-        res.status(500).json({message:'Internal Server Error',error:error.message})
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({message:MESSAGE.SERVER_ERROR,error:error.message})
     }
 }
 
@@ -326,7 +324,7 @@ async function verifyRetryPayment(req,res){
 
     }catch(error){
         console.log(error.message);
-        res.status(500).json({message:'Internal Server Error',error:error.message})
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({message:MESSAGE.SERVER_ERROR,error:error.message})
     }
 }
 
@@ -354,7 +352,7 @@ const detailedOrderView =async(req,res)=>{
         
        res.render('detailedOrderView',{category,order:singleOrder,address:orderAddress,moment});
     } catch (error) {
-        console.log("error fetching order details:",error);
+        console.log(MESSAGE.ERR_FETCH_DATA,error);
         res.redirect("/pageNotFound");
     }
 }
@@ -425,7 +423,7 @@ const cancelOrder= async(req,res)=>{
                 res.redirect('/profile?tab=orders');
             
         }else{
-            console.log(":Cannot  cancel this order is delivered or already Cancelled");
+            console.log(":Cannot  cancel, this order is delivered or already Cancelled");
             res.redirect(`/profile/?tab=addresses`);
         }
     } catch (error) {
@@ -447,9 +445,7 @@ const cancelAnItem= async(req,res)=>{
         if(order.status==='Delivered' || order.status==='Cancelled' ){
             return res.json({success:false,message:'order already cancelled or delivered'});
         }
-    //    if(order.discount){
-    //     order.totalPrice>
-    //    }
+  
         //---update order--
         const updateOrder = await Order.updateOne({orderId:orderId,userId:userId},
             {   $pull:{orderItems:{product:cancelledProductId}},
@@ -458,10 +454,11 @@ const cancelAnItem= async(req,res)=>{
         ); 
         if(updateOrder.modifiedCount>0){
             console.log("product cancelled from order");
-            //  return res.redirect(`/orders/detailedOrderView/${orderId}`);
+            
         }else{
-            return res.json({message:`cannot  cancel product  from order`});
             console.log(" cannot  cancel product  from order");
+            return res.json({message:`cannot  cancel product  from order`});
+            
         } 
         
         //-update product stock 
@@ -492,7 +489,7 @@ const cancelAnItem= async(req,res)=>{
                 addTransaction(orderId,userId,'Credit',transaction.amount, 'Refund',transaction.description);    
         }
         console.log(updatedOrder);
-        res.status(200).json({success:true,order:updatedOrder});
+        res.status(STATUS_CODE.SUCCESS).json({success:true,order:updatedOrder});
     }
         catch(error){
             console.log("ServerError :",error.message);

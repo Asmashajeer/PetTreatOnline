@@ -1,3 +1,4 @@
+const { STATUS_CODE,MESSAGE } = require('../../helpers/utils');
 const Category = require('../../models/categorySchema');
 const Product = require('../../models/productSchema');
 
@@ -44,14 +45,14 @@ const addCategory=async(req,res)=>{
         console.log(cname);
         let findCategory= await Category.findOne({name:cname});
         if(findCategory){
-            return res.status(400).json({error:'Category already exist'});            
+            return res.status(STATUS_CODE.BAD_REQUEST).json({error:'Category already exist'});            
         }
         let newCategory= new Category({
             name:cname,
             description
         });
         await newCategory.save();
-        res.status(200).json ({message:"Category Added successfully  "});
+        res.status(STATUS_CODE.SUCCESS).json ({message:"Category Added successfully  "});
 
         
     } catch (error) {
@@ -131,16 +132,18 @@ const updateCategory= async(req,res)=>{
         let cname=name.toUpperCase();
         const existingCategory= await Category.findOne({name:cname});
         if(existingCategory){
-           return  res.status(400).render('editCategory',{category:existingCategory,message:"category exist please enter another name"});
+           return  res.status(STATUS_CODE.BAD_REQUEST).render('editCategory',{category:existingCategory,message:"category exist please enter another name"});
         }
        const updated= await Category.findByIdAndUpdate(id,{name:cname,description:description},{new:true});
         if(updated)
             res.redirect('/admin/category');
         else
-            res.status(404).json({error:"category not found"});
+            res.status(STATUS_CODE.BAD_REQUEST).json({error:"category not found"});
+
+
 
     } catch (error) {
-        res.status(500).json({error:"Internal server error"});
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({error:MESSAGE.SERVER_ERROR});
     }
     
 }
@@ -153,7 +156,7 @@ const addCategoryOffer=async(req,res)=>{
         const categoryId =req.body.categoryId;
         const category= await Category.findById(categoryId);
         if(!category){
-            return res.status(404).json({tatus:false,message:"category not found"});
+            return res.status(STATUS_CODE.BAD_REQUEST).json({tatus:false,message:"category not found"});
         }
         const products=await Product.find({category:categoryId});
         const hasProductOffer =products.some(product=>product.productOffer>percentage);
@@ -179,7 +182,7 @@ const removeCategoryOffer = async(req,res)=>{
         const categoryId =req.body.categoryId;
         const category= await Category.findById(categoryId);
         if(!category){
-            return res.status(404).json({status:false,message:"category not found"});
+            return res.status( STATUS_CODE.BAD_REQUEST).json({status:false,message:"category not found"});
         }
         const percentage= category.categoryOffer;
        
@@ -195,14 +198,14 @@ const removeCategoryOffer = async(req,res)=>{
             }
             category.categoryOffer=0;
             await category.save();
-            return res.status(200).json({status:true,message:"category offer added"});
+            return res.status(STATUS_CODE.SUCCESS).json({status:true,message:"category offer added"});
         }else{
             category.categoryOffer=0;
             await category.save();
-            return res.status(200).json({status:true,message:"No products in this category"});
+            return res.status(STATUS_CODE.SUCCESS).json({status:true,message:"No products in this category"});
         }
     }catch(error){
-        return res.status(500).json({status:false,message:"internal server error"});
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({status:false,message:MESSAGE.SERVER_ERROR});
     }
 }
 module.exports={

@@ -1,5 +1,5 @@
 const User =require('../../models/userSchema');
-
+const {STATUS_CODE,MESSAGE}=require('../../helpers/utils');
 
 //-------------list customers----------
 const customerInfo=async (req,res)=>{
@@ -48,7 +48,7 @@ const customerBlocked=async(req,res)=>{
         const updateUser= await User.updateOne({_id:id},{$set:{isBlocked:true}});
         if(!updateUser){
             console.log("error blocking user");
-            res.status(400).json({message:'error bloking user'}).redirect('/admin/users');
+            res.status(STATUS_CODE.BAD_REQUEST).json({message:'error blocking user'}).redirect('/admin/users');
         }
         const sessionStore = req.sessionStore;
 
@@ -82,7 +82,7 @@ const customerBlocked=async(req,res)=>{
 
        
     } catch (error) {
-        console.log(`error while blocking`);
+        console.log(MESSAGE.SERVER_ERROR,error);
         res.render('pageError');
     }
 }
@@ -94,8 +94,8 @@ const customerUnblocked=async(req,res)=>{
         const updateUser= await User.updateOne({_id:id},{$set:{isBlocked:false}});
         res.redirect('/admin/users');
     } catch (error) {
-        console.log(`error while blocking`);
-        res.render('/pageError');
+        console.log(MESSAGE.SERVER_ERROR,error);
+        res.render('pageError');
     }
 }
 

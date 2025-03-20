@@ -26,24 +26,11 @@
       margin-top: 20px;
     }
 
-    .btn-primary {
-      background-color: #dead65;
-      color: #fff;
-      border: 1px solid #007bff;
-      border-radius: 5px;
-      padding: 10px 20px;
-      cursor: pointer;
-    }
+    
 
-    .btn-primary:hover {
-      background-color: #0056b3;
-      border-color: #0056b3;
-    }
-
+    
  
-    .error-message {
-      color: red;
-    }
+   
   </style>
 </head>
 <body>
@@ -68,12 +55,12 @@
           <div class="col-md-3 shadow">
             <form method="POST" action="/admin/addCategory" onsubmit="return formSubmit(event)">
               <div class="mb-4">
-                <label for="product_name" class="form-label">Name</label>
-                <input type="text" name="name" placeholder="Category Name" class="form-control" id="product_name" required/>
+                <label for="name" class="form-label">Name</label>
+                <input type="text" name="name" placeholder="Category Name" class="form-control" id="name" required/>
                 <div id="name-error" class="error-message"></div>
               </div>
               <div class="mb-4">
-                <label class="form-label">Description</label>
+                <label for="descriptionId" class="form-label">Description</label>
                 <textarea placeholder="Description" name="description" class="form-control" id="descriptionId" required></textarea>
                 <div id="description-error" class="error-message"></div>
               </div>

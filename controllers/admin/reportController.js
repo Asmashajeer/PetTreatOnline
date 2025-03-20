@@ -6,6 +6,7 @@ const User=require('../../models/userSchema');
 const Address = require('../../models/addressSchema');
 const Category= require('../../models/categorySchema');
 const puppeteer = require("puppeteer");
+const { STATUS_CODE,MESSAGE } = require('../../helpers/utils');
 
 
 
@@ -163,7 +164,7 @@ const generateReport= async (req, res) => {
 
     } catch (error) {
         console.log("server error:",error);
-        res.status(500).json({ success: false, message: "Server error" });
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGE.SERVER_ERROR });
     }
 }
 
@@ -193,7 +194,7 @@ const generatePDFReport = async (req, res) => {
         res.send(pdfBuffer);
     } catch (error) {
         console.error("Error generating PDF:", error);
-        res.status(500).send("Error generating PDF");
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).send("Error generating PDF");
     }
 };
 

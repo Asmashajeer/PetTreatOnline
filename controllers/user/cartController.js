@@ -1,6 +1,7 @@
 const Cart =require('../../models/cartSchema');
 const User= require('../../models/userSchema');
 const Product =require('../../models/productSchema');
+const { MESSAGE, STATUS_CODE } = require('../../helpers/utils');
 
 //--------------------show Cart-----------------
 const showCart=async(req,res)=>{
@@ -62,25 +63,25 @@ const addToCart =async(req,res)=>{
         console.log('pId :',pId,'quantity  :  ',quantity);
        if(!userId){
             console.log('user Not signed In')
-        return res.status(404).json({message:"please sign in to add product to cart"});
+        return res.status(STATUS_CODE.NOT_FOUND).json({message:"please sign in to add product to cart"});
        }        
        
         if (!pId || isNaN(quantity) || quantity<1) {
             console.log("Missing product details");
-            return res.status(400).json({ message: "Missing product details" });
+            return res.status(STATUS_CODE.BAD_REQUEST).json({ message: "Missing product details" });
         }
         const findUser= await User.findById({_id:userId});
         if(!findUser){
             console.log('userNotFound')
-            return res.status(404).json({message:"user not found",redirect:'/signIn'});
+            return res.status(STATUS_CODE.NOT_FOUND).json({message:"user not found",redirect:'/signIn'});
         }
         const product=await Product.findOne({_id:pId,isBlocked:false,stock:{$gt:0}});
         if(!product){
             console.log('product rNotFound')
-            return res.status(404).json({message:"product not found"});
+            return res.status(STATUS_CODE.NOT_FOUND).json({message:"product not found"});
         }else if(product.stock<quantity){
             console.log('product Out Of Stock')
-            return res.status(404).json({message:"product Out Of Stock"});
+            return res.status(STATUS_CODE.NOT_FOUND).json({message:"product Out Of Stock"});
         }
         const productId=product._id;
        
@@ -142,7 +143,7 @@ const removeOne=async(req,res)=>{
         const userId=req.session.user;
         const id=req.params.id;
         const {quantity}=req.body;
-        console.log('---',id,quantity)
+       
         if (!id || !quantity) {
             return res.json({ success: false, message: 'Missing parameters' });
         }
@@ -155,7 +156,7 @@ const removeOne=async(req,res)=>{
         
          if(!cart){
              console.log('product rNotFound in cart')
-            return res.status(404).json({message:"product not found in cart "});
+            return res.status(STATUS_CODE.NOT_FOUND).json({message:"product not found in cart "});
          }
         
          result=await Cart.updateOne({userId:userId,items:{$elemMatch:{productId:id}}},
@@ -168,15 +169,15 @@ const removeOne=async(req,res)=>{
                  }); 
                 req.session.cartSize=cart.items.length;
                  cartSize=req.session.cartSize;
-                return res.status(200).json({success:true, message: "cart updated successfully",cart,cartSize });
+                return res.status(STATUS_CODE.SUCCESS).json({success:true, message: "cart updated successfully",cart,cartSize });
             }else {
                 console.log("error updating cart");
                 return res.status(500).json({ success: false,message: "changes to cart failed", error });
             };
          
     } catch (error) {
-        console.error("unable to change to Cart",error);
-        res.status(500).json({message:'internal server error'})
+        console.error(MESSAGE.SERVER_ERROR,error);
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({message:MESSAGE.SERVER_ERROR})
     } 
 }
 
@@ -214,7 +215,7 @@ const addOne=async(req,res)=>{
                     items:{$elemMatch:{productId:id}}
                  }); 
                
-                return res.status(200).json({success:true, message: "cart updated successfully",cart });
+                return res.status(STATUS_CODE.SUCCESS).json({success:true, message: "cart updated successfully",cart });
             }else {
                 console.log("error updating cart");
                 return res.status(500).json({ success: false,message: "changes to cart failed", error });
@@ -226,7 +227,7 @@ const addOne=async(req,res)=>{
            
       } catch (error) {
           console.error("unable to change to Cart",error);
-          res.status(500).json({message:'internal server error'})
+          res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({message:MESSAGE.SERVER_ERROR})
       } 
   }
 
@@ -268,7 +269,7 @@ const deleteFromCart=async(req,res)=>{
                 }       
             
     }catch (error) {
-      console.error("server error while deleting",error);
+      console.error(MESSAGE.SERVER_ERROR,error);
       res.redirect('/pageNotFound');
     }  
 

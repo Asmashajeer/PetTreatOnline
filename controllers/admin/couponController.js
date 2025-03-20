@@ -1,3 +1,4 @@
+const { STATUS_CODE,MESSAGE } = require('../../helpers/utils');
 const  Coupon = require('../../models/couponSchema');
 
 
@@ -33,7 +34,7 @@ const createCoupon =async(req,res)=>{
         const existingCoupon = await Coupon.findOne({ couponCode:cCode });
         if (existingCoupon) {
             console.log("Coupon Code already exists");
-            return res.status(400).render('coupons',{coupons:allCoupons ,message: "Coupon code already exists" });
+            return res.status(STATUS_CODE.BAD_REQUEST).render('coupons',{coupons:allCoupons ,message: "Coupon code already exists" });
         }
         
         const startDate = new Date(startOn);
@@ -87,7 +88,7 @@ const updateCoupon= async(req,res)=>{
         const expireDate = new Date(expireOn);
         const existingCoupon= await Coupon.findOne({couponCode:cCode});
         if(existingCoupon){
-           return  res.status(400).render('editCoupon',{coupon:existingCoupon,message:"Coupon Code already  exist please enter another name"});
+           return  res.status(STATUS_CODE.BAD_REQUEST).render('editCoupon',{coupon:existingCoupon,message:"Coupon Code already  exist please enter another name"});
         }
        const updatedCoupon= await Coupon.findByIdAndUpdate(id,
             {couponCode:cCode,
@@ -98,10 +99,10 @@ const updateCoupon= async(req,res)=>{
         if(updatedCoupon)
            return  res.redirect('/admin/coupons');
         else
-            res.status(404).json({error:"coupon not found"});
+            res.status(STATUS_CODE.NOT_FOUND).json({error:"coupon not found"});
 
     } catch (error) {
-        res.status(500).json({error:"Internal server error"});
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({error:MESSAGE.SERVER_ERROR});
     }
     
 }
@@ -123,7 +124,7 @@ const deleteCoupon=async(req,res)=>{
         return res.redirect('/admin/coupons');
     } catch (error) {
         console.log("Error while deleting  Coupon ",error);
-        return res.status(500).redirect('/pageError');
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/pageError');
     }
     
     

@@ -7,7 +7,7 @@ const Address = require('../../models/addressSchema');
 const Category= require('../../models/categorySchema');
 const Ledger= require('../../models/ledgerSchema');
 const moment=require('moment');
-
+const {STATUS_CODE,MESSAGE}=require('../../helpers/utils');
 
 
 const Alltransactions=async(req,res)=>{
@@ -55,7 +55,8 @@ const Alltransactions=async(req,res)=>{
         const totalPages=Math.ceil(count/limit);  
         res.render('transaction',{data:ledgerData,moment,currentPage:page,totalProducts:count,totalPages:totalPages});
     } catch (error) {
-        console.log("error fetching transactions",error);
+        
+        console.log(MESSAGE.SERVER_ERROR,error);
     }
 }
 

@@ -6,7 +6,7 @@ const crypto=require('crypto');
 const {generateReceiptNumber}=require('../../helpers/utils');
 const env =require('dotenv').config();
 const moment =require('moment');
-
+const { STATUS_CODE,MESSAGE } = require('../../helpers/utils');
 const razorpay = new Razorpay({
     key_id:process.env.RAZORPAY_KEY_ID,
     key_secret:process.env.RAZORPAY_KEY_SECRET
@@ -29,7 +29,7 @@ const topUp= async(req,res)=>{
         console.log(razorPaytopUp);
         res.json({ sucess:true,topUp:razorPaytopUp,user:userData});
     } catch (error) {
-        res.status(500).json({ message: 'Razorpay payment failed', error });
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({ message: 'Razorpay payment failed', error });
     }
 }
 
@@ -71,12 +71,12 @@ const  verifyPayment=async (req,res)=>{
         
         } else { 
             console.log("Invalid payment signature.")         ;
-            res.status(400).json({ success: false, message: "'Invalid payment signature. " });          
+            res.status(STATUS_CODE.BAD_REQUEST).json({ success: false, message: "'Invalid payment signature. " });          
 
         }
 
     }catch(error){
-        res.status(500).json({message:'Payment vrification failed',error:error.message})
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({message:'Payment vrification failed',error:error.message})
     }
 }
 

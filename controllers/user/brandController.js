@@ -1,7 +1,7 @@
 const  Brand =require('../../models/brandSchema');
 const Category = require('../../models/categorySchema');
 const User = require('../../models/userSchema');
-
+const {STATUS_CODE,MESSAGE}=require('../../helpers/utils');
 
 
 //-----------------loading Brand Listing Page------------
@@ -15,7 +15,7 @@ const getBrand=async(req,res)=>{
     if(brandData){
         res.render('brand',{user:userData,category:categories,brands:brandData});
     }else{
-        console.log("error fetchung brands");
+        console.log(MESSAGE.ERR_FETCH_DATA);
     }
 }
 

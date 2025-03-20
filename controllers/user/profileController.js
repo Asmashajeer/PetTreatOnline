@@ -6,7 +6,7 @@ const Wishlist= require('../../models/wishlistSchema');
 const Wallet = require('../../models/walletSchema');
 const bcrypt= require('bcrypt');
 const moment =require('moment');
-
+const { STATUS_CODE,MESSAGE } = require('../../helpers/utils');
 const { generateOtp,
     sendVerificationEmail,
     securePassword} = require('../../helpers/utils');
@@ -35,7 +35,7 @@ const verifyEmailResetPassword =async (req,res)=>{
             console.log('\nOTP Sent  :',otp)                
             res.render('verifyOtpResetPassword');    
     } catch (error) {
-        console.error("server error",error);
+        console.error(MESSAGE.SERVER_ERROR,error);
         return res.redirect('/pageNotFound');
     }
 }
@@ -50,7 +50,7 @@ const verify_OtpResetPassword=async(req,res)=>{
                  res.json({success:true,redirectUrl:'/resetPassword'});
             }
             else{
-                res.status(400).json({success:false,message:'Invalid OTP  please tryagain'});
+                res.status(STATUS_CODE.BAD_REQUEST).json({success:false,message:'Invalid OTP  please tryagain'});
             }
     } catch (error) {
         
@@ -85,8 +85,8 @@ const resetPassword=async(req,res)=>{
                 console.log("cant hash password");
             }
     } catch (error) {
-        console.error("server error ",error);
-        return res.status(500).redirect('/pageNotFound');
+        console.error(MESSAGE.SERVER_ERROR,error);
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/pageNotFound');
     }
 }
 
@@ -134,7 +134,7 @@ const userProfile= async(req,res)=>{
            
        res.render('profile',{user:userData,selectedTab,userAddress:addressData,orderData:orderData,wishlist:wishlist,wallet:wallet,moment,referralCode,cartSize:req.session.cartSize,wList:req.session.wList});      
     }else{
-       console.error("unable to fetch user data");
+       console.error(MESSAGE.ERR_FETCH_DATA);
     }
 }
 
@@ -172,8 +172,8 @@ const SaveAddress=async(req,res)=>{
          res.redirect('/profile?tab=addresses');
         
     } catch (error) {
-        console.log("error:address not submitted");
-        res.status(500).redirect('/pageNotFound');
+        console.log("error:address not submitted",error);
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/pageNotFound');
     } 
     
 }
@@ -200,8 +200,8 @@ const editAddressPage=async (req,res)=>{
         }    
         res.render('editAddress',{address:addressData,user:user});
     } catch (error) {
-        console.log("error fetching address:",error);
-        res.status(500).redirect("/pageNotFound");
+        console.log(MESSAGE.SERVER_ERROR,error);
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect("/pageNotFound");
     }
 }
 
@@ -240,7 +240,7 @@ const editAddress=async (req,res)=>{
             return res.redirect('/pageNotFound');
         }    
     } catch (error) {
-        console.log("error fetching address:",error);
+        console.log(MESSAGE.ERR_FETCH_DATA,error);
         res.redirect('/pageNotFound');
     }
 }
@@ -385,7 +385,7 @@ const verifyEmailOtp= async(req,res)=>{
             }                        
              
         }else{
-            res.status(400).json({success:false,message:'Invalid OTP  please tryagain'});
+            res.status(STATUS_CODE.BAD_REQUEST).json({success:false,message:'Invalid OTP  please tryagain'});
 
         }
     }catch(error){
@@ -398,10 +398,7 @@ const verifyEmailOtp= async(req,res)=>{
 const resendOtp= async (req,res)=>{
     try {
        
-        // if(!email){
-          
-        //     return res.status(400).json({success:false,message:'Email not found in session'});
-        // }
+       
 
         const otp=generateOtp();
         req.session.userOtp=otp;
@@ -415,13 +412,13 @@ const resendOtp= async (req,res)=>{
        
         if (emailSent){
             console.log("Resend OTP",otp);
-            res.status(200).json({success:true,message:'OTP resend successfully'});
+            res.status(STATUS_CODE.SUCCESS).json({success:true,message:'OTP resend successfully'});
         }else{
             res.status(500).json({success:false,message:'Failed to resend OTP please try again'});
         }
     } catch (error) {
         console.error('Error resending OTP',error);
-        res.status(500).json({success:false,message:'Internal Server Error please try Again'});
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'Internal Server Error please try Again'});
     }
 }
 //----------------------change passsword-------------
@@ -488,7 +485,7 @@ const generateReferalCode= async(req,res)=>{
     }else{
         await User.updateOne({_id:userId},{$set:{referralCode:refCode}});
     }   
-    return res.status(200).json({succes:true,referralCode:refCode});
+    return res.status(STATUS_CODE.SUCCESS).json({succes:true,referralCode:refCode});
     
 }
 module.exports={

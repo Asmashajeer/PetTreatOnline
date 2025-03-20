@@ -7,7 +7,7 @@ const Address = require('../../models/addressSchema');
 const Wallet = require('../../models/walletSchema');
 const {addTransaction}=require('../../helpers/utils');
 const moment = require('moment');
-
+const {STATUS_CODE,MESSAGE}=require('../../helpers/utils');
 //---------list orders------------------------------
 
 const loadOrders=async(req,res)=>{
@@ -107,8 +107,8 @@ const loadOrders=async(req,res)=>{
         }
         res.render('orders',{orders:orderData,totalOrderStatus,totalPages:Math.ceil(count/limit),currentPage:page});
     } catch (error) {
-        console.error("server error",error);
-        res.status(500).redirect('/pageError');
+        console.error(MESSAGE.SERVER_ERROR,error);
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/pageError');
     }
 }
 
@@ -133,7 +133,7 @@ const viewOrder =async(req,res)=>{
         })
         res.render('changeOrderStatus',{order:singleOrder,address:orderAddress,statusValues:orderStatusValues,moment});
     } catch (error) {
-        console.log("error fetching Order Details:",error);
+        console.log(MESSAGE.ERR_FETCH_DATA,error);
         res.redirect("/pageError");
     }
 }
@@ -199,18 +199,16 @@ const changeOrderStatus =async (req,res)=>{
         res.status(200).json({success:true,changedStatus:changedStatus});
         console.log(`order Status  changed to  ! ${changedStatus}`);
     } catch (error) {
-        console.log("Error:cannot change status",error);
-        res.status(400).json({success:false,message:'cannot change status'});
+        console.log(MESSAGE.SERVER_ERROR,error);
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'cannot change status'});
     }
 }
 //-----------------management Return-------------------
 const manageReturnForm= async(req,res)=>{
-    const {orderId,productId}= req.params;
-    console.log(orderId,productId);
+    const {orderId,productId}= req.params;   
     const order =await Order.findOne({orderId:orderId});
     for (let item of order.orderItems) {
-        if (item.product.toString() === productId && item.returnStatus==='Return Request') {
-            console.log('----------------------',item);
+        if (item.product.toString() === productId && item.returnStatus==='Return Request') {            
              return res.render('manageReturn',{ orderId:orderId,item:item});
         }
     }
@@ -282,7 +280,7 @@ const updateReturn =async(req,res)=>{
                
     } catch (error ) {
         console.log("ServerError :",error);
-        res.status(500).json({success:false,message:"Return  this item failed"});
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:"Return  this item failed"});
     }
 
 }

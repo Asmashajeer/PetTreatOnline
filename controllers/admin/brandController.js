@@ -1,6 +1,6 @@
 const Brand = require('../../models/brandSchema');
 const Product= require('../../models/productSchema');
-
+const {STATUS_CODE,MESSAGE}=require('../../helpers/utils');
 
 //---------------------All Brands--------------
 const  getBrand= async(req,res)=>{
@@ -21,7 +21,7 @@ const  getBrand= async(req,res)=>{
                 totalBrands:totalBrands});
         
     } catch (error) {
-        
+        console.error(MESSAGE.SERVER_ERROR,error);
     }
 }
 
@@ -48,9 +48,10 @@ const addBrand =async(req,res)=>{
 
             }else{
                 console.log("This brand Already exist");
-                return res.status(400).redirect('/admin/brands');
+                return res.status(STATUS_CODE.BAD_REQUEST).redirect('/admin/brands');
             }
     } catch (error) {
+        console.error(MESSAGE.SERVER_ERROR,error);
         res.redirect('/admin/pageError');
     }
 }
@@ -67,6 +68,7 @@ const blockBrand= async(req,res)=>{
         else
             console.log("errorWHILE BLOCKING");
     } catch (error) {
+        console.error(MESSAGE.SERVER_ERROR,error);
         res.render('/pageError');
     }
 }
@@ -79,6 +81,7 @@ const unblockBrand= async(req,res)=>{
         res.redirect('/admin/brands');
         
     } catch (error) {
+        console.error(MESSAGE.SERVER_ERROR,error);
         res.render('/pageError');
     }
 }
@@ -89,14 +92,15 @@ const deleteBrand= async(req,res)=>{
     try {
         const id= req.query.id;
         if(!id){
-            res.status(400).redirect('/pagerError');
+            res.status(STATUS_CODE.BAD_REQUEST).redirect('/pagerError');
         }
         await Brand.deleteOne({_id:id});
         res.redirect('/admin/brands');
         
     } catch (error) {
+        console.error(MESSAGE.SERVER_ERROR,error);
         res.render('/pageError');
-        console.log('Error deleting Brands');
+        
     }
 }
 module.exports={
