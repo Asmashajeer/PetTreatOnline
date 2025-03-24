@@ -22,7 +22,7 @@ async function addRewards(referralcode,userId){
     const findReferer= await User.findOne({referralCode:referralcode});
     const reward=await ReferralOffer.findOne();
     const user=await User.findById(userId);
-    console.log(reward);
+   
     let transaction={
         transactionType:'Credit',      
         amount:reward.refererAmount,
@@ -34,8 +34,7 @@ async function addRewards(referralcode,userId){
         {
             $push:{transactions:transaction},
             $inc:{walletAmount:reward.refererAmount}
-        },{ upsert: true });
-    console.log(refererReward);
+        },{ upsert: true });    
 
     
     addTransaction(refererReward._id,findReferer._id,'Credit',transaction.amount, 'Referal',transaction.description);
@@ -189,10 +188,7 @@ const loadSignUp=async(req,res)=>{
 const createUser = async (req,res)=>{   
     try{
             const {name,email,password,confirmPassword,referralcode}=req.body;
-           
-            console.log(req.body);
-            console.log(email);
-           
+                            
             
             const findUser = await User.findOne({email:email});
             if(findUser){
@@ -209,7 +205,7 @@ const createUser = async (req,res)=>{
             const otp= generateOtp();
             console.log(`otp generated`);
             const emailSent = await sendVerificationEmail(email,otp);
-            console.log(emailSent);
+       
             if(!emailSent){
                 return  res.render('register',{message:"Email Error"});
             }
@@ -233,10 +229,10 @@ const createUser = async (req,res)=>{
 const verifyOtp= async(req,res)=>{
     try{
         const {otp}=req.body;
-        console.log(otp);
+       
         if(otp==req.session.userOtp){
             const user=req.session.userData
-            console.log(`password  -${user.password}`);
+          
             const secPassword = await securePassword(user.password);
             
             const saveUserData= new User({

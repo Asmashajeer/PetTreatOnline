@@ -8,7 +8,7 @@ const addWishlist=async(req,res)=>{
     try {
         const userId=req.session.user;
         const productId=req.params.id;   
-        console.log( productId)
+    
         const product=await Product.findById(productId); 
       
 
@@ -22,10 +22,15 @@ const addWishlist=async(req,res)=>{
             });
             await wishlist.save();
             req.session.wList=wishlist.products.length;
-            console.log("pwishlist  added");
+            console.log("wishlist  added");
             return res.status(STATUS_CODE.SUCCESS).json({success:true,product:product.productName});
 
         }else{
+            wishlist.products.forEach((product)=>{
+                if(product.toString()===productId.toString()){
+                    return res.status(STATUS_CODE.BAD_REQUEST).json({SUCCESS:false,message:'product is already in wishlist'});
+                }
+            })
             wishlist.products.push({productId});
             await wishlist.save();
             req.session.wList=wishlist.products.length;

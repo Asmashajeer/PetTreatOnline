@@ -40,8 +40,8 @@ const loadShopping= async(req,res)=>{
         
             
     }catch(error){
-        console.log('shopping page not found srver Error',error);
-        res.status(500).redirect("/pageNotFound");
+        console.log(MESSAGE.SERVER_ERROR,error);
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect("/pageNotFound");
     }
 }
 
@@ -72,7 +72,7 @@ const filterShopping =async (req,res)=>{
         }        
         const {categoryId}= req.query ;
         const {filter}=req.query;
-        console.log(filter);
+       
         const categories= await Category.find({isListed:true});
         const query={
             isBlocked:false,

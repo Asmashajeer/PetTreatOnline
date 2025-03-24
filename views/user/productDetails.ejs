@@ -78,7 +78,7 @@
 								<span class="star  cl11">★</span>
 								<!-- Other stars here -->
 								 <span class="stext-109 ">3.5/5</span>
-							<span class="stext-109">(25 reviews)</span>
+							
 							</div>
 							
 							
@@ -163,8 +163,8 @@
 								
 								<%if(locals.user){%>
 									<div class="flex-m bor9 p-r-10 mt-5">
-										<a href="#" class="fs-26 cl1 hov-cl2 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100" data-tooltip="Add to Wishlist">
-											<b><i class="zmdi zmdi-favorite" title="Add to wishList"></i></b>
+										<a href="#" onclick="addToWishlist('<%= product._id %>')" class="fs-26 cl1 hov-cl2 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100" data-tooltip="Add to Wishlist">
+											<b><i class="zmdi zmdi-favorite " id="favourite" title="Add to wishList"></i></b>
 										</a>
 									</div>
 								<%}%>	
@@ -337,7 +337,24 @@
 				}
 			});
 		});
-
+  function addToWishlist(activeProduct){			
+			const favourite=document.getElementById("favourite");
+			fetch(`/addwishlist/${activeProduct}`,{method: 'GET',
+						headers: {	'Content-Type': 'application/json'}, 
+						})
+			.then((response)=>response.json())
+			.then((data)=>{		
+					console.log(data.product);					
+					swal(data.product, "is added to wishlist !", "success");
+					favourite.style.color=green;
+					favourite.disabled=true;
+				
+			})
+			.catch((error) => {
+                console.error('Error:', error);
+                swal("Error", "An unexpected error occurred", error);
+			});
+  }
 	</script>	
 
 <%-include("../partials/user/footer.ejs") -%>

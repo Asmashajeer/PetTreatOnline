@@ -229,6 +229,7 @@
             } else {
                 document.getElementById("errorMessage").innerHTML = result.message; 
                 console.log(result.message);
+                document.getElementById('couponCode').value="";
             }
         } catch (error) {
             console.error("Error applying coupon:", error);
@@ -276,7 +277,7 @@
             discount:parseFloat(document.getElementById("discount").innerText)|| 0,
             deliveryPrice:parseFloat(document.getElementById("deliveryPrice").innerText) || 0,
             orderPrice:parseFloat(document.getElementById("orderTotal").innerText),
-            // coupon: document.getElementById("couponCode").value
+           
         };
         console.log(orderData);      
         try{     
@@ -285,9 +286,8 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderData),
             });
-            const data= await response.json();
-       
-            alert(data.message) ;
+            const data= await response.json();       
+            
             if (data.redirect) {
                 window.location.href = data.redirect;
                 return;
@@ -296,9 +296,9 @@
                 initializePayment(data.orderDetails,data.user);
             }          
             else{
-                    alert(data.message || "Failed to place order.");
+                    // alert(data.message || "Failed to place order.");
                     orderError.classList.remove('d-none');
-                    orderError.innerText=data.message;
+                    orderError.innerHTML = `${data.message} <strong><a href='/shopingCart'>Cart</a></strong>`;
                     console.log(data);
             }
         }catch (error) {
@@ -369,13 +369,9 @@
             };
             var rzp = new Razorpay(options);
             rzp.on('payment.failed', function (response){
-                // alert(response.error.code);
+             
                  alert(response.error.description +response.error.metadata.order_id);
-                // alert(response.error.source);
-                // alert(response.error.step);
-                // alert(response.error.reason);
-                // alert(response.error.metadata.order_id);
-                // alert(response.error.metadata.payment_id);
+               
                 window.location.href = `/orderFailed/${order.id}`;
             });
             rzp.open();

@@ -110,7 +110,7 @@ router.get('/orders/returnAnItemRequest/:orderId/:productId/:productName/:quanti
 router.post('/orders/returnRequest',userAuth,orderController.returnOrderRequest);
 
 router.get('/order/invoice/:id',userAuth,orderController.invoice);
-router.get("/orders/downloadInvoice/:orderId",userAuth,orderController. generatePDFInvoice);
+router.get("/orders/downloadInvoice/:orderId",userAuth,orderController.generatePDFInvoice);
 
 //--------------wishList-------------------------
 

@@ -2,7 +2,7 @@ const mongoose = require('mongoose'); // Erase if already required
 const {Schema}= mongoose;
 
 // Declare the Schema of the Mongo model
-const wishlistrSchema = new Schema({
+const wishlistSchema = new Schema({
     userId:{
         type:Schema.Types.ObjectId,
         ref:'User',
@@ -23,5 +23,5 @@ const wishlistrSchema = new Schema({
 });
 
 //Export the model
-const Wishlist = mongoose.model('Wishlist', wishlistrSchema);
+const Wishlist = mongoose.model('Wishlist', wishlistSchema);
 module.exports= Wishlist;

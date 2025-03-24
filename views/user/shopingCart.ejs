@@ -62,20 +62,10 @@
 														<i class="fs-16 zmdi zmdi-plus"></i>
 													</div>													
 												</div>											
-												<!-- <div class="wrap-num-product flex-w m-l-auto m-r-0">
-													<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-														<i class="fs-16 zmdi zmdi-minus"></i>
-													</div>
-		
-													<input  id='quantity-<%=item.productId._id%>' class="mtext-104 cl3 txt-center num-product" type="number" name="num-product1" value="<%=item.quantity%>">
-		
-													<div  class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
-														<i class="fs-16 zmdi zmdi-plus"></i>
-													</div>
-												</div> -->
+												
 											</td>
 		
-											</td>
+											<!-- </td> -->
 											
 											<%let itemTotal=item.productId.salePrice *item.quantity;%>
 										<td class="column-5"><span id="itemTotal-<%=item.productId._id%>">₹ <%=itemTotal.toFixed(2)%></span></td>
@@ -136,27 +126,25 @@
 
 														
 						</div>
-						
-						<div class="p-t-27 p-b-33">
-							<div class="size-308">
-								<% if (typeof cart !== 'undefined' && cart.items && cart.items.length > 0) { %>	
-									<span class="mtext-101 cl2 m-b-15">
-										Total: <span  id="totalPrice" class="float-right">₹ <%=cart.totalPrice%></span>
+						<% if (typeof cart !== 'undefined' && cart.items && cart.items.length > 0) { %>	
+							<div class="p-t-27 p-b-33">
+								<div class="size-308">									
+										<span class="mtext-101 cl2 m-b-15">
+											Total: <span  id="totalPrice" class="float-right">₹ <%=cart.totalPrice%></span>
+										</span>									
+								</div>								
+
+								<div class="size-209 p-t-1">
+									<span class="mtext-110 cl2">
+										
 									</span>
-								<%}%>	
+								</div>
 							</div>
-							
 
-							<div class="size-209 p-t-1">
-								<span class="mtext-110 cl2">
-									
-								</span>
-							</div>
-						</div>
-
-						<button  type="submit" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
-							Proceed to Checkout
-						</button>
+							<button  type="submit" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
+								Proceed to Checkout
+							</button>
+						<%}%>	
 					</div>
 				</div>
 			</div>

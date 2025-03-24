@@ -31,11 +31,20 @@ const loadCheckoutPage = async (req, res) => {
             return res.redirect("/shop"); 
             
         }  
-        //---fetching address--
-        const addressData= await Address.findOne({userId:userData._id});    
-        if(!addressData){
-            console.log('address not found');
+        //---fetching address--  and coupons-------
+        const [addressData, coupons] = await Promise.all([
+            Address.findOne({ userId: userData._id }), // Fetch the address data
+            Coupon.find({
+                minimumPrice: { $lt: mycart.totalPrice },
+                isActive: true,
+                startOn: { $lte: new Date() },
+                expireOn: { $gte: new Date() },
+            }), // Fetch available coupons
+        ]);
 
+        if (!addressData) {
+            console.log('Address not found');
+            return;
         }
        
        //------fetching cart items-------------
@@ -52,20 +61,8 @@ const loadCheckoutPage = async (req, res) => {
         ));
         const totalPrice = mycart.totalPrice; // Total price from cart   
 
-        //-------fetching available coupons---
-       const coupons=await Coupon.find({            
-            minimumPrice:{$lt:totalPrice},
-            isActive:true,
-            startOn:{$lte:new Date()},
-            expireOn:{$gte:new Date()},
-           
-        });
-        if(coupons.length>0){
-            console.log('available coupons');
-            console.log(coupons);
-        }else{
-            console.log("no matched coupons");
-        }
+       
+        
         if(req.session.coupon){           
                 discount=req.session.coupon.discount;            
         }        
@@ -88,10 +85,10 @@ const SaveCheckoutAddress=async(req,res)=>{
     try {
         const id=req.session.user;          
         const userData=await User.findById(id);
-        console.log(id);
+     
         const {addressType,name,address,city,landmark,state,pincode,phone,altPhone} =req.body;
      
-        console.log(addressType,name,address,city,landmark,state,pincode,phone,altPhone);
+     
         const addressData= await Address.findOne({userId:userData._id});
         if(!addressData){
             console.log("address not added");
@@ -102,7 +99,7 @@ const SaveCheckoutAddress=async(req,res)=>{
             await newAddress.save();            
         }
         else{
-            console.log("address have address,add,more");
+           
             addressData.address.push({addressType,name,address,city,landmark,state,pincode,phone,altPhone});
            await addressData.save();            
         }
@@ -121,13 +118,13 @@ const applyCoupon =async(req,res)=>{
     try {
         const userId=req.session.user;
         const {couponCode}=req.body;
-        console.log(couponCode);
+      
         const coupon= await Coupon.findOne({couponCode:couponCode.trim()});
         if (!coupon || !coupon.isActive || coupon.expireOn < new Date()){
             console.log('invalid or expired Coupon');
-            res.json({success: false,message:"Invalid coupon"})
+            return res.json({success: false,message:"Invalid coupon"})
         }
-        console.log(coupon)
+       
         const user = await User.findById(userId);
         if(req.session.coupon){
             if(req.session.coupon.code===couponCode){
@@ -143,7 +140,7 @@ const applyCoupon =async(req,res)=>{
             code: coupon.couponCode,
             discount: coupon.discountValue
         };
-        console.log(req.session.coupon);
+       
         const discountAmount = coupon.discountValue;
         res.json({ success: true, discountCoupon: req.session.coupon,message: "Coupon applied " });
 

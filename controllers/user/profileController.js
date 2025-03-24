@@ -42,7 +42,7 @@ const verifyEmailResetPassword =async (req,res)=>{
 //-------------verify OTP toreset Password----------------
 const verify_OtpResetPassword=async(req,res)=>{
     try {
-            console.log("otp entered ",req.session.userOtp);
+           
             const {otp}=req.body;
 
             if(otp===req.session.userOtp){
@@ -67,10 +67,10 @@ const resetPassword=async(req,res)=>{
     try {
             const user=req.session.userData;
             const {newPassword,confirmPassword}= req.body;
-            console.log(newPassword,confirmPassword);
+            
             const secpassword=await securePassword(newPassword);
             if(secpassword){
-                console.log(secpassword);
+                
                 const resetPassword= await User.updateOne({_id:user._id},{$set:{password:secpassword}});
                 
                 if(resetPassword.modifiedCount>0){
@@ -127,7 +127,7 @@ const userProfile= async(req,res)=>{
                 path: 'category'            }
         });//---wishlist
         const wallet=await Wallet.findOne({userId:userData._id}); 
-        console.log(wallet);
+       
         if(userData.referralCode){
           referralCode= userData.referralCode;
          }
@@ -150,10 +150,10 @@ const SaveAddress=async(req,res)=>{
     try {
         const id=req.session.user;          
         const userData=await User.findById(id);
-        console.log(id);
+       
         const {addressType,name,address,city,landmark,state,pincode,phone,altPhone} =req.body;
-        console.log("-------------------");
-        console.log(addressType,name,address,city,landmark,state,pincode,phone,altPhone);
+     
+       
         const addressData= await Address.findOne({userId:userData._id});
         if(!addressData){
             console.log("address not added");
@@ -209,14 +209,14 @@ const editAddressPage=async (req,res)=>{
 const editAddress=async (req,res)=>{
     try {
         const addressId=req.query.id;
-        console.log(addressId);
+        
         const userId= req.session.user;
         
         const data =req.body;
-        console.log(data);
+       
         const findAddress=await Address.findOne({'address._id':addressId});
         if(!findAddress){
-            console.log(findAddress);
+            
             return res.redirect("/pageNotFound");
         }
         const changedAddress=await Address.updateOne({'address._id':addressId},{$set:{
@@ -249,18 +249,18 @@ const editAddress=async (req,res)=>{
 const deleteAddress =async(req,res)=>{
     try {
         const addressId=req.query.id;
-        console.log(addressId);
+       
         const userId= req.session.user;    
         const findAddress=await Address.findOne({'address._id':addressId});
         if(!findAddress){
             console.log("address not found");
             return res.redirect("/pageNotFound");
         }
-        console.log(findAddress);
+        
         const changedAddress=await Address.updateOne({'address._id':addressId},
             {$pull:{address:{_id:addressId}} }
         );
-        console.log(changedAddress);
+        
         if(changedAddress>0){
             console.log("updated successfully");
         }else{
@@ -285,7 +285,7 @@ const verifyPassword= async(req,res)=>{
         const id=req.session.user;
         const {password} =req.body;
         const findUser=await User.findById({_id:id});
-        console.log("userdata",findUser.password);       
+         
         if(findUser){
             const passwordMatch= bcrypt.compare(password,findUser.password);
             if(!passwordMatch){
@@ -308,7 +308,7 @@ const verifyEmail =async(req,res)=>{
         const findUser=await User.findById({_id:id});
         if(findUser){
             const otp=generateOtp();
-            console.log(findUser.email,otp);
+            
             const emailSent = await sendVerificationEmail(findUser.email,otp);
             if(!emailSent){
                 console.log("error sending otp");
@@ -340,18 +340,18 @@ const updateEmailpage= async(req,res)=>{
 }
 
 const updateEmail= async(req,res)=>{
-    console.log("reached backend");
+   
      const id= req.session.user;
      const findUser=await User.find({_id:id});   
      const {email}=req.body;
-     console.log(email);
+     
      const checkExist= await User.findOne({email:email});
      if(checkExist){
         console.log("the new email entered already exist");
         return res.render('updateEmail',{email:email,message:'this entered email already exist'});
      }
      const otp=generateOtp();
-     console.log(email,otp);
+     
      const emailSent = await sendVerificationEmail(email,otp);
      if(!emailSent){
         console.log("error sending otp");
@@ -368,14 +368,13 @@ const updateEmail= async(req,res)=>{
 const verifyEmailOtp= async(req,res)=>{
     try{
         const {otp}=req.body;
-        console.log(otp);
-        console.log("sessionOtp:",req.session.userOtp);
+    
         if(otp===req.session.userOtp){
             const id=req.session.user
             if(!req.session.email){
                 return res.json({success:true,redirectUrl:'/updateEmail'});               
             }
-            console.log("new email",req.session.email);
+           
            const updateEmail=await User.updateOne({_id:id},{$set:{email:req.session.email}})
             if(updateEmail.modifiedCount>0){
               return  res.json({success:true,redirectUrl:'/profile'})
@@ -438,15 +437,14 @@ const updatePassword =async (req,res)=>{
     try {
         const id= req.session.user;
         const {currentpassword,newpassword,confirmpassword}=req.body;
-        console.log("-----------------",req.body);
-       console.log(id);
+       
         if(newpassword!==currentpassword)
         {    
             const findUser= await User.findById({_id:id});
-            //console.log(findUser);
+            
             if(findUser){
                 const passwordMatch=await  bcrypt.compare(currentpassword,findUser.password);
-                console.log("match:",passwordMatch);
+                
                 if(!passwordMatch){
                    return res.render('changePassword',{message:'currentpassword not match'}); 
                 }
@@ -454,7 +452,7 @@ const updatePassword =async (req,res)=>{
                 if(!secuPassword){
                     return res.render('changePassword',{message:"hashing of password faILED"})
                 }
-                console.log("secu  ",secuPassword);
+              
                 const updatePass=await User.updateOne({_id:id},{$set:{password:secuPassword}});
                 if(updatePass.modifiedCount>0){
                     console.log("password Updated!");
@@ -480,7 +478,7 @@ const generateReferalCode= async(req,res)=>{
     const userId=req.session.user;
     const user = await User.findById({_id:userId});
     if(user.referralCode){
-        console.log(user.referralCode);
+     
         refCode=user.referralCode;
     }else{
         await User.updateOne({_id:userId},{$set:{referralCode:refCode}});

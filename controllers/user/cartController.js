@@ -15,7 +15,7 @@ const showCart=async(req,res)=>{
         const myCart= await Cart.findOne({userId:userId}).populate('items.productId');
         if(!myCart||myCart.items.length===0){            
             console.log("cart is empty");
-            return res.render('shopingCart',{cartSize:req.session.cartSize});
+            return res.render('shopingCart',{user:user,cartSize:req.session.cartSize});
         }
         for(let item of myCart.items){    //remove item which is outof stock from cart
             const currentProduct=await Product.findOne({_id:item.productId._id});
@@ -25,8 +25,7 @@ const showCart=async(req,res)=>{
                 const itemToReduce=currentProduct._id;                
                 reducedQuantity=item.quantity-currentProduct.stock;
                 item.quantity=currentProduct.stock;
-                reducedPrice= item.productId.salePrice*reducedQuantity;
-                console.log(reducedQuantity,reducedPrice, item.quantity)
+                reducedPrice= item.productId.salePrice*reducedQuantity;               
                 await Cart.updateOne({userId:userId,items:{$elemMatch:{productId:itemToReduce}}},
                     {$inc:{'item.$.quantity':-reducedQuantity,totalQty:-reducedQuantity,totalPrice:-(reducedPrice)}},{new:true});
                 
@@ -59,8 +58,7 @@ const addToCart =async(req,res)=>{
         const userId= req.session.user;
         const pId = req.body.productId;
         cartSize=0;
-        const quantity = parseInt(req.body.quantity);
-        console.log('pId :',pId,'quantity  :  ',quantity);
+        const quantity = parseInt(req.body.quantity);       
        if(!userId){
             console.log('user Not signed In')
         return res.status(STATUS_CODE.NOT_FOUND).json({message:"please sign in to add product to cart"});
@@ -161,8 +159,7 @@ const removeOne=async(req,res)=>{
         
          result=await Cart.updateOne({userId:userId,items:{$elemMatch:{productId:id}}},
             {$inc:{'items.$.quantity':-quantity,totalQty:-quantity,totalPrice:-(product.salePrice*quantity)}},{new:true});
-            if(result){
-                console.log(`remove ${quantity} of${product.productName}removed from cart`);
+            if(result){              
                
                 let cart= await Cart.findOne({userId:userId,
                     items:{$elemMatch:{productId:id}}
@@ -199,7 +196,7 @@ const addOne=async(req,res)=>{
             const item = cart.items.find(item => item.productId.toString() === id.toString());
             
             const product = await Product.findById(id);
-            console.log(item.quantity + quantity);
+            
             if ((item.quantity + quantity) > product.stock) {              
                 console.log("Product Out of Stock");
                 let qty=item.quantity;
@@ -208,8 +205,7 @@ const addOne=async(req,res)=>{
         
            result=await Cart.updateOne({userId:userId,items:{$elemMatch:{productId:id}}},
             {$inc:{'items.$.quantity':quantity,totalQty:quantity,totalPrice:(product.salePrice*quantity)}},{new:true});
-            if(result){
-                console.log(`add ${quantity} ${product.productName} to cart`);
+            if(result){               
                
                 let cart= await Cart.findOne({userId:userId,
                     items:{$elemMatch:{productId:id}}
@@ -249,7 +245,7 @@ const deleteFromCart=async(req,res)=>{
             console.log(" user Cart not Found");
             return res.redirect('/shopingCart');
         }
-        console.log('-------------------');
+     
         const itemToDelete=userCart.items.find(item=>item.productId.toString()===productIdToDelete);
               deletedQuantity = itemToDelete.quantity;
               reducedPrice = deletedQuantity * product.salePrice;    
