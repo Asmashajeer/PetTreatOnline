@@ -38,7 +38,7 @@
                     <div class="col-md-3 mb-3">
                         <h6 class="text-muted">Order Status</h6>
                         <span id="showStatus" class="badge bg-success fs-6"><%=order.status%></span>
-                        <%if(order.status!=='Delivered' && order.status!=='Cancelled'){%>
+                        <%if(order.status!=='Delivered' && order.status!=='Cancelled' && order.status!=='Returned'){%>
                             <button id="BtchangeStatus"  type="button" class="btn fw-bold " style="color:#dead65">Change</button>
                         <%}%>
                          <div class="col-md-6 mb-3">                                                

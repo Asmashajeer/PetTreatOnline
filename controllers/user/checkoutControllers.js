@@ -35,7 +35,7 @@ const loadCheckoutPage = async (req, res) => {
         const [addressData, coupons] = await Promise.all([
             Address.findOne({ userId: userData._id }), // Fetch the address data
             Coupon.find({
-                minimumPrice: { $lt: mycart.totalPrice },
+                // minimumPrice: { $lt: mycart.totalPrice },
                 isActive: true,
                 startOn: { $lte: new Date() },
                 expireOn: { $gte: new Date() },
@@ -43,8 +43,7 @@ const loadCheckoutPage = async (req, res) => {
         ]);
 
         if (!addressData) {
-            console.log('Address not found');
-            return;
+            console.log('Address not found');           
         }
        
        //------fetching cart items-------------
@@ -65,15 +64,37 @@ const loadCheckoutPage = async (req, res) => {
         
         if(req.session.coupon){           
                 discount=req.session.coupon.discount;            
-        }        
-        res.render("checkout", { user:userData,addressData,orderItems,totalPrice,discount,coupons,deliveryPrice,cartSize:req.session.cartSize,wList:req.session.wList});
-       // res.render("checkout", { userData,addressData,cart:mycart,discount,coupons,deliveryFee });
+        }   
+        req.session.checkoutData = {
+            user: userData,
+            addressData: addressData,
+            orderItems: orderItems,
+            totalPrice: totalPrice,
+            discount: discount,
+            coupons: coupons,
+            deliveryPrice: deliveryPrice,
+            cartSize: req.session.cartSize,
+            wList: req.session.wList
+        };   
+        res.render("checkout", {user:userData,checkoutData:req.session.checkoutData});
+            // res.render("checkout", { user:userData,addressData,orderItems,totalPrice,discount,coupons,deliveryPrice,cartSize:req.session.cartSize,wList:req.session.wList});
+
+       
         console.log(" checkout loaded");
     } catch (error) {
         console.error("Error loading checkout page:", error);
         res.redirect("/pageNotFound");
     }
 };
+
+const getCheckoutPage= async (req,res)=>{
+    if(req.session.checkoutData){
+        res.render("checkout", {user:req.session.checkoutData.userData,checkoutData:req.session.checkoutData});
+    }else{
+       console.log( "checkout failed");
+
+    }
+}
 //----------------------------add Addressat checkout----------------
 const addAddressCheckOutForm =async (req,res)=>{
     const id=req.session.user; 
@@ -117,14 +138,17 @@ const SaveCheckoutAddress=async(req,res)=>{
 const applyCoupon =async(req,res)=>{
     try {
         const userId=req.session.user;
-        const {couponCode}=req.body;
+        const {couponCode,orderTotal}=req.body;
       
         const coupon= await Coupon.findOne({couponCode:couponCode.trim()});
         if (!coupon || !coupon.isActive || coupon.expireOn < new Date()){
             console.log('invalid or expired Coupon');
             return res.json({success: false,message:"Invalid coupon"})
         }
-       
+        if(orderTotal<coupon.minimumPrice){
+            console.log('oupon applies only with the required minimum purchase');
+            return res.json({success: false,message:"Coupon applies only with the required minimum purchase"})
+        }
         const user = await User.findById(userId);
         if(req.session.coupon){
             if(req.session.coupon.code===couponCode){
@@ -159,5 +183,5 @@ module.exports={
     addAddressCheckOutForm,
     SaveCheckoutAddress,
     applyCoupon,
-   
+    getCheckoutPage
 }

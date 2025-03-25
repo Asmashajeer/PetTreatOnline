@@ -153,9 +153,9 @@
                                     <td><span class="badge bg-success text-white">Returned</span></td>
                                 <%}else if(order.status!=='Cancelled' && order.status!=='Delivered' && item.returnStatus!=='Return Request' && item.returnStatus!=='Return Approved' && item.returnStatus!=='Return Rejected'){%>
                                         <%if(order.orderItems.length<2){%>
-                                            <td><a href="/orders/cancelOrder/<%=order.orderId%>" onclick="return confirmation('Are you sure ,you want to Cancel Order?')" class="btn btn-outline-danger btn-sm">Cancel</a></td>
+                                            <td><a href="/orders/cancelOrder/<%=order.orderId%>" onclick="return confirm('Are you sure ,you want to Cancel Order?')" class="btn btn-outline-danger btn-sm">Cancel</a></td>
                                         <%}else{%>
-                                            <td><a href="#" onclick="cancelAnItem(event,'<%=order.orderId%>', '<%=item.product%>','<%=item.quantity%>','<%=item.price%>')" class="btn btn-sm btn-outline-danger">Cancel</a> </td>
+                                            <td><a href="#" onclick="return confirm('Are you sure you want to cancel this item?') && cancelAnItem(event,'<%=order.orderId%>', '<%=item.product%>','<%=item.quantity%>','<%=item.price%>')" class="btn btn-sm btn-outline-danger">Cancel</a> </td>
                                         <%}%> 
                                 <%}else if(order.status==='Delivered' && item.returnStatus!=='Return Request'&& item.returnStatus!=='Returned'){%>
                                      <%if(moment().isBefore(moment(order.deliveryDate).add(7,'days')) ){%>                                         
@@ -163,7 +163,10 @@
                                     <%}%>   
                                 <%}else if(item.returnStatus==='Return Request'){%> 
                                     <td> <span class="badge bg-warning text-dark">Return Requested</span></td>
-                                <%}else{%>
+                                <%}else if(order.status==='Cancelled') {%>
+                                    <td><span class="badge bg-secondary text-white">Cancelled</span></td>
+                                
+                                <%}else {%>
                                     <td><span class="badge bg-success text-white">Returned</span></td>
                                 <%}%>
                             </tr>   

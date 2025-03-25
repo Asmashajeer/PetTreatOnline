@@ -187,8 +187,7 @@ const loadSignUp=async(req,res)=>{
 //--------register user--------------
 const createUser = async (req,res)=>{   
     try{
-            const {name,email,password,confirmPassword,referralcode}=req.body;
-                            
+            const {name,email,password,confirmPassword,referralcode}=req.body;                           
             
             const findUser = await User.findOne({email:email});
             if(findUser){

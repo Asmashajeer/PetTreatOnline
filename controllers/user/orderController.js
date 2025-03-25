@@ -117,7 +117,10 @@ const createOrder= async(req,res)=>{
                                 $push:{transactions:transaction},
                                 $inc:{walletAmount:-orderPrice}
                             },{ upsert: true });
+                            req.session.checkoutData = null; // Clear session
                             res.json({ success: true, message: "Order placed successfully!" ,redirect:`/orderSuccess?id=${newOrder.orderId}`});
+                            
+
                 }else{
                     console.log("Wallet haven't Sufficent balance!");
                     res.json({ success: false, message: "Insufficent balance in Wallet!" });
@@ -141,7 +144,10 @@ const createOrder= async(req,res)=>{
             let description=`order placed with ID ${newOrder.orderId} COD Pending`;
             addTransaction(newOrder.orderId,userId,'Debit',orderPrice, paymentMethod,description);
             reduceStockOnOrder (userId,newOrder.orderId);
+            req.session.checkoutData = null; // Clear session
             res.json({ success: true, message: "Order placed successfully!" ,redirect:`/orderSuccess?id=${newOrder.orderId}`});
+            
+
         }
        
         
@@ -172,6 +178,8 @@ async function verifyPayment(req,res){
            await Order.findOneAndUpdate({orderId:order.orderId},{$set:{paymentStatus:'Paid'}});
            let description=`order placed and payment received with ID ${order.orderId} `;
            addTransaction(order.orderId,userId,'Credit',order.orderPrice, 'razorpay',description);
+           req.session.checkoutData = null; // Clear session
+
           return res.json({ success: true, message: "Order placed successfully!" ,redirect:`/orderSuccess?id=${order.orderId}`});
 
 
@@ -580,36 +588,74 @@ const invoice=async (req,res)=>{
 //--------------- export as PDF----------------------
 // Route to generate the PDF from the EJS page
 const generatePDFInvoice= async (req, res) => {
-        const userId=req.session.user;
-        try {
-            const sessionCookie = req.headers.cookie;
-            if (!sessionCookie) {
-                throw new Error("User is not authenticated");
-            }
-            const { orderId } = req.params;
-            const browser = await puppeteer.launch({ headless: "new" , args: ["--no-sandbox", "--disable-setuid-sandbox"]});
-
-            const page = await browser.newPage();
-            // Set session cookie in Puppeteer
-            await page.setExtraHTTPHeaders({
-                cookie: sessionCookie,
-            });
-
-            await page.goto(`http://www.pettreat.online/order/invoice/${orderId}`, { waitUntil: "networkidle0" });
-            await page.waitForSelector("#invoice-content", { visible: true });
-           
-    
-            const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
-    
-            await browser.close();
-           
-            res.setHeader("Content-Disposition", `attachment; filename=invoice_${orderId}.pdf`);
-            res.setHeader("Content-Type", "application/pdf");
-            res.end(pdfBuffer);
-        } catch (error) {
-            console.error("Error generating PDF:", error);
-            res.status(500).send("Error generating PDF");
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ message: "User not authenticated" });
         }
+
+        const { orderId } = req.params;
+        const invoiceURL = `https://pettreat.online/order/invoice/${orderId}`;
+
+        console.log("Fetching invoice from:", invoiceURL); // Debug log
+
+        const browser = await puppeteer.launch({
+            executablePath: "/usr/bin/chromium",
+            headless: true,
+            args: [
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-gpu",
+                "--disable-dev-shm-usage",
+            ],
+        });
+
+        const page = await browser.newPage();
+
+        // **Manually Extract and Set Authentication Cookie**
+        if (req.headers.cookie) {
+            const sessionCookie = req.headers.cookie
+                .split("; ")
+                .find(row => row.startsWith("connect.sid="));
+
+            if (sessionCookie) {
+                const [name, value] = sessionCookie.split("=");
+                await page.setCookie({
+                    name,
+                    value,
+                    domain: "pettreat.online",
+                    path: "/",
+                    httpOnly: true,
+                    secure: true,
+                });
+            } else {
+                console.log("No session cookie found");
+                return res.status(401).json({ message: "Authentication required" });
+            }
+        }
+
+        await page.goto(invoiceURL, { waitUntil: "networkidle2", timeout: 60000 });
+
+        // Check if the page redirected to sign-in
+        const currentUrl = page.url();
+        if (currentUrl.includes("/signIn")) {
+            console.error("Puppeteer was redirected to sign-in. Authentication failed.");
+            return res.status(401).json({ message: "Session expired or invalid" });
+        }
+
+        await page.waitForSelector("#invoice-content", { visible: true });
+
+        const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
+
+        await browser.close();
+
+        res.setHeader("Content-Disposition", `attachment; filename=invoice_${orderId}.pdf`);
+        res.setHeader("Content-Type", "application/pdf");
+        res.end(pdfBuffer);
+
+    } catch (error) {
+        console.error("Error generating PDF:", error);
+        res.status(500).json({ message: "Puppeteer failed to generate PDF. Check server logs." });
+    }
     }
     
 

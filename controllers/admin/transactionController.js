@@ -37,15 +37,15 @@ const Alltransactions=async(req,res)=>{
         
         if(Object.keys(query).length !== 0){
             ledgerData = await Ledger.find(query)
-            .populate('userId', 'name')
+            .populate('userId','name')
             .sort({ createdAt: -1 });
 
             count = await Ledger.find(query)
-            .populate('userId', 'name')
+            .populate('userId','name')
             .sort({ createdAt: -1 }).countDocuments();
             
         }else{
-            ledgerData= await Ledger.find().populate('userId', 'name').sort({createdAt:-1}).skip(skip).limit(limit);
+            ledgerData= await Ledger.find().populate('userId','name').sort({createdAt:-1}).skip(skip).limit(limit);
             count= await Ledger.find().sort({createrAt:-1}).countDocuments();
         }
         if(!ledgerData){

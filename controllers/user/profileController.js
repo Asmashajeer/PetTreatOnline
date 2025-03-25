@@ -100,38 +100,66 @@ const userProfile= async(req,res)=>{
     const userData=await User.findById({_id:id});  
     let referralCode= "";
     if(userData){
-       const addressData= await Address.findOne({userId:userData._id});  //---Addresses 
-       let page=1;
+          let page=1;
             if(req.query.page){
                 page=req.query.page;            
             }
             let limit=5;
-            let count=0;  
-        const order= await Order.find({userId:userData._id}) .sort({createdOn:-1})
-                             .limit(limit*1)
-                             .skip((page-1)*limit)
-                             .exec();  //---orders 
-                          
-         count=await Order.find({userId:userData._id}).countDocuments();   
-         const orderData={
-            orders:order,
-            totalPages:Math.ceil(count/limit),
-            currentPage:page,
+             let count=0;  
+            const [
+                addressData,
+                orders,               
+                wishlist,
+                wallet
+            ] = await Promise.all([
+                // Fetch Address Data
+                Address.findOne({ userId: userData._id }),
+            
+                // Fetch Orders with sorting, pagination
+                Order.find({ userId: userData._id })
+                    .sort({ createdOn: -1 })
+                    .limit(limit * 1)
+                    .skip((page - 1) * limit)
+                    .exec(),           
+                
+            
+                // Fetch Wishlist with nested population
+                Wishlist.findOne({ userId: userData._id }).populate({
+                    path: 'products.productId',
+                    populate: {
+                        path: 'category',
+                    },
+                }),
+            
+                // Fetch Wallet Data
+                Wallet.findOne({ userId: userData._id }),
+            ]);
+            // Count Orders
+            count=Order.countDocuments({ userId: userData._id });
 
-         }  
-        
-        const wishlist= await Wishlist.findOne({userId:userData._id}) 
-        .populate({
-            path: 'products.productId',
-            populate: {
-                path: 'category'            }
-        });//---wishlist
-        const wallet=await Wallet.findOne({userId:userData._id}); 
-       
+            // Prepare Order Data
+            const orderData = {
+                orders: orders,
+                totalPages: Math.ceil(count / limit),
+                currentPage: page,
+            };
+            
+            // Sort Wishlist Products (Latest First)
+            if (wishlist) {
+                wishlist.products.sort((a, b) => {
+                    return new Date(b.productId.createdAt) - new Date(a.productId.createdAt);
+                });
+            }
+            
+            // Sort Wallet Transactions (Latest First)
+            if (wallet && wallet.transactions) {
+                wallet.transactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            }
+            
         if(userData.referralCode){
           referralCode= userData.referralCode;
          }
-           
+        
        res.render('profile',{user:userData,selectedTab,userAddress:addressData,orderData:orderData,wishlist:wishlist,wallet:wallet,moment,referralCode,cartSize:req.session.cartSize,wList:req.session.wList});      
     }else{
        console.error(MESSAGE.ERR_FETCH_DATA);

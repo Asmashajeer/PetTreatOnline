@@ -87,10 +87,7 @@
                             
                           <a href="/changePassword">change Password</a>
                         </div>
-                        <div class="card p-3">
-                          <a  class="text-danger" href="">Delete Account</a>
-                          
-                        </div>
+                      
                     </div>
                 </div> 
               <!-- Addresses Tab -->
@@ -182,26 +179,21 @@
                                     </table>
                                 </div> 
                                  <!-- Pagination -->
-                                 <nav>                 
-                                  <ul class="pagination d-flex justify-content-center pb-2">
-                                          <%if (orderData.currentPage>1){%>                                            
-                                                  <a class="page-link" href="?page=<%= orderData.currentPage-1 %>"  aria-label="Previous">
-                                                      <span aria-hidden="true">&laquo;</span>
-                                                  </a>                                                               
-                                          <%}%>
-                                          <%for(let i=1;i<=orderData.totalPages;i++){%>                                          
-                                              <%if(i==orderData.currentPage){%>                                                    
-                                                    <span  class="current-page bg-custom " href=""><%= i %></span></a> 
-                                              <%}else{%>                                                  
-                                                      <a  href="?page=<%= i %>"><%= i %></a>                                                  
-                                          <%}}%>
-                                          <%if (orderData.currentPage<orderData.totalPages){%>                                              
-                                                  <a  href="?page=<%= orderData.currentPage+1 %>" aria-label="Next">
-                                                      <span aria-hidden="true">&raquo;</span>
-                                                  </a>                                              
-                                          <% }%>       
-                                  </ul>
-                              </nav>                              
+                                  <div class="pagination d-flex justify-content-center pb-2">
+                                    <%if (orderData.currentPage>1){%>
+                                        <a href="?page=<%= orderData.currentPage-1 %>">&laquo;</a>
+                                    <%}%>
+                                    <%for(let i=1;i<=orderData.totalPages;i++){%> 
+                                        <%if(i==orderData.currentPage){%>
+                                            <span  class="current-page bg-custom "><%= i %></span>
+                                        <%}else{%>
+                                            <a href="?page=<%= i %>"><%= i %></a>
+                                    <%}}%>
+                                    <%if (orderData.currentPage<orderData.totalPages){%>
+                                        <a href="?page=<%= orderData.currentPage+1 %>"> &raquo; </a>
+                                    <% }%>      
+                                </div>
+                                                            
                             </div>
                         </div>               
                         
@@ -330,7 +322,7 @@
                                     <td><%=transaction.transactionType%></td>
                                     <td><%=transaction.description%></td>
                                     <%if(transaction.orderId){%>
-                                        -<td><a  class="text-primary" href="/orders/detailedOrderView/<%=transaction.orderId%>"><%=transaction.orderId%></a></td> 
+                                        -<td><a  class="text-primary" href="/orders/detailedOrderView/<%=transaction.orderId%>">view order <i class="fas fa-eye"></i></a></td> 
                                     <%}%>                                   
                                 </tr>    
                                 <%})%>

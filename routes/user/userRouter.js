@@ -89,7 +89,7 @@ router.get('/shoppingCart/deleteItem/:id',userAuth,cartController.deleteFromCart
 //---------checkout--------------------
 router.post('/checkout',userAuth,checkoutController.loadCheckoutPage);
 router.post('/applycoupon',userAuth,checkoutController.applyCoupon);
-
+router.get('/checkout',userAuth,checkoutController.getCheckoutPage);
 router.get('/addAddressCheckOut',userAuth,checkoutController.addAddressCheckOutForm);
 router.post('/addAddressCheckOut',userAuth,checkoutController.SaveCheckoutAddress);
 
