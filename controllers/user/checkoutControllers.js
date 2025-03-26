@@ -67,7 +67,7 @@ const loadCheckoutPage = async (req, res) => {
         }   
         req.session.checkoutData = {
             user: userData,
-            addressData: addressData,
+          
             orderItems: orderItems,
             totalPrice: totalPrice,
             discount: discount,
@@ -76,7 +76,7 @@ const loadCheckoutPage = async (req, res) => {
             cartSize: req.session.cartSize,
             wList: req.session.wList
         };   
-        res.render("checkout", {user:userData,checkoutData:req.session.checkoutData});
+        res.render("checkout", {user:userData,addressData:addressData,checkoutData:req.session.checkoutData});
             // res.render("checkout", { user:userData,addressData,orderItems,totalPrice,discount,coupons,deliveryPrice,cartSize:req.session.cartSize,wList:req.session.wList});
 
        
@@ -88,8 +88,13 @@ const loadCheckoutPage = async (req, res) => {
 };
 
 const getCheckoutPage= async (req,res)=>{
+    const userId=req.session.user;
+    const userData=await User.findById(userId); 
     if(req.session.checkoutData){
-        res.render("checkout", {user:req.session.checkoutData.userData,checkoutData:req.session.checkoutData});
+       const addressData=  await Address.findOne({ userId:userId});
+        if(!addressData)
+            console.log("cant fetch user address");
+        res.render("checkout", {user:userData,addressData:addressData,checkoutData:req.session.checkoutData});
     }else{
        console.log( "checkout failed");
 

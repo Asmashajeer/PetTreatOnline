@@ -282,10 +282,13 @@
 			const numOfproduct = document.getElementById('numOfproduct');
 			const quantity = parseInt(numOfproduct.value);
 			numOfproduct.addEventListener('change',function(){
+				console.log(quantity,productStock.value)
 					if(quantity>parseInt(productStock.value)){
 					errorMessage.classList.remove('d-none');
-					errorMessage.innerText=`Out of stock only product ${Stock.value} is available`;
-					alert(`product is Out of stock only product ${Stock.value} is available`);
+					errorMessage.classList.add('block');
+				
+					errorMessage.textContent=`Out of stock `;
+					
 					return;
 					}
 			});
@@ -298,14 +301,14 @@
 					errorMessage.classList.remove('d-none');
 					errorMessage.classList.add('block');
 					errorMessage.innerText=`select a quantity`;
-					alert('Please select a valid quantity.');
+					
 					return;
 				}
 				if ( quantity > parseInt(productStock.value)) {
 					errorMessage.classList.remove('d-none');
 					errorMessage.classList.add('block');
-					errorMessage.innerText=`Out of stock only product ${Stock.value} is available`;
-					alert(`product is Out of stock only product ${Stock.value} is available`);
+					errorMessage.innerText=`Out of stock `;
+					
 					return;
 				}
 				console.log('productId  : ',productId);

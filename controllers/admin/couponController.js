@@ -14,6 +14,7 @@ const loadCoupon = async(req,res)=>{
         const count= await Coupon.find({}).countDocuments();  
         console.log(count);
         const totalPages=Math.ceil(count/limit); 
+
         return res.render('coupons',{coupons:allCoupons,currentPage:page,totalProducts:count,totalPages:totalPages});
         
     } catch (error) {
@@ -29,12 +30,14 @@ const createCoupon =async(req,res)=>{
      
         const {couponCode,startOn,expireOn,discountValue,minimumPrice}=req.body;
         console.log(couponCode,startOn,expireOn,discountValue,minimumPrice);
+
         const allCoupons= await Coupon.find({});
+      
         const cCode =couponCode.toUpperCase();
         const existingCoupon = await Coupon.findOne({ couponCode:cCode });
         if (existingCoupon) {
             console.log("Coupon Code already exists");
-            return res.status(STATUS_CODE.BAD_REQUEST).render('coupons',{coupons:allCoupons ,message: "Coupon code already exists" });
+            return res.status(STATUS_CODE.BAD_REQUEST).json({error:'Coupon already exist'});   
         }
         
         const startDate = new Date(startOn);
@@ -48,14 +51,13 @@ const createCoupon =async(req,res)=>{
        });
      
         const couponAdded = await newCoupon.save();
-        if(!couponAdded){
-            return res.redirect('/pageError');    
-        }
+        res.status(STATUS_CODE.SUCCESS).json ({message:"Coupon created successfully  "});
+
         console.log("coupon Added");
-        return res.redirect('/admin/coupons');     
+         
     } catch (error) {
         console.log("error creating coupon",error);
-        res.redirect('/admin/pageError');
+        res.status(500).json({error:'Internal server error'});
     }
 }
 

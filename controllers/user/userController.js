@@ -212,7 +212,7 @@ const createUser = async (req,res)=>{
             req.session.userOtp=otp;
             req.session.userData={name,email,password};
             res.render('verify_otp');
-            console.log('OTP Sent',otp);
+           
                
         }catch(error){
         console.error('error while creating user:',error);

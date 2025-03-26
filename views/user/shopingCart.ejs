@@ -58,7 +58,7 @@
 														<i  class="fs-16 zmdi zmdi-minus"></i>														
 													</div>
 													<input  id='quantity-<%=item.productId._id%>'  class="mtext-104 cl3 txt-center num-product"  type="number" name="num-product1" value='<%=item.quantity%>' min="1">
-													<div onclick="increaseOne(`<%= item.productId._id %>`,event)"  class=" btn-num-product-up  cl8 hov-btn3 trans-04 flex-c-m">
+													<div onclick="increaseOne(`<%= item.productId._id %>`,`<%=item.productId.productName%>`,event)"  class=" btn-num-product-up  cl8 hov-btn3 trans-04 flex-c-m">
 														<i class="fs-16 zmdi zmdi-plus"></i>
 													</div>													
 												</div>											
@@ -214,7 +214,7 @@
 	}
 
 //----------------------------  increase quantity ----------
-	increaseOne=function (productId,event){ 
+	increaseOne=function (productId,productName,event){ 
 		
 		event.preventDefault();
 		event.stopImmediatePropagation();
@@ -243,7 +243,7 @@
 		 if(currentQty===itemStock){
 			errorMsg.classList.remove('d-none');
 			errorMsg.classList.add('block');
-			errorMsg.innerText=` product is  out of stock ${itemStock} is available`;
+			errorMsg.innerText=` "${productName}" is  out of stock, ${itemStock} is available`;
 			currentQty=itemStock;
 			return;
 		}

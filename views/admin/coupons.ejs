@@ -9,7 +9,7 @@
                         <h6 class="text-center mb-0">Create Coupon</h6>
                     </div> 
                     <div class="card-body ">
-                        <form id="couponForm" action ='/admin/createCoupon/' method="post">
+                        <form id="couponForm" action ='/admin/createCoupon/' onsubmit="return formSubmit(event)">
                             <%if(locals.message && message.length>0){%>
                                 <div class="alert alert-danger text-center">
                                   <%=message%>
@@ -109,8 +109,8 @@
             </div>
         </div>
     </div>
-
-    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
        document.querySelectorAll('.error-message').forEach((element)=>(element.innerHTML=""));
         function validateForm(){
@@ -142,8 +142,58 @@
         document.getElementById('startOn').value=`${year}-${month}-${day}`;
 
      }
-    
+     async function formSubmit(event){       
+        event.preventDefault();
+        if(!validateForm){         
+            return ;
+        }
+       const couponCode= document.getElementById('couponCode').value;
+       const startOn= document.getElementById('startOn').value;
+       const expireOn= document.getElementById('expireOn').value;    
+       const discountValue= parseFloat(document.getElementById('discountValue').value);  
+        const minimumPrice= parseFloat(document.getElementById('minimumPrice').value);  
+           
+      
+        await fetch('/admin/createCoupon',{
+            method:'POST',
+            headers:{
+                'content-type':'application/json',
+            },
+            body:JSON.stringify({couponCode,startOn,expireOn,discountValue,minimumPrice})
+        })
+        .then((response)=>{
+            console.log(response);
+            if(!response.ok){
+              
+                return response.json().then(err=>{
+                    throw new Error(err.error);
+                })
+            }
+            return response.json(); 
+        })
+        .then((data)=>{
+           location.reload();
+        })
+        .catch((error)=>{
+            if(error.message==='Coupon already exist'){
+                Swal.fire({
+                    icon:'error',
+                    title:"Oops",
+                    text:'Coupon already exist',
+                    backdrop:false
+                })
+            }else{
+                Swal.fire({
+                    icon:'error',
+                    title:'Oops',
+                    text:'Error occured while Creating coupon',
+                    backdrop:false
+                })
+            }
 
+        })
+    
+     }
         function editCoupon(id) {
             const coupon = coupons.find(c => c.id === id);
             if (coupon) {
