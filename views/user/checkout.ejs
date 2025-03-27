@@ -22,6 +22,9 @@
     </div>
 </section>
     <div class="container py-4">
+        <%if(checkoutData.unavail.length>0){%>
+             <div id="order-error" class="alert alert-danger text-center "><%=checkoutData.unavail.length%> is out of stock	,check <a href="/shopingCart">Cart</a></div>
+        <%}%>
         <div id="order-error" class="alert alert-danger text-center d-none">	</div>
         <div class="row g-4">
             <!-- Left Column -->

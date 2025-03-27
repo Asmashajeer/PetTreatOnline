@@ -28,6 +28,10 @@ const cartSchema = new Schema({
         cancellationReason:{
             type:String,
             default:'none',
+        },
+        isAvailable:{
+            type:Boolean,
+            default:true
         }
     }],
     totalQty:{

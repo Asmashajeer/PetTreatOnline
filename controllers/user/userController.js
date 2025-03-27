@@ -13,6 +13,9 @@ const bcrypt= require('bcrypt');
 const Cart = require('../../models/cartSchema');
 const { session } = require('passport');
 const { STATUS_CODE,MESSAGE } = require('../../helpers/utils');
+
+
+
 //------ to generate  OTP-------
 function generateOtp(){
     return String(Math.floor(100000 + Math.random() *900000));
@@ -267,8 +270,7 @@ const resendOtp= async (req,res)=>{
         req.session.userOtp=otp;
         const emailSent = await sendVerificationEmail(email,otp);
        
-        if (emailSent){
-            console.log("Resend OTP",otp);
+        if (emailSent){           
             res.status(STATUS_CODE.SUCCESS).json({success:true,message:'OTP resend successfully'});
         }else{
             res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'Failed to resend OTP please try again'});

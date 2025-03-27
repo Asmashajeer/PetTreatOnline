@@ -12,8 +12,8 @@ const showCart=async(req,res)=>{
             console.log("user not signed in")
             return res.rdirect('/signIn');
         }
-        const myCart= await Cart.findOne({userId:userId}).populate('items.productId');
-        if(!myCart||myCart.items.length===0){            
+        let myCart= await Cart.findOne({userId:userId}).populate('items.productId');
+        if(!myCart||!myCart.items){            
             console.log("cart is empty");
             return res.render('shopingCart',{user:user,cartSize:req.session.cartSize});
         }
@@ -25,23 +25,27 @@ const showCart=async(req,res)=>{
                 const itemToReduce=currentProduct._id;                
                 reducedQuantity=item.quantity-currentProduct.stock;
                 item.quantity=currentProduct.stock;
-                reducedPrice= item.productId.salePrice*reducedQuantity;               
-                await Cart.updateOne({userId:userId,items:{$elemMatch:{productId:itemToReduce}}},
-                    {$inc:{'item.$.quantity':-reducedQuantity,totalQty:-reducedQuantity,totalPrice:-(reducedPrice)}},{new:true});
+                reducedPrice= item.productId.salePrice*reducedQuantity;   
+                console.log(itemToReduce,reducedQuantity,reducedPrice) ;           
+                await Cart.updateOne(
+                    { userId: userId, "items.productId": itemToReduce }, 
+                    {
+                        $set: { "items.$.quantity": currentProduct.stock }, // Update the quantity
+                        $inc: { totalQty: -reducedQuantity, totalPrice: -reducedPrice } // Decrease total qty & price
+                    }
+                );
                 
-            }else if(currentProduct.stock===0){``
+            }else if(currentProduct.stock===0){
                 console.log(`${currentProduct.productName} is out of stock`);
-                reducedQuantity=item.quantity;
-                reducedPrice= item.productId.price*reducedQuantity
-
-                myCart = await Cart.updateOne({userId:userId},
-                    {   $pull:{items:{productId: currentProduct._id}},
-                        $inc:{totalQty:-reducedQuantity,totalPrice:-reducedPrice}
-                    },{new:true});
-               
-            }      
-        }      
-        req.session.cartSize=myCart.items.length;
+                myCart = await Cart.updateOne({userId:userId,'items.productId':currentProduct._id},
+                    {$set:{"items.$.isAvailable":false}});           
+             } else{
+                myCart = await Cart.updateOne({userId:userId,'items.productId':currentProduct._id},
+                    {$set:{"items.$.isAvailable":true}}); 
+             }     
+        }   
+        myCart= await Cart.findOne({userId:userId}).populate('items.productId');  
+        req.session.cartSize=myCart?myCart.items.length:0;
         res.render('shopingCart',{cart:myCart,user:user,cartSize:req.session.cartSize,wList:req.session.wList});
    } catch (error) {
         console.error("unable fetch from Cart",error);

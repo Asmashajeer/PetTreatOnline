@@ -48,7 +48,10 @@
                     <button  onclick="retrypayment(event,'<%=order.orderId%>')" class="btn btn-warning" on >
                         <i class="fas fa-file-invoice"></i> Retry Payment
                     </button>
-                <%}%>    
+                <%}%>   
+                <a href="/" class="btn btn-sm" on >
+                    <i class="fas fa-home"></i> home
+                </a> 
                 <button  onclick="getInvoice('<%=order.orderId%>')" class="btn btn-success" on >
                     <i class="fas fa-file-invoice"></i> Invoice
                 </button>
@@ -480,4 +483,3 @@
     }
     </script>
 
-<%-include("../partials/user/footer.ejs") -%>

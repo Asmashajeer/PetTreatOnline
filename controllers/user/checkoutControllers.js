@@ -28,14 +28,19 @@ const loadCheckoutPage = async (req, res) => {
         const mycart= await Cart.findOne({userId:userData._id}).populate('items.productId');    
         if (!mycart){
             console.log('------no cart---------');
-            return res.redirect("/shop"); 
-            
+            return res.redirect("/shop");             
         }  
+        const unavail=mycart.items.filter(item=>item.productId.stock<item.quantity);
+        if(unavail.length>0){
+            
+            return res.redirect("/shopingCart");  
+           
+        }
         //---fetching address--  and coupons-------
         const [addressData, coupons] = await Promise.all([
             Address.findOne({ userId: userData._id }), // Fetch the address data
             Coupon.find({
-                // minimumPrice: { $lt: mycart.totalPrice },
+              
                 isActive: true,
                 startOn: { $lte: new Date() },
                 expireOn: { $gte: new Date() },
@@ -67,7 +72,7 @@ const loadCheckoutPage = async (req, res) => {
         }   
         req.session.checkoutData = {
             user: userData,
-          
+            unavail,
             orderItems: orderItems,
             totalPrice: totalPrice,
             discount: discount,

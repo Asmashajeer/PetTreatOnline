@@ -163,7 +163,7 @@
 												<i class="zmdi zmdi-account"></i><small>
 													<%=locals.user.name%></a></small>
 											</a>
-											<div class="dropdown-content">
+											<div class="dropdown-content ">
 												<a href='/profile'>Profile</a>
 												<a href="/logout">Logout</a>
 											</div>
@@ -247,14 +247,5 @@
 							</header>
 							
 		<script>
-			const allSearch=document.getElementById('allSearch');
-			allSearch.addEventListener('input',function(e){
-					searchInput=allSearch.value;
-					fetch(`/search?search=${searchInput}`)
-					.then(response=>response.json())
-					.then(data=>{
-						updateProductList(data)
-					}).catch(error=>console.error("Error fetching products:", error));
-				
-				})
+			
 		</script>										

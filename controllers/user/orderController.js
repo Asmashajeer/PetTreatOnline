@@ -43,7 +43,7 @@ const createOrder= async(req,res)=>{
         const unavail=mycart.items.filter(item=>item.productId.stock<item.quantity);
         
         if(unavail.length>0){
-            return res.json({success:false,message:"one or more  items in your cart is out of stock,check your Cart" });
+            return res.json({success:false,message:`${unavail.length}  items in your cart is out of stock,check your Cart` });
         }
          const orderItems=mycart.items.map(item=>({           
              product: item.productId._id, // Product ID

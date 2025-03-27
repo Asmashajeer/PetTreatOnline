@@ -69,12 +69,13 @@
 											
 											<%let itemTotal=item.productId.salePrice *item.quantity;%>
 										<td class="column-5"><span id="itemTotal-<%=item.productId._id%>">₹ <%=itemTotal.toFixed(2)%></span></td>
-										<%if(item.quantity>item.productId.stock){%>
-											<td class="badge badge-danger" style="font-size: 0.75rem">Out of Stock</td>										
+										<%if(item.isAvailable===false){%>
+											<td><span class="badge bg-danger" style="font-size: .7rem">Out of Stock</span></td>										
 										<%}%>
 										<td class="column-6"> <a href="/shoppingCart/deleteItem/<%=item.productId._id%>" onclick="return confirm('Do you want to remove this from cart?')"><i class="fs-20 text-danger zmdi zmdi-delete"></i></a>
 										</td>
-										<div id="error-message" class="alert alert-danger text-center d-none">	</div>
+										
+											<div id="error-message" class="alert alert-danger text-center d-none">	</div>
 											
 										</tr>
 									<%})%>
