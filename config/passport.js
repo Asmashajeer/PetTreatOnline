@@ -12,19 +12,25 @@ passport.use(new GoogleStrategy({
 },
 async (accessToken,refreshToken,profile,done)=>{
     try {
-        let user= await User.findOne({ $or: [{ googleId: profile.id }, { email: profile.emails[0].value }] });
-        if(user){
-          return done(null,user);
-        }else{
+        let user= await User.findOne({ email: profile.emails[0].value });
+        if(user){   
+            if (!user.googleId) {
+                // User exists with password, update to allow Google login too
+                user.googleId = profile.id;
+                
+                await user.save();
+              }    
+        
+        }else{ 
             user=new User({
                 name:profile.displayName,
                 email:profile.emails[0].value,
                 googleId:profile.id
 
             });
-            await user.save();
-            return done(null,user);
+            await user.save();           
         }
+        return done(null,user);
     } catch (error) {
         return done(error,null);
     }
@@ -34,7 +40,7 @@ async (accessToken,refreshToken,profile,done)=>{
 
 
 passport.serializeUser((user,done)=>{
-    done(null,user._id);
+    done(null,user.id);
 });
 
 passport.deserializeUser(async(id,done)=>{

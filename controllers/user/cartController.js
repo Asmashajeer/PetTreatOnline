@@ -10,13 +10,14 @@ const showCart=async(req,res)=>{
         const user=await User.findById({_id:userId});
         if(!user){
             console.log("user not signed in")
-            return res.rdirect('/signIn');
+            return res.redirect('/signIn');
         }
         let myCart= await Cart.findOne({userId:userId}).populate('items.productId');
         if(!myCart||!myCart.items){            
             console.log("cart is empty");
             return res.render('shopingCart',{user:user,cartSize:req.session.cartSize});
         }
+        
         for(let item of myCart.items){    //remove item which is outof stock from cart
             const currentProduct=await Product.findOne({_id:item.productId._id});
            

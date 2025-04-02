@@ -71,7 +71,9 @@
 										<td class="column-5"><span id="itemTotal-<%=item.productId._id%>">₹ <%=itemTotal.toFixed(2)%></span></td>
 										<%if(item.isAvailable===false){%>
 											<td><span class="badge bg-danger" style="font-size: .7rem">Out of Stock</span></td>										
-										<%}%>
+										<%}else if(item.productId.isBlocked){%>
+											<td><span class="badge bg-danger" style="font-size: .7rem">Product unavailable</span></td>	
+										<%}%>	
 										<td class="column-6"> <a href="/shoppingCart/deleteItem/<%=item.productId._id%>" onclick="return confirm('Do you want to remove this from cart?')"><i class="fs-20 text-danger zmdi zmdi-delete"></i></a>
 										</td>
 										

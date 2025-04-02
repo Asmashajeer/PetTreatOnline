@@ -50,7 +50,7 @@ router.post('/removeCategoryOffer',adminAuth,categoryController.removeCategoryOf
 
 //----------Brand Management------------
 router.get('/brands',adminAuth,brandController.getBrand);
-router.post('/addbrand',adminAuth,uploads.single('file'),brandController.addBrand);
+router.post('/addBrand',adminAuth,uploads.single('file'),brandController.addBrand);
 router.get('/blockBrand',adminAuth,brandController.blockBrand);
 router.get('/unblockBrand',adminAuth,brandController.unblockBrand);
 router.get('/deleteBrand',adminAuth,brandController.deleteBrand);
@@ -59,7 +59,7 @@ router.get('/deleteBrand',adminAuth,brandController.deleteBrand);
 router.get('/addProduct',adminAuth,productController.getAddProduct);
 router.post('/addProduct',adminAuth,uploads.array('productImages', 3),productController.addProduct);
 router.get('/products',adminAuth,productController.getAllProducts);
-// router.patch('/blockProduct/:id',adminAuth,productController.blockProduct);
+
 router.get('/blockProduct',adminAuth,productController.blockProduct);
 router.get('/unblockProduct',adminAuth,productController.unBlockProduct);
 router.get('/editProduct',adminAuth,productController.getEditProduct);

@@ -69,6 +69,7 @@ const listCategory= async (req,res)=>{
             const id=req.query.id;
            
             const updateResult=await Category.updateOne({_id:id},{$set:{isListed:true}});
+            const updateProducts=await Product.updateMany({category:id},{$set:{isBlocked:false}});
             if (updateResult)
                 { console.log("Success: Category updated"); 
     
@@ -87,8 +88,9 @@ const listCategory= async (req,res)=>{
 const unlistCategory= async(req,res)=>{
     try {
         const id=req.query.id;
-        console.log(  "categoryid  "+id);
+        
         const updateResult=await Category.updateOne({_id:id},{$set:{isListed:false}});
+        const updateProducts=await Product.updateMany({category:id},{$set:{isBlocked:true}});
         if (updateResult)
             { console.log("Success: Category updated"); 
 
@@ -129,7 +131,7 @@ const updateCategory= async(req,res)=>{
     try {
         const id= req.params.id;
         const{name,description}=req.body;
-        let cname=name.toUpperCase();
+        let cname=name.trim().toUpperCase();
         const existingCategory= await Category.findOne({name:cname});
         if(existingCategory){
            return  res.status(STATUS_CODE.BAD_REQUEST).render('editCategory',{category:existingCategory,message:"category exist please enter another name"});

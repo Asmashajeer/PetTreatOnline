@@ -11,16 +11,15 @@ const loadShopping= async(req,res)=>{
         if(user){
                 const userData= await User.findOne({_id:user})
         }        
-        const {categoryId}= req.query;
-      
+        const {categoryId}= req.query;      
     
         const categories= await Category.find({isListed:true});
         const query={
             isBlocked:false,
             stock:{$gt:0}
-        };            
-       if(categoryId){
-            query.category=categoryId;
+        };  
+        if(categoryId){           
+                query.category=categoryId;
         }  
         const productData=await Product.find(query).populate('category');
        
@@ -50,8 +49,9 @@ const productDetails=async (req,res)=>{
             const userId= req.session.user;
             const userData= await User.findById(userId);
             const productId=req.query.id;
+           
             const productData=await Product.findById({_id:productId}).populate('category');
-
+               
             const category = await Category.find({isListed:true});
             if(userData){
                  res.render('productDetails',{user:userData,product:productData,category:category,cartSize:req.session.cartSize,wList:req.session.wList});

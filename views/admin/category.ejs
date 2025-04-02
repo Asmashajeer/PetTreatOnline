@@ -156,7 +156,7 @@
         if(!validateForm){         
             return ;
         }
-        const name=document.getElementsByName('name')[0].value;
+        const name=document.getElementsByName('name')[0].value.trim();
         const description=document.getElementById('descriptionId').value;
         console.log(name,description);
         await fetch('/admin/addCategory',{
@@ -205,9 +205,7 @@
         clearErrorMessages();
         const name=document.getElementsByName('name')[0].value.trim();
         const description=document.getElementById('descriptionId').value.trim();
-        isValid=true;
-
-        alert("helloooooo");
+        isValid=true;       
         if(name===""){
             displayErrorMessages("name-error","please enter a name");
             isValid=false;            
@@ -246,7 +244,7 @@
         inputLabel:'Percentage',
         inputPlaceholder:'%',
       });
-      if(amount){
+      if(amount && amount<=50){
         const response= await fetch('/admin/addCategoryOffer',{
           method:'POST',
           headers:{'Content-Type':'application/json'},

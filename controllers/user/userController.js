@@ -20,6 +20,8 @@ const { STATUS_CODE,MESSAGE } = require('../../helpers/utils');
 function generateOtp(){
     return String(Math.floor(100000 + Math.random() *900000));
 }
+
+//------function to add referal rewards------------
 async function addRewards(referralcode,userId){
     
     const findReferer= await User.findOne({referralCode:referralcode});
@@ -29,7 +31,7 @@ async function addRewards(referralcode,userId){
     let transaction={
         transactionType:'Credit',      
         amount:reward.refererAmount,
-        description:`Referral reward credited for referring User - ${user}` 
+        description:`Referral reward credited for referring User - ${user.name}` 
     };
     //-----add reward to referer
     const refererReward= await Wallet.updateOne(
@@ -59,7 +61,7 @@ async function addRewards(referralcode,userId){
     })
     await refereeReward.save(); 
     
-    addTransaction(refereeReward._id,userId,'Credit',transaction.amount, 'Referal',transaction.description);   
+    addTransaction(refereeReward._id,userId,'Credit',transactions.amount, 'Referal',transactions.description);   
     console.log('reward added to referreee'); 
 }
 
@@ -110,9 +112,11 @@ const securePassword= async(password)=>{
 
 // ------Load Home Page-------------
 const loadHomePage =async (req,res)=>{
-    try{
-      
-        const user=req.session.user;
+    try{      
+        const user=req.session.user||req.user;
+        if(req.user)            
+            req.session.user=req.user.id;           
+       
         let cartSize=0;
         let wList=0;
        
@@ -176,7 +180,12 @@ const pageNotFound = async(req,res)=>{
 //---------------Load signup Page-----------
 const loadSignUp=async(req,res)=>{
   try{
-    res.render('register');
+    if (!req.session.user){
+        return  res.render('register');
+      }else{
+          res.redirect('/');
+      }
+    
   }
   catch(error){
     console.log('SignUp page not loading : ',error);

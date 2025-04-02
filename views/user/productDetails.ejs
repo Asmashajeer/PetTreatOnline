@@ -71,105 +71,107 @@
 						<h4 class="mtext-105 cl2 js-name-detail ">
 							<%=product.productName%>
 						</h4>
-						<div class="product-rating">
-							<div class="stars ">
-								<span class="star cl11">★</span> <!-- Repeat for full stars -->
-								<span class="star  cl11">★</span>
-								<span class="star  cl11">★</span>
-								<!-- Other stars here -->
-								 <span class="stext-109 ">3.5/5</span>
-							
+						<%if(!product.isBlocked){%>
+							<div class="product-rating">
+								<div class="stars ">
+									<span class="star cl11">★</span> <!-- Repeat for full stars -->
+									<span class="star  cl11">★</span>
+									<span class="star  cl11">★</span>
+									<!-- Other stars here -->
+									<span class="stext-109 ">3.5/5</span>
+								
+								</div>
+								
+								
 							</div>
-							
-							
-						  </div>
-						<span class="stext-112 cl3">
-							Brand : <%=product.brand%>
-						</span>
-						<div class=" p-r-50 p-t-5 p-lr-0-lg">
-							<%if(product.productOffer>0){%>
-								<s><%=product.regularPrice.toFixed(2)%></s>
-								<span class="text-danger"><b><%=product.salePrice.toFixed(2)%></b></span>											
-								<span class="badge rounded-pill bg-danger  ">Offer Price</span>
-							<%}else{%>
-								<%=product.salePrice.toFixed(2)%>
-							<%}%>		
+							<span class="stext-112 cl3">
+								Brand : <%=product.brand%>
+							</span>
+							<div class=" p-r-50 p-t-5 p-lr-0-lg">
+								<%if(product.productOffer>0){%>
+									<s><%=product.regularPrice.toFixed(2)%></s>
+									<span class="text-danger"><b><%=product.salePrice.toFixed(2)%></b></span>											
+									<span class="badge rounded-pill bg-danger  ">Offer Price</span>
+								<%}else{%>
+									<%=product.salePrice.toFixed(2)%>
+								<%}%>		
 
 
 
 
 
-							<!-- <p class="mtext-106 cl2">
-								$<%=product.salePrice%>
-							</p> -->
-							<div>
-								<span class="mtext-100 cl3">
-								weight : <%=product.weight%>
-								</span>
+								<!-- <p class="mtext-106 cl2">
+									$<%=product.salePrice%>
+								</p> -->
+								<div>
+									<span class="mtext-100 cl3">
+									weight : <%=product.weight%>
+									</span>
+								</div>
+								
 							</div>
+						
+						
+							<div class="p-t-10">
+								<%if(product.stock>0){%>
+									<span><strong><%=product.stock%></strong></span>
+									<input type="hidden" id="productStock" name="productStock" value="<%=product.stock%>">
+									<span class="mtext-100  cl13"><b> In-Stock</b></span>
+								<%}else{%>	
+									<span class="mtext-100  cl14"><b>Out Of-Stock</b></span>
+								<%}%>
+							<!--  -->
+							<div class="p-t-33">
+								<h6>Description</h6>
+								<p class="stext-102 cl3 p-t-23">
+									<%=product.description%>
+								</p>
+							</div>						
+							<div class="flex-w flex-l-m p-b-10">
 							
-						</div>
-						
-						
-						<div class="p-t-10">
-							<%if(product.stock>0){%>
-								<span><strong><%=product.stock%></strong></span>
-								<input type="hidden" id="productStock" name="productStock" value="<%=product.stock%>">
-								<span class="mtext-100  cl13"><b> In-Stock</b></span>
-							<%}else{%>	
-								<span class="mtext-100  cl14"><b>Out Of-Stock</b></span>
-							<%}%>
-						<!--  -->
-						<div class="p-t-33">
-							<h6>Description</h6>
-							<p class="stext-102 cl3 p-t-23">
-								<%=product.description%>
-							</p>
-						</div>
+								<div class="size-204 flex-w flex-m respon6-next">
+									<form id="addToCartForm">
+										<input type="hidden" name="productId" id="productId" value="<%= product._id %>">
+										<div class="wrap-num-product flex-l m-r-20 m-tb-10">
+											<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
+												<i class="fs-16 zmdi zmdi-minus"></i>
+											</div>
+											<input id="numOfproduct" class="mtext-104 cl3 txt-center num-product" type="number" name="numOfproduct" value="1" min="1" max="4">
 
-						
-						<div class="flex-w flex-l-m p-b-10">
-							
-							<div class="size-204 flex-w flex-m respon6-next">
-								<form id="addToCartForm">
-									<input type="hidden" name="productId" id="productId" value="<%= product._id %>">
-									<div class="wrap-num-product flex-l m-r-20 m-tb-10">
-										<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-											<i class="fs-16 zmdi zmdi-minus"></i>
+											<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
+												<i class="fs-16 zmdi zmdi-plus"></i>
+											</div>
+											
 										</div>
-										<input id="numOfproduct" class="mtext-104 cl3 txt-center num-product" type="number" name="numOfproduct" value="1" min="1" max="3">
-
-										<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
-											<i class="fs-16 zmdi zmdi-plus"></i>
+										<div  id="error-message" class="alert alert-danger text-center d-none">							
+										</div>
+										<div class="flex-l m-r-20 m-tb-10">
+											<%if(locals.user){%>
+												<button type="submit" id="addToCartButton" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail" title="Add to Cart">
+													Add to cart
+												</button>
+											<%}else{%>
+												<button type="submit" id="addToCartButton" disabled class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail" title="Add to Cart" >
+													Add to cart
+												</button>
+												<div class="ms-2 fs-14">Please <a  class ="badge badge-sm bg-warning text-dark shadow " href='/signIn'>sign in</a> to Add Cart!</div>
+											<%}%>
 										</div>
 										
-									</div>
-									<div  id="error-message" class="alert alert-danger text-center d-none">							
-									  </div>
-									<div class="flex-l m-r-20 m-tb-10">
-										<%if(locals.user){%>
-											<button type="submit" id="addToCartButton" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail" title="Add to Cart">
-												Add to cart
-											</button>
-										<%}else{%>
-											<button type="submit" id="addToCartButton" disabled class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail" title="Add to Cart" >
-												Add to cart
-											</button>
-											<div class="ms-2 text-info shadow fs-14">Please <a href='/signIn'>sign in</a> to Add Cart!</div>
-										<%}%>
-									</div>
+									</form>	
 									
-								</form>	
-								
-								<%if(locals.user){%>
-									<div class="flex-m bor9 p-r-10 mt-5">
-										<a href="#" onclick="addToWishlist('<%= product._id %>')" class="fs-26 cl1 hov-cl2 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100" data-tooltip="Add to Wishlist">
-											<b><i class="zmdi zmdi-favorite " id="favourite" title="Add to wishList"></i></b>
-										</a>
-									</div>
-								<%}%>	
+									<%if(locals.user){%>
+										<div class="flex-m bor9 p-r-10 mt-5">
+											<a href="#" onclick="addToWishlist('<%= product._id %>')" class="fs-26 cl1 hov-cl2 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100" data-tooltip="Add to Wishlist">
+												<b><i class="zmdi zmdi-favorite " id="favourite" title="Add to wishList"></i></b>
+											</a>
+										</div>
+									<%}%>	
+								</div>
 							</div>
-						</div>	
+						<%}else{%>	
+							<div class="text-danger">This product is unavailable</div>	
+						<%}%>	
 						</div>
 
 						<!--  -->

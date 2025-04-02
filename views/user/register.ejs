@@ -218,7 +218,7 @@
             const cpassVal=cpassid.value;
             const passPattern=/^(?=.*[A-Za-z])(?=.*\d).*$/;
 
-            if(passVal.length<=8){
+            if(passVal.length<8){
                 errorPassword.style.display='block';
                 errorPassword.innerHTML='Should contains 8 charactwers';
             }

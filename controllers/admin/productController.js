@@ -260,7 +260,7 @@ const  addProductOffer = async(req,res)=>{
         const {percentage,productId}=req.body;
         const product= await Product.findOne({_id:productId});
         const category=await Category.findOne({_id:product.category});
-        if(category.categortOffer>percentage){
+        if(category.categoryOffer>percentage){
             return res.json({status:false,message:"this product alreadyhas a categoryoffer"});
         }
         product.salePrice=product.salePrice-Math.floor(product.regularPrice*(percentage/100));
@@ -287,7 +287,7 @@ const  removeProductOffer = async(req,res)=>{
             //product.categoyOffer=0;
     }catch(error){
         console.log(MESSAGE.SERVER_ERROR,error);
-        res.redirect('/pageError');
+        res.redirect('/pageError'); 
     }
 }    
 

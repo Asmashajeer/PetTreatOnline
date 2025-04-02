@@ -9,7 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 
-  <!-- <link rel="stylesheet" href="https://unpkg.com/cropperjs/dist/cropper.css"> -->
+
  
   <style>
     #preview {
@@ -128,7 +128,7 @@
             <img id="imageToCrop2" class="img-fluid" />
             <button type="button" id="cropButton2" class="btn btn-primary mt-2">Crop</button>
           </div>
-          <!-- <div class="error-message" id="imageInput2-error"></div> -->
+          <div class="error-message" id="imageInput2-error"></div>
         </div>
         <div class="col-md-4 mb-3">
           <label for="imageInput3" class="form-label">Product Image 3:</label>
@@ -137,7 +137,7 @@
             <img id="imageToCrop3" class="img-fluid" />
             <button type="button" id="cropButton3" class="btn btn-primary mt-2">Crop</button>
           </div>
-          <!-- <div class="error-message" id="imageInput3-error"></div> -->
+          <div class="error-message" id="imageInput3-error"></div>
         </div>
       </div>
 
@@ -146,7 +146,7 @@
       <a href="/admin/products"class="btn btn-success mt-4" type="reset"> Cancel</a>
     </form>
   </div>
-  <!-- <script src="https://unpkg.com/cropperjs"></script> -->
+
   <script>
     document.addEventListener("DOMContentLoaded", function() {
         const form = document.querySelector('form');
@@ -159,8 +159,7 @@
                     // event.stopPropagation();
                 }else
                     console.log("form submitted");
-                   // window.location.href = "/admin/products";
-                
+                   // window.location.href = "/admin/products";              
                 
             });
 
@@ -223,6 +222,7 @@
 
     function validateForm() {
                 clearErrorMessages();
+                const minLength=20;
                 const name = document.getElementsByName('productName')[0].value;
                 const description = document.getElementById('description').value;
                 const brand = document.getElementsByName('brand')[0].value;
@@ -230,7 +230,9 @@
                 const saleprice = document.getElementsByName('salePrice')[0].value;
                 const weight = document.getElementsByName('weight')[0].value;
                 const category = document.getElementsByName('category')[0].value;
-                const images = document.getElementById('imageInput1')
+                const images1 = document.getElementById('imageInput1');
+                const images2 = document.getElementById('imageInput2');
+   
                 const stock=document.getElementsByName('stock')
                 let isValid = true
                 if (name.trim() === "") {
@@ -239,9 +241,10 @@
                 }else if (!/^(?=.*[A-Za-z]{5,}).*$/.test(name.trim())) {
                         displayErrorMessage('productName-error', 'Product name should contain  alphabetic characters.');
                             isValid = false;
-                    }         
-                    if (description.trim() === "") {
-                        displayErrorMessage('description-error', 'Please enter a product description.');
+                 }         
+                 if (description.trim() === ""||description.trim().length < minLength) {
+                       
+                        displayErrorMessage('description-error', 'Please enter a product description in 20 characters.');
                         isValid = false;
                     }          
     
@@ -258,7 +261,7 @@
                 }
     
     
-                if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
+                if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) <=0) {
                     displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
                     isValid = false;
                 }
@@ -268,16 +271,21 @@
                 }
     
     
-                if (weight.trim() === "") {
+                if (weight.trim() === ""|| weight.trim()==='0') {
                     displayErrorMessage('weight-error', 'Please enter a weight.');
                     isValid = false;
                 }
     
     
-                if (images.files.length === 0) {
+                if (images1.files.length === 0) {
                     displayErrorMessage("imageInput1-error",'Please select an image.');
                     isValid = false;
                 }
+                if (images2.files.length === 0) {
+                    displayErrorMessage("imageInput2-error",'Please select an image.');
+                    isValid = false;
+                }
+
                 return isValid;
         }
 

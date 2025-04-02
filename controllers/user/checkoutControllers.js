@@ -25,22 +25,20 @@ const loadCheckoutPage = async (req, res) => {
         }
         
          //---fetching Cart
-        const mycart= await Cart.findOne({userId:userData._id}).populate('items.productId');    
+        const mycart= await Cart.findOne({userId:userData._id}).populate('items.productId');
         if (!mycart){
             console.log('------no cart---------');
             return res.redirect("/shop");             
         }  
-        const unavail=mycart.items.filter(item=>item.productId.stock<item.quantity);
-        if(unavail.length>0){
-            
-            return res.redirect("/shopingCart");  
-           
+       
+        const unavail=mycart.items.filter(item=>item.productId.stock<item.quantity||item.productId.isBlocked);
+        if(unavail.length>0){            
+            return res.redirect("/shopingCart");             
         }
         //---fetching address--  and coupons-------
         const [addressData, coupons] = await Promise.all([
             Address.findOne({ userId: userData._id }), // Fetch the address data
-            Coupon.find({
-              
+            Coupon.find({              
                 isActive: true,
                 startOn: { $lte: new Date() },
                 expireOn: { $gte: new Date() },
@@ -63,7 +61,8 @@ const loadCheckoutPage = async (req, res) => {
                 subtotal: item.quantity * item.productId.salePrice, // Total for item
             }
         ));
-        const totalPrice = mycart.totalPrice; // Total price from cart   
+        // const totalPrice = mycart.totalPrice; // Total price from cart   
+        totalPrice=orderItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
 
        
         
@@ -77,11 +76,12 @@ const loadCheckoutPage = async (req, res) => {
             totalPrice: totalPrice,
             discount: discount,
             coupons: coupons,
-            deliveryPrice: deliveryPrice,
-            cartSize: req.session.cartSize,
-            wList: req.session.wList
-        };   
-        res.render("checkout", {user:userData,addressData:addressData,checkoutData:req.session.checkoutData});
+            deliveryPrice: deliveryPrice,           
+        };    
+       let cartSize=req.session.cartSize;
+       let  wList=req.session.wList;
+
+        res.render("checkout", {user:userData,addressData:addressData,checkoutData:req.session.checkoutData,cartSize,wList});
             // res.render("checkout", { user:userData,addressData,orderItems,totalPrice,discount,coupons,deliveryPrice,cartSize:req.session.cartSize,wList:req.session.wList});
 
        

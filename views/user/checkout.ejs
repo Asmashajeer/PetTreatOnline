@@ -25,7 +25,7 @@
         <%if(checkoutData.unavail.length>0){%>
              <div id="order-error" class="alert alert-danger text-center "><%=checkoutData.unavail.length%> is out of stock	,check <a href="/shopingCart">Cart</a></div>
         <%}%>
-        <div id="order-error" class="alert alert-danger text-center d-none">	</div>
+      
         <div class="row g-4">
             <!-- Left Column -->
             <div class="col-lg-8">
@@ -170,6 +170,7 @@
 
                     </div>
                 </div>
+                <div id="order-error" class="alert alert-danger text-center d-none">	</div>
             </div>
         </div>
     </div>
@@ -253,7 +254,7 @@
         if (addressOptions.length === 0) {
             orderError.classList.remove("d-none");
             orderError.classList.add("block");
-            orderError.textContent="No delivery address options available. Please add an address.";
+            orderError.innerHTML=`No delivery address available. Please add an address <a href="/addAddressCheckOut" > Add Address</a>`;
             return;
         }
 
@@ -274,13 +275,13 @@
             paymentMethod: paymentMethod,        
             discount:parseFloat(document.getElementById("discount").innerText)|| 0,
             deliveryPrice:parseFloat(document.getElementById("deliveryPrice").innerText) || 0,
-            orderPrice:parseFloat(document.getElementById("orderTotal").innerText),
+           
            
         };
-        console.log(orderData);      
+          
         try{     
             const response = await fetch("/createOrder", {
-            method: "POST",
+            method: "POST",                                                                                  
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderData),
             });

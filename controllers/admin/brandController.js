@@ -28,32 +28,26 @@ const  getBrand= async(req,res)=>{
 //----------------add new Brand-------------
 const addBrand =async(req,res)=>{
     try {
-            const brand=req.body.name.trim();
-            const findBrand=await Brand.findOne({ brand: { $regex: '^' + brand + '$', $options: 'i' }});
-            if(!findBrand){
-                const image=req.file.filename;
-               
+            const brand=req.body.name.trim().toLowerCase();
+            const findBrand=await Brand.findOne({ brandName: { $regex: '^' + brand + '$', $options: 'i' }});
+
+            if(findBrand){
+                console.log("This brand Already exist");
+                return res.status(STATUS_CODE.BAD_REQUEST).json({error:"Brand already exist"});                                   
+
+            }else{
+                const image=req.file.filename;               
                 const newBrand= new Brand({
                     brandName:brand,
                     brandImage:image
-                }); 
-              
-                const result=await newBrand.save();
-                if(result){
-                    res.redirect('/admin/brands');        
-                }else{
-                    console.log("error while saving");
-                }
-                       
-
-            }else{
-                console.log("This brand Already exist");
-                return res.status(STATUS_CODE.BAD_REQUEST).redirect('/admin/brands');
+                });               
+                await newBrand.save();
+                return res.status(STATUS_CODE.SUCCESS).json ({message:"new Brand Added successfully  "});          
             }
-    } catch (error) {
-        console.error(MESSAGE.SERVER_ERROR,error);
-        res.redirect('/admin/pageError');
-    }
+        } catch (error) {
+            console.error(MESSAGE.SERVER_ERROR,error);
+            return res.status(500).json({error:'Internal server error'});
+        }
 }
 
 //---------------- block a brand----------
@@ -61,7 +55,9 @@ const blockBrand= async(req,res)=>{
     try {
         const id= req.query.id;
         
-        const result=await Brand.updateOne({_id:id},{$set:{isBlocked:true}});
+        const result=await Brand.updateOne({_id:id},{$set:{isBlocked:true}}); 
+        const brand= await Brand.findOne({_id:id,isBlocked:true});
+        const products=await Product.updateMany({brand:brand.brandName},{$set:{isBlocked:true}});
         console.log(result);
         if(result)
             res.redirect('/admin/brands');
@@ -78,6 +74,8 @@ const unblockBrand= async(req,res)=>{
     try {
         const id= req.query.id;
         await Brand.updateOne({_id:id},{$set:{isBlocked:false}});
+        const brand= await Brand.findOne({_id:id,isBlocked:false});
+        const products=await Product.updateMany({brand:brand.brandName},{$set:{isBlocked:false}});
         res.redirect('/admin/brands');
         
     } catch (error) {

@@ -139,7 +139,7 @@
         inputLabel:'Percentage',
         inputPlaceholder:'%',
       });
-      if(amount){
+      if(amount && amount<=50){
         const response= await fetch('/admin/addProductOffer',{
           method:'POST',
           headers:{'Content-Type':'application/json'},

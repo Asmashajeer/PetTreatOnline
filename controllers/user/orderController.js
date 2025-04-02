@@ -28,7 +28,7 @@ const createOrder= async(req,res)=>{
     try {
         const userId=req.session.user;
        
-        const { addressId,paymentMethod, discount, deliveryPrice,orderPrice} = req.body;
+        const { addressId,paymentMethod, discount, deliveryPrice} = req.body;
         const user=await User.findById(userId);
         if(!user){
             console.login("user not found");
@@ -40,11 +40,12 @@ const createOrder= async(req,res)=>{
             console.log('No Cart!');
             return res.redirect("/cart");             
         }  
-        const unavail=mycart.items.filter(item=>item.productId.stock<item.quantity);
+        const unavail=mycart.items.filter(item=>item.productId.stock<item.quantity||item.productId.isBlocked);
         
         if(unavail.length>0){
-            return res.json({success:false,message:`${unavail.length}  items in your cart is out of stock,check your Cart` });
+            return res.json({success:false,message:`${unavail.length}  items in your cart is out of stock or unavailable ,check your Cart` });
         }
+      
          const orderItems=mycart.items.map(item=>({           
              product: item.productId._id, // Product ID
              productName: item.productId.productName,   // Product Name
@@ -53,7 +54,10 @@ const createOrder= async(req,res)=>{
              quantity: item.quantity,    // Quantity
              subtotal: item.quantity * item.productId.salePrice, // Total for item
          }));
-         const totalPrice = mycart.totalPrice;
+         const totalPrice = mycart.items.reduce((sum, item) => sum + (item.quantity * item.productId.salePrice), 0);
+        const orderPrice = totalPrice- discount+ deliveryPrice;
+        
+
        
         let coupon=null;
         if(req.session.coupon){
@@ -103,13 +107,13 @@ const createOrder= async(req,res)=>{
                         Coupon:coupon
                     });
                     await newOrder.save();  
-                    let description=`order placed with ID ${newOrder.orderId}`
+                    let description=`order placed `
                     addTransaction(newOrder.orderId,userId,'Credit',orderPrice, paymentMethod,description);
                     reduceStockOnOrder (userId,newOrder.orderId);
                     let transaction={
                         transactionType:'Debit',      
                         amount:orderPrice,
-                        description:`Purchased with order Number - # ${newOrder.orderId}` 
+                        description:`Purchased with Wallet` 
                     };
                      const puchaseWithWallet= await Wallet.updateOne(
                             {userId:userId},
@@ -141,7 +145,7 @@ const createOrder= async(req,res)=>{
                 Coupon:coupon
             });
             await newOrder.save();      
-            let description=`order placed with ID ${newOrder.orderId} COD Pending`;
+            let description=`order placed - COD Pending`;
             addTransaction(newOrder.orderId,userId,'Debit',orderPrice, paymentMethod,description);
             reduceStockOnOrder (userId,newOrder.orderId);
             req.session.checkoutData = null; // Clear session
@@ -176,7 +180,7 @@ async function verifyPayment(req,res){
            reduceStockOnOrder (userId,order.orderId);
            req.session.cartSize=0;
            await Order.findOneAndUpdate({orderId:order.orderId},{$set:{paymentStatus:'Paid'}});
-           let description=`order placed and payment received with ID ${order.orderId} `;
+           let description=`order placed and payment received `;
            addTransaction(order.orderId,userId,'Credit',order.orderPrice, 'razorpay',description);
            req.session.checkoutData = null; // Clear session
 
