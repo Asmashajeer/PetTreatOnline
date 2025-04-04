@@ -76,7 +76,7 @@
 												<td><span class="badge bg-danger" style="font-size: .7rem">Product unavailable</span></td>	
 											<%}%>
 												<td class="column-6"> <button type="button" onclick="deleteItemfromCart('<%=item.productId._id%>',event)"><i class="fs-20 text-danger zmdi zmdi-delete"></i></button>
-											<!-- <td class="column-6"> <a href="/shoppingCart/deleteItem/<%=item.productId._id%>" onclick="return confirm('Do you want to remove this from cart?')"><i class="fs-20 text-danger zmdi zmdi-delete"></i></a> -->
+											
 											</td>
 											
 												<div id="error-message" class="alert alert-danger text-center d-none">	</div>
@@ -362,7 +362,7 @@ function deleteItemfromCart(productId,event){
 												?`<td><span class="badge bg-danger" style="font-size: .7rem">Product unavailable</span></td>`
 											:''
 										}
-										<td class="column-6"> <button  onclick="deleteItemfromCart('${item.productId._id}')"><i class="fs-20 text-danger zmdi zmdi-delete"></i></button>	</td>
+										<td class="column-6"> <button  onclick="deleteItemfromCart('${item.productId._id}',event)"><i class="fs-20 text-danger zmdi zmdi-delete"></i></button>	</td>
 										
 										<div id="error-message" class="alert alert-danger text-center d-none">	</div>`
 									tbody.appendChild(tr); 					
