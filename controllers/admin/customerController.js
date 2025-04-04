@@ -70,14 +70,15 @@ const customerBlocked=async(req,res)=>{
                     return res.status(500).json({ message: "Failed to destroy session." });
                     }
                     console.log("user session destroyed");
-                    // return res.redirect('/logout');
+                    
                 }) ;
 
             }else{
                 console.log("there is no active session of user");
-                 res.redirect('/admin/users');
+                //  res.redirect('/admin/users');
+               
             }
-           
+            return res.json({success:true,message:'user blocked'});
         });
 
        
@@ -92,14 +93,13 @@ const customerUnblocked=async(req,res)=>{
     try {
         let id=req.query.id;
         const updateUser= await User.updateOne({_id:id},{$set:{isBlocked:false}});
-        res.redirect('/admin/users');
+        return res.status(STATUS_CODE.SUCCESS).json({success:true,message:'customer unblocked'});
     } catch (error) {
         console.log(MESSAGE.SERVER_ERROR,error);
-        res.render('pageError');
-    }
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'unable to unblock customer '});
 }
 
-
+}
 module.exports={
     customerInfo,
     customerBlocked,

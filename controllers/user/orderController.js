@@ -410,7 +410,7 @@ const cancelOrder= async(req,res)=>{
         if(userOrder.status!=='Delivered' && userOrder.status!=='Cancelled' ){
             if(userOrder.paymentStatus!=='Paid'){
                 const changeStatus=await Order.updateOne({orderId:orderId},{$set:{status:'Cancelled'}}); 
-                let description=`Cancelled a COD order with orderId  ${orderId}`;    
+                let description=`Cancelled a COD order `;    
                 addTransaction(orderId,userId,'Credit',userOrder.orderPrice, 'COD',description);                  
             }else{
                 let transaction={
@@ -486,7 +486,7 @@ const cancelAnItem= async(req,res)=>{
              let transaction={
                     transactionType:'Credit',      
                     amount:totalCancelledPrice,
-                    description:`cancelled an item:  ${updateProduct.productName}  from Order `,
+                    description:`cancelled an item:  ${updateProduct.productName}  `,
                     orderId:orderId
                 };
                 //-----add  to wallet

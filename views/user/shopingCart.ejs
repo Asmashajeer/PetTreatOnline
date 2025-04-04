@@ -24,7 +24,7 @@
 					<div class="m-l-25 m-r--38 m-lr-0-xl">
 						<% if (typeof cart !== 'undefined' && cart.items && cart.items.length > 0) { %>						
 							<div class="wrap-table-shopping-cart ">
-								<table class="table-shopping-cart">
+								<table id="cart" class="table-shopping-cart">
 									<tr class="table_head">
 										<th class="column-0 text-center">Sno:</th>
 										<th class="column-1">Product</th>
@@ -35,53 +35,55 @@
 										<th class="column-6"></th>
 									</tr>
 								
-									
-									<%let i=1;%>
-									<%cart.items.forEach(item=>{%>									
-										<tr class="table_row">
-											<td class="column-0 text-center"><%=i++%> 
-												<input type="hidden" name="productId" id="productId" value="<%=item.productId._id %>">
-												<input type="hidden"  id="stock-<%=item.productId._id%>" value="<%=item.productId.stock %>">
-											</td>
-											
-											<td class="column-1">
-												<div class="how-itemcart1">
-													<img src="uploads/re-image/<%=item.productId.productImages[0]%>" alt="IMG">
-												</div>
-											</td>
+									<tbody id="cartItems">
+										<%let i=1;%>
 										
-											<td class="column-2"><span id="productName-<%=item.productId.productName%>"><%=item.productId.productName%></span></td>
-											<td class="column-3 text-center"><span id="itemPrice-<%=item.productId._id%>"><%=item.productId.salePrice%></span></td>
-											<td class="column-4">
-												<div class="wrap-num-product flex-w m-l-auto m-r-0">
-													<div onclick="decreaseOne(`<%= item.productId._id %>`,event)" class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-														<i  class="fs-16 zmdi zmdi-minus"></i>														
-													</div>
-													<input  id='quantity-<%=item.productId._id%>'  class="mtext-104 cl3 txt-center num-product"  type="number" name="num-product1" value='<%=item.quantity%>' min="1">
-													<div onclick="increaseOne(`<%= item.productId._id %>`,`<%=item.productId.productName%>`,event)"  class=" btn-num-product-up  cl8 hov-btn3 trans-04 flex-c-m">
-														<i class="fs-16 zmdi zmdi-plus"></i>
-													</div>													
-												</div>											
+										<%cart.items.forEach(item=>{%>									
+											<tr id="cartTable" class="table_row">
+												<td class="column-0 text-center"><%=i++%> 
+													<input type="hidden" name="productId" id="productId" value="<%=item.productId._id %>">
+													<input type="hidden"  id="stock-<%=item.productId._id%>" value="<%=item.productId.stock %>">
+												</td>
 												
+												<td class="column-1">
+													<div class="how-itemcart1">
+														<img src="uploads/re-image/<%=item.productId.productImages[0]%>" alt="IMG">
+													</div>
+												</td>
+											
+												<td class="column-2"><span id="productName-<%=item.productId.productName%>"><%=item.productId.productName%></span></td>
+												<td class="column-3 text-center"><span id="itemPrice-<%=item.productId._id%>"><%=item.productId.salePrice%></span></td>
+												<td class="column-4">
+													<div class="wrap-num-product flex-w m-l-auto m-r-0">
+														<div onclick="decreaseOne(`<%= item.productId._id %>`,event)" class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
+															<i  class="fs-16 zmdi zmdi-minus"></i>														
+														</div>
+														<input  id='quantity-<%=item.productId._id%>'  class="mtext-104 cl3 txt-center num-product"  type="number" name="num-product1" value='<%=item.quantity%>' min="1">
+														<div onclick="increaseOne(`<%= item.productId._id %>`,`<%=item.productId.productName%>`,event)"  class=" btn-num-product-up  cl8 hov-btn3 trans-04 flex-c-m">
+															<i class="fs-16 zmdi zmdi-plus"></i>
+														</div>													
+													</div>											
+													
+												</td>
+			
+												<!-- </td> -->
+												
+												<%let itemTotal=item.productId.salePrice *item.quantity;%>
+											<td class="column-5"><span id="itemTotal-<%=item.productId._id%>">₹ <%=itemTotal.toFixed(2)%></span></td>
+											<%if(item.isAvailable===false){%>
+												<td><span class="badge bg-danger" style="font-size: .7rem">Out of Stock</span></td>										
+											<%}else if(item.productId.isBlocked){%>
+												<td><span class="badge bg-danger" style="font-size: .7rem">Product unavailable</span></td>	
+											<%}%>
+												<td class="column-6"> <button type="button" onclick="deleteItemfromCart('<%=item.productId._id%>',event)"><i class="fs-20 text-danger zmdi zmdi-delete"></i></button>
+											<!-- <td class="column-6"> <a href="/shoppingCart/deleteItem/<%=item.productId._id%>" onclick="return confirm('Do you want to remove this from cart?')"><i class="fs-20 text-danger zmdi zmdi-delete"></i></a> -->
 											</td>
-		
-											<!-- </td> -->
 											
-											<%let itemTotal=item.productId.salePrice *item.quantity;%>
-										<td class="column-5"><span id="itemTotal-<%=item.productId._id%>">₹ <%=itemTotal.toFixed(2)%></span></td>
-										<%if(item.isAvailable===false){%>
-											<td><span class="badge bg-danger" style="font-size: .7rem">Out of Stock</span></td>										
-										<%}else if(item.productId.isBlocked){%>
-											<td><span class="badge bg-danger" style="font-size: .7rem">Product unavailable</span></td>	
-										<%}%>	
-										<td class="column-6"> <a href="/shoppingCart/deleteItem/<%=item.productId._id%>" onclick="return confirm('Do you want to remove this from cart?')"><i class="fs-20 text-danger zmdi zmdi-delete"></i></a>
-										</td>
-										
-											<div id="error-message" class="alert alert-danger text-center d-none">	</div>
-											
-										</tr>
-									<%})%>
-									
+												<div id="error-message" class="alert alert-danger text-center d-none">	</div>
+												
+											</tr>
+										<%})%>
+									</tbody>
 								</table>
 							</div>
 							
@@ -154,7 +156,7 @@
 		</div>
 	</form>
 		
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 	const Qty=document.getElementById(`quantity-${productId}`);	
 	const errorMsg=document.getElementById('error-message');	
@@ -296,7 +298,99 @@ document.addEventListener("DOMContentLoaded", function() {
 
 });
 
+function deleteItemfromCart(productId,event){
+	event.preventDefault();
+	const errorMsg=document.getElementById('error-message');
+	const table=document.getElementById('cart');
+	const tbody=document.getElementById('cartItems');
+	const subtotal=document.getElementById('subtotal');
+	const  totalprice= document.getElementById('totalPrice');
+	Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you want to remove this item from your cart?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, remove it!',
+        cancelButtonText: 'Cancel',
+    }).then((result) => {
+        if (result.isConfirmed) {		
+			fetch(`/shoppingCart/deleteItem/${productId}`)			
+			.then(response => response.json())
+			.then(data => {
+				if (data.success) {  
+					let i=1;  
+					if(data.cart.items &&data.cart.items.length>0){        
+						tbody.innerHTML="";
+						data.cart.items.forEach(item=>{					
+							const tr = document.createElement('tr');
+							tr.innerHTML=`
+											<td class="column-0 text-center">${i++}
+												<input type="hidden" name="productId" id="productId-${item.productId._id}" value="${item.productId._id}">
+												<input type="hidden"  id="stock-${item.productId._id}" value="${item.productId.stock}">
+											</td>
+											
+											<td class="column-1">
+												<div class="how-itemcart1">
+													<img src="uploads/re-image/${item.productId.productImages[0]}" alt="IMG">
+												</div>
+											</td>
+										
+											<td class="column-2"><span id="productName-${item.productId.productName}">${item.productId.productName}</span></td>
+											<td class="column-3 text-center"><span id="itemPrice-${item.productId._id}">${item.productId.salePrice}</span></td>
+											<td class="column-4">
+												<div class="wrap-num-product flex-w m-l-auto m-r-0">
+													<div onclick="decreaseOne(${item.productId._id},event)" class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
+														<i  class="fs-16 zmdi zmdi-minus"></i>														
+													</div>
+													<input  id='quantity-${item.productId._id}'  class="mtext-104 cl3 txt-center num-product"  type="number" name="num-product1" value='${item.quantity}' min="1">
+													<div onclick="increaseOne(${item.productId._id},${item.productId.productName},event)"  class=" btn-num-product-up  cl8 hov-btn3 trans-04 flex-c-m">
+														<i class="fs-16 zmdi zmdi-plus"></i>
+													</div>													
+												</div>											
+												
+											</td>
 
+											
+											
+											
+										<td class="column-5"><span id="itemTotal-${item.productId._id}">₹${(item.productId.salePrice *item.quantity).toFixed(2)}</span></td>
+										${!item.isAvailable
+												?`<td><span class="badge bg-danger" style="font-size: .7rem">Out of Stock</span></td>`										
+											:item.productId.isBlocked
+												?`<td><span class="badge bg-danger" style="font-size: .7rem">Product unavailable</span></td>`
+											:''
+										}
+										<td class="column-6"> <button  onclick="deleteItemfromCart('${item.productId._id}')"><i class="fs-20 text-danger zmdi zmdi-delete"></i></button>	</td>
+										
+										<div id="error-message" class="alert alert-danger text-center d-none">	</div>`
+									tbody.appendChild(tr); 					
+													
+						});
+						subtotal.textContent=data.cart.totalPrice;
+						totalprice.textContent=data.cart.totalPrice;
+					}else{
+						table.innerHTML="";
+						table.innerHTML=`<div class="text-center p-t-40 p-b-40">
+								<h4>Your cart is empty 🛒</h4>
+								
+								</div>	`;
+								subtotal.textContent=0;
+								totalprice.textContent=0;
+					}	
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				errorMsg.innerText=` "${productName}"  can't remove from cart`;
+			});	
+		}
+		
+	
+	})
+	
+}
 </script>	
 	
 		

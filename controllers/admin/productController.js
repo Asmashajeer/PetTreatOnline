@@ -89,7 +89,7 @@ const addProduct=async(req,res)=>{
             const productData= await Product.find({
                 $or:[
                     {productName:{$regex:'.*'+search+'.*', $options: 'i'}},
-                    {brand:{$regex:'.*'+search+'.*', $options: 'i'}}                    
+                    {brand:{$regex:'.*'+search+'.*', $options: 'i'}}                                   
                 ],
             }).sort({createdAt:-1}).skip(skip).limit(limit*1).populate('category').exec();
                       
@@ -119,17 +119,18 @@ const addProduct=async(req,res)=>{
            const id=req.query.id;
              console.log('--------------------------');
             
-           const updatedProduct=await Product.findByIdAndUpdate(id,{isBlocked:true},{new:true});
+           const updatedProduct=await Product.findByIdAndUpdate(id,{$set:{isBlocked:true}},{new:true});
             if(updatedProduct){
                 console.log("Product blocked");
-                res.redirect('/admin/products');
+                return res.status(STATUS_CODE.SUCCESS).json({success:true,message:'product Blocked'});
             }else{
                 console.log('error while blocking');
+                return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'unable to Block product '});
             }
 
         } catch (error) {
               console.log('error while blocking');
-              res.redirect('/admin/pageError');
+              return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'unable to Block product '}); 
         }
 
     }
@@ -141,17 +142,18 @@ const addProduct=async(req,res)=>{
            const id=req.query.id;
              console.log('--------------------------');
             
-           const updatedProduct=await Product.findByIdAndUpdate(id,{isBlocked:false},{new:true});
+           const updatedProduct=await Product.findByIdAndUpdate(id,{$set:{isBlocked:false}},{new:true});
             if(updatedProduct){
-                console.log("Product unblocked");
-                res.redirect('/admin/products');
+                console.log("Product Listed");
+                return res.status(STATUS_CODE.SUCCESS).json({success:true,message:'Product Listed '});
             }else{
                 console.log('error while unblocking');
+                return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'unable to list product '});    
             }
 
         } catch (error) {
               console.log('error while unblocking');
-              res.redirect('/admin/pageError');
+              return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'unable to list product '}); 
         }
 
     }

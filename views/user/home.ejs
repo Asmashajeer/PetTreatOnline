@@ -262,7 +262,7 @@
 								<%if(product.productOffer>0){%>
 									<span class="offer-badge bg-danger   ">Offer</span>
 								<%}%>								
-								<img src="/uploads/re-image/<%=product.productImages[0]%>" alt="IMG-PRODUCT" class="align-items-end">								
+								<a href="/productDetails?id=<%=product._id%>" ><img src="/uploads/re-image/<%=product.productImages[0]%>" alt="IMG-PRODUCT" class="align-items-end"></a>								
 							</div>
 
 							<div class="block2-txt flex-w flex-t p-t-14">
@@ -282,7 +282,7 @@
 								</div>
 								<%if(locals.user){%>
 									<div class="block2-txt-child2 flex-r p-t-3">
-										<a href="" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" data-product-id="<%=product._id%>">
+										<a href="javascript:void(0);" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" data-product-id="<%=product._id%>">
 											<img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png" alt="ICON">
 											<img class="icon-heart2 dis-block trans-04 ab-t-l" src="images/icons/icon-heart-02.png" alt="ICON">
 										</a>
@@ -321,7 +321,7 @@
 										productCard.innerHTML = `
 											<div class="block2-pic hov-img0 product-card">
 												${product.productOffer > 0 ? '<span class="offer-badge bg-danger">Offer</span>' : ''}
-												<img src="/uploads/re-image/${product.productImages[0]}" alt="${product.productName}" />
+												<a href="/productDetails?id=${product._id}"><img src="/uploads/re-image/${product.productImages[0]}" alt="${product.productName}" /></a>
 											</div>
 											<div class="block2-txt flex-w flex-t p-t-14">
 												<a href="/productDetails?id=${product._id}" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">${product.productName}</a>

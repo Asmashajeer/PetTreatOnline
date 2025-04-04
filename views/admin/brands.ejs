@@ -59,17 +59,22 @@
                  
                   <td class="text-start">
                     <%if(brand.isBlocked){%>
-                      <span
-                        class="badge rounded-pill alert-danger"  style="width: 60px"  >Blocked</span>
+                      <span id="blocked_<%=brand._id%>" class="badge rounded-pill alert-danger " style="width: 60px">Blocked</span>
+                      <span id="active_<%=brand._id%>" class="badge rounded-pill alert-success d-none " style="width: 60px">Active</span>
                     <%}else{%>
-                      <span  class="badge rounded-pill alert-success"  style="width: 60px"    >Active</span  >
+                      <span id="blocked_<%=brand._id%>" class="badge rounded-pill alert-danger  d-none" style="width: 60px">Blocked</span>
+                      <span id="active_<%=brand._id%>" class="badge rounded-pill alert-success " style="width: 60px">Active</span>
                     <%}%>    
                   </td>
                   <td class="text-start">
-                    <%if(brand.isBlocked===false){%>                      
-                        <a href="/admin/blockBrand?id=<%=brand._id%>" class="btn btn-sm btn-outline-danger">Block</a>                      
-                    <%}else{%>                      
-                        <a href="/admin/unblockBrand?id=<%=brand._id%>" class="btn btn-sm btn-outline-success">Unblock</a>                     
+                    <%if(brand.isBlocked===false){%>  
+                      <button id="blockbrand_<%=brand._id%>"  onclick="blockBrand('<%=brand._id%>')" class="btn btn-sm btn-outline-danger">Block</button>    
+                      <button  id="unblockbrand_<%=brand._id%>"  onclick="unblockBrand('<%=brand._id%>')" class="btn btn-sm btn-outline-success d-none">Unblock</button>                  
+                                           
+                    <%}else{%>  
+                      <button id="blockbrand_<%=brand._id%>"  onclick="blockBrand('<%=brand._id%>')" class="btn btn-sm btn-outline-danger d-none">Block</button>    
+                      <button  id="unblockbrand_<%=brand._id%>"  onclick="unblockBrand('<%=brand._id%>')" class="btn btn-sm btn-outline-success ">Unblock</button>                 
+                                   
                     <%}%> 
                     <button   class="btn btn-sm "  style="width: 90px" onclick=" return confirmDelete()" >
                       <a href="/admin/deleteBrand?id=<%=brand._id%>" class="text-danger"> <i class="fas fa-trash-alt"></i></a>
@@ -152,5 +157,44 @@
         
   });
 
+  //----------------------block a brand--------------------
+  function blockBrand(brandId){
+    const blocked=document.getElementById(`blocked_${brandId}`);
+  const active=document.getElementById(`active_${brandId}`);
+    const blockbrand=document.getElementById(`blockbrand_${brandId}`);
+    const unblockbrand=document.getElementById(`unblockbrand_${brandId}`);
+    fetch(`/admin/blockBrand?id=${brandId}`)
+    .then(response=>response.json())
+    .then(data=>{
+      if(data.message){
+        blocked.classList.remove('d-none');
+        active.classList.add('d-none');
+        blockbrand.classList.add('d-none'); 
+        unblockbrand.classList.remove('d-none');          
+      }
+    })
+    .catch(error=>console.error("Error blocking brand:", error));	
+}
+
+
+//----------------------Unblock a brand--------------------
+
+function unblockBrand(brandId){
+  const blocked=document.getElementById(`blocked_${brandId}`);
+  const active=document.getElementById(`active_${brandId}`);
+    const blockbrand=document.getElementById(`blockbrand_${brandId}`);
+    const unblockbrand=document.getElementById(`unblockbrand_${brandId}`);
+    fetch(`/admin/unblockBrand?id=${brandId}`)
+    .then(response=>response.json())
+    .then(data=>{
+      if(data.message){
+        active.classList.remove('d-none');
+        blocked.classList.add('d-none');
+         unblockbrand.classList.add('d-none'); 
+        blockbrand.classList.remove('d-none');          
+      }
+    })
+    .catch(error=>console.error("Error blocking brand:", error));	
+}
 </script>
 <%- include("../../views/partials/admin/footer") %>

@@ -60,12 +60,13 @@ const blockBrand= async(req,res)=>{
         const products=await Product.updateMany({brand:brand.brandName},{$set:{isBlocked:true}});
         console.log(result);
         if(result)
-            res.redirect('/admin/brands');
+            return res.status(STATUS_CODE.SUCCESS).json({success:true,message:'brand blocked'});
         else
-            console.log("errorWHILE BLOCKING");
+            return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'unable to block brand'}); 
+
     } catch (error) {
         console.error(MESSAGE.SERVER_ERROR,error);
-        res.render('/pageError');
+         return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'unable to block brand '}); 
     }
 }
 
@@ -76,11 +77,11 @@ const unblockBrand= async(req,res)=>{
         await Brand.updateOne({_id:id},{$set:{isBlocked:false}});
         const brand= await Brand.findOne({_id:id,isBlocked:false});
         const products=await Product.updateMany({brand:brand.brandName},{$set:{isBlocked:false}});
-        res.redirect('/admin/brands');
+        return res.status(STATUS_CODE.SUCCESS).json({success:true,message:'brand umblocked'});
         
     } catch (error) {
         console.error(MESSAGE.SERVER_ERROR,error);
-        res.render('/pageError');
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'unable to unblock brand '}); 
     }
 }
 

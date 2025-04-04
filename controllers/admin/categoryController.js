@@ -66,20 +66,22 @@ const addCategory=async(req,res)=>{
 const listCategory= async (req,res)=>{
    
         try {
-            const id=req.query.id;
-           
+            const id=req.query.id;           
             const updateResult=await Category.updateOne({_id:id},{$set:{isListed:true}});
             const updateProducts=await Product.updateMany({category:id},{$set:{isBlocked:false}});
             if (updateResult)
-                { console.log("Success: Category updated"); 
-    
+                { 
+                    console.log("Success: Category updated"); 
+                    return res.status(STATUS_CODE.SUCCESS).json({success:true,message:'category listed'});
                  } else { 
                         console.log("Error: Category not found"); 
+                        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'unable to list category '});    
                 }
-           res.redirect('/admin/category');
+               
         } catch (error) {
            console.log(`error while listing`);
-           res.redirect('/pageError');
+           return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'unable to list category '});    
+                
         }
 }
 
@@ -92,15 +94,19 @@ const unlistCategory= async(req,res)=>{
         const updateResult=await Category.updateOne({_id:id},{$set:{isListed:false}});
         const updateProducts=await Product.updateMany({category:id},{$set:{isBlocked:true}});
         if (updateResult)
-            { console.log("Success: Category updated"); 
-
+            { 
+                console.log("Success: Category updated"); 
+                return res.status(STATUS_CODE.SUCCESS).json({success:true,message:'category unlisted'});
              } else { 
                     console.log("Error: Category not found"); 
+                    return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'unable to unlist category '});    
+                
             }
-       res.redirect('/admin/category');
+       
     } catch (error) {
        console.log(`error while unlisting`);
-       res.redirect('/pageError');
+       return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({success:false,message:'unable to list category '});    
+                
     }
 }
 

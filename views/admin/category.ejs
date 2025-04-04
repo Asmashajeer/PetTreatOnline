@@ -108,16 +108,20 @@
                     </td>
                       <td class="text-start">
                       <%if(category.isListed){%>
-                          <span class="badge rounded-pill alert-success" style="width: 60px">Listed</span>
+                          <span id="listed_<%=category._id%>" class="badge rounded-pill alert-success " style="width: 60px">Listed</span>
+                          <span id="unlisted_<%=category._id%>" class="badge rounded-pill alert-danger d-none" style="width: 60px">Unlisted</span>
                       <%}else{%>     
-                          <span class="badge rounded-pill alert-danger" style="width: 60px">Unlisted</span>
+                        <span class="badge rounded-pill alert-success d-none" style="width: 60px">Listed</span>
+                        <span class="badge rounded-pill alert-danger" style="width: 60px">Unlisted</span>
                       <%}%>   
                     </td>
                     <td class="text-start">
                     <%if(category.isListed){%>                      
-                        <a href="/admin/unlistCategory?id=<%=category._id%>" class="btn btn-sm btn-outline-danger">Unlist</a>                     
-                    <%}else{%>                                              
-                        <a href="/admin/listCategory?id=<%=category._id%>" class="btn btn-sm btn-outline-success">List</a>                     
+                        <button id="unlistcategory_<%=category._id%>"  onclick="unlistCategory('<%=category._id%>')" class="btn btn-sm btn-outline-danger">Unlist</button>    
+                        <button  id="listcategory_<%=category._id%>"  onclick="listCategory('<%=category._id%>')" class="btn btn-sm btn-outline-success d-none">List</button>                   
+                    <%}else{%>
+                      <button id="unlistcategory_<%=category._id%>"  onclick="unlistCategory('<%=category._id%>')" class="btn btn-sm btn-outline-danger d-none">Unlist</button>    
+                        <button  id="listcategory_<%=category._id%>"  onclick="listCategory('<%=category._id%>')" class="btn btn-sm btn-outline-success">List</button>                 
                     <%}%>    
                     </td>
                     <td class="text-start">
@@ -298,6 +302,45 @@ async function removeOffer(categoryId){
           }).catch((error)=>{Swal.fire("error",'error occured','error')});
       }
 
+function listCategory(categoryId){
+  const listed=document.getElementById(`listed_${categoryId}`);
+  const unlisted=document.getElementById(`unlisted_${categoryId}`);
+    const unlistcategory=document.getElementById(`unlistcategory_${categoryId}`);
+    const listcategory=document.getElementById(`listcategory_${categoryId}`);
+    fetch(`/admin/listCategory?id=${categoryId}`)
+    .then(response=>response.json())
+    .then(data=>{
+      if(data.message){
+        listed.classList.remove('d-none');
+        unlisted.classList.add('d-none');
+        listcategory.classList.add('d-none'); 
+        unlistcategory.classList.remove('d-none');          
+      }
+    })
+    .catch(error=>console.error("Error listing category:", error));	
+}
+
+
+
+
+function unlistCategory(categoryId){
+  const listed=document.getElementById(`listed_${categoryId}`);
+  const unlisted=document.getElementById(`unlisted_${categoryId}`);
+    const listcategory=document.getElementById(`listcategory_${categoryId}`);
+    const unlistcategory=document.getElementById(`unlistcategory_${categoryId}`);
+    fetch(`/admin/unlistCategory?id=${categoryId}`)
+    .then(response=>response.json())
+    .then(data=>{
+      if(data.message){
+        unlisted.classList.remove('d-none');
+        listed.classList.add('d-none');
+          listcategory.classList.remove('d-none');
+          listcategory.classList.add('d-block');                    
+          unlistcategory.classList.add('d-none');
+      }
+    })
+    .catch(error=>console.error("Error unlisting category:", error));	
+}
   </script>
 <%- include("../../views/partials/admin/footer") %>
 

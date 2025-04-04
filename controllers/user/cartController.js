@@ -242,13 +242,13 @@ const deleteFromCart=async(req,res)=>{
         const product=await Product.findById(productIdToDelete);
         if(!product){
             console.log("product T Delete  not found in productList");
-           return res.redirect('/shopingCart');
+            return res.status(400).json({ success: false,message: "product To Delete  not found in productList" });
         }
                  
         const userCart= await Cart.findOne({userId:userId});
         if(!userCart){
             console.log(" user Cart not Found");
-            return res.redirect('/shopingCart');
+            return res.json({success:false, message:"user Cart not Found."});
         }
      
         const itemToDelete=userCart.items.find(item=>item.productId.toString()===productIdToDelete);
@@ -263,15 +263,17 @@ const deleteFromCart=async(req,res)=>{
              
                 if(deletedProduct.modifiedCount>0){
                     console.log("product deleted from cart");
-
-                     return res.redirect('/shopingCart');
+                    const cart= await Cart.findOne({userId:userId}).populate('items.productId');
+                    req.session.cartSize=cart.items.length;
+                    return res.status(STATUS_CODE.SUCCESS).json({success:true, message: "item removed from cart successfully",cart });
                 }else{
                     console.log("product cannot  remove from cart");
+                    return res.json({success:false, message:"product cannot  remove from cart"});
                 }       
             
     }catch (error) {
       console.error(MESSAGE.SERVER_ERROR,error);
-      res.redirect('/pageNotFound');
+      return res.status(500).json({ success: false,message: "server error",error });
     }  
 
   

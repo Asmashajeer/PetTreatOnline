@@ -9,7 +9,7 @@
       <h6 class="text-center">All Customers</6>
     </div>
       <form action="/admin/users/" method="get" class="d-flex flex-column align-items-center ">
-        <div class="input-group input-group-sm border border-1 border-grey rounded-pill  px-0  " style="width: 550px;">
+        <div class="input-group input-group-sm border border-1 border-grey rounded-pill  px-0  " >
             <input type="text" class="form-control border-0 rounded-pill" placeholder="Search customers..." name="search">
             <button class="btn  border-0" type="submit">Search</button>
         </div>
@@ -30,9 +30,12 @@
                         <td><%=data[i].email%></td>                      
                         <td> 
                           <%if(data[i].isBlocked===false){%>                                
-                              <a href="/admin/blockCustomer?id=<%=data[i]._id%>" class="btn btn-sm btn-outline-danger" style="text-decoration: none;">Block</a>                               
-                          <%}else{%>    
-                              <a href="/admin/unblockCustomer?id=<%=data[i]._id%>" class="btn btn-sm btn-outline-success" style="text-decoration: none;">Unblock</a>                                
+                              <button id="blockuser_<%=data[i]._id%>"  onclick="blockUser('<%=data[i]._id%>')" class="btn btn-sm btn-outline-danger" style="text-decoration: none;">Block</button>                               
+                              <button id="unblockuser_<%= data[i]._id %>" onclick="unblockUser('<%= data[i]._id %>')" class="btn btn-sm btn-outline-success d-none">Unblock</button>
+            
+                          <%}else{%> 
+                            <button id="blockuser_<%=data[i]._id%>"  onclick="blockUser('<%=data[i]._id%>')" class="btn btn-sm btn-outline-danger d-none">Block</button>    
+                              <button id="unblockuser_<%=data[i]._id%>"  onclick="unblockUser('<%=data[i]._id%>')" class="btn btn-sm btn-outline-success" style="text-decoration: none;">Unblock</button>                                
                           <%}%>
                         </td>
                     </tr>
@@ -56,5 +59,39 @@
   </div>
 </div>         
 </div> 
-</div>         
+</div>    
+<script>
+function blockUser(userId){
+    const blockuser=document.getElementById(`blockuser_${userId}`);
+    const unblockuser=document.getElementById(`unblockuser_${userId}`);
+    fetch(`/admin/blockCustomer?id=${userId}`)
+    .then(response=>response.json())
+    .then(data=>{
+      if(data.message){
+        blockuser.classList.add('d-none'); 
+        unblockuser.classList.remove('d-none');          
+      }
+    })
+    .catch(error=>console.error("Error blocking user:", error));	
+}
+
+
+
+
+function unblockUser(userId){
+    const blockuser=document.getElementById(`blockuser_${userId}`);
+    const unblockuser=document.getElementById(`unblockuser_${userId}`);
+    fetch(`/admin/unblockCustomer?id=${userId}`)
+    .then(response=>response.json())
+    .then(data=>{
+      if(data.message){
+          blockuser.classList.remove('d-none');
+          blockuser.classList.add('d-block');                    
+          unblockuser.classList.add('d-none');
+      }
+    })
+    .catch(error=>console.error("Error unblocking user:", error));	
+}
+</script>     
+
   <%-include("../partials/admin/footer") -%>

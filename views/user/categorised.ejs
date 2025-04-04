@@ -124,7 +124,7 @@
 								<%if(product.productOffer>0){%>
 									<span class="offer-badge bg-danger   ">Offer</span>
 								<%}%>	
-								<img src="/uploads/re-image/<%=product.productImages[0]%>" alt="IMG-PRODUCT">								
+								<a href="/productDetails?id=<%=product._id%>"><img src="/uploads/re-image/<%=product.productImages[0]%>" alt="IMG-PRODUCT">	</a>							
 							</div>
 
 							<div class="block2-txt flex-w flex-t p-t-14">
@@ -182,7 +182,7 @@
 										// Set the innerHTML property with template literals
 										productCard.innerHTML = `
 											<div class="block2-pic hov-img0">
-												<img src="/uploads/re-image/${product.productImages[0]}" alt="${product.productName}" />
+												<a href="/productDetails?id=${product._id}"><img src="/uploads/re-image/${product.productImages[0]}" alt="${product.productName}" /></a>
 											</div>
 											<div class="block2-txt flex-w flex-t p-t-14">
 												<a href="/productDetails?id=${product._id}" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">${product.productName}</a>

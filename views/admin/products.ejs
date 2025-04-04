@@ -92,12 +92,15 @@
                     <td class="action-btns">   
                    
                         <%if(product.isBlocked===true){%>   
-                            <span class="badge rounded-pill alert-danger" style="width: 60px;color:rgb(119, 116, 116)">blocked</span>
-                            <a class="btn btn-success " href="/admin/unblockProduct?id=<%= product._id %>"><i class="fas fa-check-circle" title="UnBlock this product"></i></a>                             
+                            <span id="blocked_<%= product._id %>" class="badge rounded-pill alert-danger" style="width: 60px;color:rgb(246, 8, 8)">blocked</span>
+                            <button  id="listproduct_<%= product._id %>" class="btn btn-sm btn-outline-success " onclick="unblockProduct('<%= product._id %>')">List</button>  
+                            <span id="listed_<%= product._id %>" class="badge rounded-pill alert-success d-none" style="width: 60px;color:rgb(108, 106, 106) ">Listed</span>                           
+                            <button  id="blockproduct_<%= product._id %>" class="btn btn-sm btn-outline-danger d-none " onclick="blockProduct('<%= product._id %>')" >block</button> 
                         <%}else{%>
-                          <span class="badge rounded-pill alert-success" style="width: 60px;color:rgb(108, 106, 106) ">listed</span>
-
-                            <a class="btn btn-warning " href="/admin/blockProduct?id=<%= product._id %>" ><i class="fas fa-ban" style="color: #0f0f0e;" title="Block this product"></i></a> 
+                            <span id="blocked_<%= product._id %>" class="badge rounded-pill alert-danger d-none" style="width: 60px;color:rgb(246, 8, 8)">blocked</span>
+                            <button  id="listproduct_<%= product._id %>" class="btn btn-sm btn-outline-success d-none " onclick="unblockProduct('<%= product._id %>')">List</button>  
+                            <span id="listed_<%= product._id %>" class="badge rounded-pill alert-success" style="width: 60px;color:rgb(108, 106, 106) ">Listed</span>                           
+                            <button  id="blockproduct_<%= product._id %>" class="btn btn-sm btn-outline-danger " onclick="blockProduct('<%= product._id %>')" >block</button>  
                      
                          <%}%> 
                     </td> 
@@ -206,6 +209,44 @@
             }
         })      
     }
+//----------------------------list product---------------------
+function unblockProduct(productId){
+  const listed=document.getElementById(`listed_${productId}`);
+  const blocked=document.getElementById(`blocked_${productId}`);
+    const blockproduct=document.getElementById(`blockproduct_${productId}`);
+    const listproduct=document.getElementById(`listproduct_${productId}`);
+    fetch(`/admin/unblockProduct?id=${productId}`)
+    .then(response=>response.json())
+    .then(data=>{
+      if(data.message){
+        listed.classList.remove('d-none');
+        blocked.classList.add('d-none');
+        listproduct.classList.add('d-none'); 
+        blockproduct.classList.remove('d-none');          
+      }
+    })
+    .catch(error=>console.error("Error listing product:", error));	
+}
+
+
+//--------------------- block Product-------------------------
+function blockProduct(productId){
+  const listed=document.getElementById(`listed_${productId}`);
+  const blocked=document.getElementById(`blocked_${productId}`);
+    const blockproduct=document.getElementById(`blockproduct_${productId}`);
+    const listproduct=document.getElementById(`listproduct_${productId}`);
+    fetch(`/admin/blockProduct?id=${productId}`)
+    .then(response=>response.json())
+    .then(data=>{
+      if(data.message){
+       blocked .classList.remove('d-none');
+       listed .classList.add('d-none');
+        blockproduct.classList.add('d-none'); 
+        listproduct.classList.remove('d-none');          
+      }
+    })
+    .catch(error=>console.error("Error listing product:", error));	
+}
 
     </script>
     <%- include("../../views/partials/admin/footer") %>

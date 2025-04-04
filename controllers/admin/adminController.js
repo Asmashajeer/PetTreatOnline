@@ -22,19 +22,16 @@ const loadLogin=async (req,res)=>{
         res.render('adminLogin',{message:null});
     } catch (error) {
         console.log('error loading login page',error);
-        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/login');
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/admin/login');
     }
 }
   const login= async(req,res)=>{
     try {
         const {email,password}=req.body;
-        const  admin= await User.findOne({email,isAdmin:true});
-        console.log(admin);
+        const  admin= await User.findOne({email,isAdmin:true});    
         if(admin){
             const passwordMatch=await bcrypt.compare(password,admin.password);
-            if(passwordMatch){
-                console.log(password);
-                console.log(passwordMatch);
+            if(passwordMatch){           
                 req.session.admin=true;
                 return res.status(STATUS_CODE.SUCCESS).redirect('/admin/dashboard');
             }
@@ -156,6 +153,10 @@ const loadDashboard=async (req,res)=>{
             const orders= await Order.find().populate('userId').sort({createdOn:-1}).limit(10);
            
             res.render('dashBoard',{Total,orders,moment,topSellingProducts});
+        }else{
+
+          return res.redirect('/admin/login');
+
         }
     } catch (error) {
         console.log(MESSAGE.ERR_FETCH_DATA,error);
