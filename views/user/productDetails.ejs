@@ -9,7 +9,7 @@
 					<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
 				</a>
 
-				<a href="product.html" class="stext-109 cl8 hov-cl1 trans-04">
+				<a href="/categorised?id=<%=product.category._id%>"  class="stext-109 cl8 hov-cl1 trans-04">
 					<%=product.category.name%>
 					<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
 				</a>
@@ -334,11 +334,22 @@
 			fetch(`/addwishlist/${activeProduct}`,{method: 'GET',
 						headers: {	'Content-Type': 'application/json'}, 
 						})
-			.then((response)=>response.json())
+			.then((response)=>{
+				if (!response.ok) {
+            		// Check if the status is BAD_REQUEST (400)
+            		response.json().then((errorData) => {
+        				swal("Error", errorData.message, "error"); 
+    				});             		
+           			 
+        		}
+
+				return response.json();
+			
+			})
 			.then((data)=>{		
 					console.log(data.product);					
 					swal(data.product, "is added to wishlist !", "success");
-					favourite.style.color=green;
+					favourite.style.color='green';
 					favourite.disabled=true;
 				
 			})

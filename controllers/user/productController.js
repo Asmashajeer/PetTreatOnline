@@ -9,7 +9,7 @@ const loadShopping= async(req,res)=>{
         const cartSize=req.session.cartSize;
        
         if(user){
-                const userData= await User.findOne({_id:user})
+                const userData= await User.findOne({_id:user});
         }        
         const {categoryId}= req.query;      
     

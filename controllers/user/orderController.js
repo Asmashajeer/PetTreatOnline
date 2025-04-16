@@ -231,6 +231,8 @@ async function reduceStockOnOrder (userId,orderId){
 const orderSuccess =async (req,res)=>{
    try {
         const orderId=req.query.id;
+        const userId=req.session.user;
+        const user=await User.findById(userId);
         console.log(`orderId:${orderId}`);
         let order=await Order.findOne({orderId:orderId});
         if(!order){
@@ -246,7 +248,7 @@ const orderSuccess =async (req,res)=>{
        if(orderData.modifiedCount>0){        
             order=await Order.findOne({orderId:orderId});
 
-            res.render('orderSuccess',{orderData:order,moment});
+            res.render('orderSuccess',{user:user,orderData:order,moment});
        }else
             console.log("Add  invoice number to order failed") ;
     } catch (error) {

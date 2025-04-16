@@ -26,11 +26,12 @@ const addWishlist=async(req,res)=>{
             return res.status(STATUS_CODE.SUCCESS).json({success:true,product:product.productName});
 
         }else{
-            wishlist.products.forEach((product)=>{
-                if(product.toString()===productId.toString()){
-                    return res.status(STATUS_CODE.BAD_REQUEST).json({SUCCESS:false,message:'product is already in wishlist'});
+           for (let item of wishlist.products){          
+                if((item.productId).toString()===productId.toString()){
+                    console.log("error");
+                    return res.status(STATUS_CODE.BAD_REQUEST).json({success:false,message:'product is already in wishlist'});
                 }
-            })
+            }
             wishlist.products.push({productId});
             await wishlist.save();
             req.session.wList=wishlist.products.length;

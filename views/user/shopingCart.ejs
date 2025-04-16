@@ -146,7 +146,7 @@
 								</div>
 							</div>
 
-							<button  type="submit" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
+							<button id="submit" type="submit" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
 								Proceed to Checkout
 							</button>
 						<%}%>	
@@ -378,6 +378,8 @@ function deleteItemfromCart(productId,event){
 								</div>	`;
 								subtotal.textContent=0;
 								totalprice.textContent=0;
+								document.getElementById("submit").disabled=true;
+
 					}	
 				}
 			})
