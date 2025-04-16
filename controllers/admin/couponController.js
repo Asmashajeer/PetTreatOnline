@@ -9,10 +9,10 @@ const loadCoupon = async(req,res)=>{
         const page= req.query.page || 1;                      
         const limit=4;
         const skip=(page-1)*limit;
-        const allCoupons= await Coupon.find({}).skip(skip).limit(limit*1).exec(); 
-        console.log(allCoupons);
+        const allCoupons= await Coupon.find({}).sort({startOn:-1}).skip(skip).limit(limit*1).exec(); 
+        
         const count= await Coupon.find({}).countDocuments();  
-        console.log(count);
+       
         const totalPages=Math.ceil(count/limit); 
 
         return res.render('coupons',{coupons:allCoupons,currentPage:page,totalProducts:count,totalPages:totalPages});
@@ -29,7 +29,7 @@ const createCoupon =async(req,res)=>{
     try {
      
         const {couponCode,startOn,expireOn,discountValue,minimumPrice}=req.body;
-        console.log(couponCode,startOn,expireOn,discountValue,minimumPrice);
+       
 
         const allCoupons= await Coupon.find({});
       

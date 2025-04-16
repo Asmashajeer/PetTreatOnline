@@ -24,7 +24,11 @@ router.get('/login',adminController.loadLogin);
 router.post('/login',adminController.login);
 router.get('/',adminAuth,adminController.loadDashboard);
 router.get('/dashboard',adminAuth,adminController.loadDashboard);
+
+router.get('/changeAdminPassword',adminAuth,adminController.changeAdminPasswordPage);
+router.post('/changeAdminPassword',adminAuth,adminController.updatePassword);
 router.get('/logout',adminController.logOut);
+
 
 
 //-----------------admin dashBoard------------------

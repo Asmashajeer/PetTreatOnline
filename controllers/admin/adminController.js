@@ -9,7 +9,7 @@ const User=require('../../models/userSchema');
 const Address = require('../../models/addressSchema');
 const Category= require('../../models/categorySchema');
 const moment = require('moment'); 
-const {STATUS_CODE,MESSAGE}=require('../../helpers/utils');
+const {STATUS_CODE,MESSAGE,securePassword}=require('../../helpers/utils');
 
 
 
@@ -173,18 +173,67 @@ const logOut=async(req,res)=>{
         req.session.destroy((err=>{
             if(err){
                 console.log("Erroe destroying seession",err);
-                res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/pageError');
+                res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/admin/pageError');
             }
             res.redirect('/admin/login');
         }))
     } catch (error) {
         console.log(MESSAGE.UNEXP_ERR,error);
-        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/pageError');
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/admin/pageError');
     }
 }
 
+//-------------Change Admin password--------------------
+const changeAdminPasswordPage =async (req,res)=>{
+    try {
+       if(req.session.admin){
+            const user=await User.findOne({isAdmin:true});
+            res.render('changeAdminPassword');
+       }
+    } catch (error) {
+        console.log("change Password Error",error);
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/admin/pageError');
+    }
+}
+//-----update password--------------
+const updatePassword =async (req,res)=>{
+    try {
+        const {currentpassword,newpassword,confirmpassword}=req.body;
+       if(req.session.admin){          
+        
+            if(newpassword!==currentpassword)
+            {    
+                const findAdmin= await User.findOne({isAdmin:true});
+                
+                if(findAdmin){
+                    const passwordMatch=await  bcrypt.compare(currentpassword,findAdmin.password);
+                    
+                    if(!passwordMatch){
+                    return res.render('changegit AdminPassword',{message:'currentpassword not match'}); 
+                    }
+                    const secuPassword=await securePassword(newpassword);
+                    if(!secuPassword){
+                        return res.render('changeAdminPassword',{message:"hashing of password faILED"})
+                    }
+                
+                    const updatePass=await User.updateOne({_id:findAdmin._id,isAdmin:true},{$set:{password:secuPassword}});
+                    if(updatePass.modifiedCount>0){
+                        console.log("password Updated!");
+                        res.redirect('/admin/dashboard');
+                    }else{
+                        console.log("ERROR:PASSWORD UPDATION FAILED");
+                        return res.render('changeAdminPassword',{message:'error while updating password '}); 
+                    }
+                }
 
+            }
+       }
+    } catch (error) {        
+        console.log("change Password Error",error);
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).redirect('/admin/pageError');
+    }
 
+}
 
 
 
@@ -391,6 +440,8 @@ module.exports={
     loadDashboard,
     pageError,
     logOut,
+    changeAdminPasswordPage,
+    updatePassword,
    getChartData,
     getChartData1
     
